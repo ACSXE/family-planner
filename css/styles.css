@@ -95,10 +95,9 @@ button { cursor: pointer; }
   box-shadow: 0 10px 30px rgba(16, 32, 56, .10);
   padding: 32px 28px 28px;
 }
-.login__brand { display: flex; align-items: center; justify-content: center; gap: 10px; color: var(--primary); }
+.login__brand { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 28px; color: var(--primary); }
 .login__brand h1 { margin: 0; font-size: 24px; color: var(--text); }
 .login__brand .logo { width: 32px; height: 32px; }
-.login__subtitle { text-align: center; color: var(--text-muted); margin: 8px 0 24px; font-size: 14px; }
 .login__error {
   margin: 0 0 16px; padding: 10px 12px; border-radius: var(--radius-sm);
   background: var(--danger-soft); color: var(--danger); border: 1px solid #f2c4c4; font-size: 14px;
