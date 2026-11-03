@@ -478,7 +478,22 @@
     toastTimer = setTimeout(() => t.classList.remove('is-visible'), 2400);
   }
 
+  // ---------- Side Navigation ----------
+  function showView() {
+    const view = location.hash === '#reports' ? 'reports' : 'planner';
+    document.querySelectorAll('.sidenav__item').forEach((a) => {
+      const active = a.dataset.view === view;
+      a.classList.toggle('is-active', active);
+      if (active) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+    });
+    $('fcl').hidden = view !== 'planner';
+    $('reports-view').hidden = view !== 'reports';
+    if (view === 'planner') applyLayout();
+  }
+  window.addEventListener('hashchange', showView);
+
   // ---------- Inicio ----------
+  showView();
   renderCalendar();
   applyLayout();
   const cur = $('months').querySelector('.month.is-current');
