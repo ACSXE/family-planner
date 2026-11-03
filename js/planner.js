@@ -85,11 +85,27 @@
   const cols = [$('col1'), $('col2'), $('col3')];
   const sepA = $('sep-a'), sepB = $('sep-b');
   const form = $('detail-form');
-  const f = { name: $('f-name'), desc: $('f-desc'), date: $('f-date'), start: $('f-start'), end: $('f-end'), att: $('f-attendees') };
+  const f = { name: $('f-name'), desc: $('f-desc'), date: $('f-date'), start: $('f-start'), end: $('f-end'), att: $('f-attendees'), companion: $('f-companion') };
 
   $('user-name').textContent = session.name || session.username;
 
   // Leyenda y checkboxes de asistentes
+  MEMBERS.filter((m) => m.canAccompany).forEach((m) => {
+    f.companion.append(h('option', { value: m.id }, m.name));
+  });
+
+  // "Acompañante" es obligatorio si y solo si asiste alguien marcado con needsCompanion
+  function companionRequired() {
+    return [...f.att.querySelectorAll('input:checked')].some((cb) => memberById[cb.value]?.needsCompanion);
+  }
+  function updateCompanionRequired() {
+    const required = companionRequired();
+    $('companion-req').hidden = !required;
+    f.companion.required = required;
+    f.companion.setAttribute('aria-required', String(required));
+  }
+  f.att.addEventListener('change', updateCompanionRequired);
+
   MEMBERS.forEach((m) => {
     $('legend').append(h('li', { style: `--c:${m.color}` }, h('span', { class: 'dot' }), m.name));
     f.att.append(
@@ -261,7 +277,7 @@
     state.slot = startMin;
     state.draft = {
       id: null, name: '', description: '', date: state.date,
-      start: fromMin(startMin), end: fromMin(Math.min(startMin + 60, 23 * 60 + 59)), attendees: []
+      start: fromMin(startMin), end: fromMin(Math.min(startMin + 60, 23 * 60 + 59)), attendees: [], companion: ''
     };
     showDetail();
     f.name.focus({ preventScroll: true });
@@ -282,6 +298,8 @@
     f.start.value = d.start;
     f.end.value = d.end;
     f.att.querySelectorAll('input').forEach((cb) => { cb.checked = d.attendees.includes(cb.value); });
+    f.companion.value = memberById[d.companion]?.canAccompany ? d.companion : '';
+    updateCompanionRequired();
     $('btn-delete').hidden = !d.id;
     resetDelete();
     setFormError('');
@@ -311,7 +329,8 @@
       date: f.date.value,
       start: f.start.value,
       end: f.end.value,
-      attendees: [...f.att.querySelectorAll('input:checked')].map((cb) => cb.value)
+      attendees: [...f.att.querySelectorAll('input:checked')].map((cb) => cb.value),
+      companion: f.companion.value
     };
     if (!data.name) return setFormError('Indica el nombre de la actividad.', f.name);
     if (!data.date) return setFormError('Indica la fecha.', f.date);
@@ -319,6 +338,10 @@
     if (!data.end) return setFormError('Indica la hora de fin.', f.end);
     if (toMin(data.end) <= toMin(data.start)) return setFormError('La hora de fin debe ser posterior a la de inicio.', f.end);
     if (!data.attendees.length) return setFormError('Selecciona al menos un asistente.', f.att.querySelector('input'));
+    if (companionRequired() && !data.companion) {
+      const kids = data.attendees.map((id) => memberById[id]).filter((m) => m?.needsCompanion).map((m) => m.name);
+      return setFormError(`Selecciona un acompañante: es obligatorio cuando ${kids.length > 1 ? 'asisten' : 'asiste'} ${kids.join(' y ')}.`, f.companion);
+    }
 
     const isNew = !data.id;
     if (isNew) { data.id = uid(); events.push(data); }
