@@ -283,6 +283,7 @@
     f.end.value = d.end;
     f.att.querySelectorAll('input').forEach((cb) => { cb.checked = d.attendees.includes(cb.value); });
     $('btn-delete').hidden = !d.id;
+    resetDelete();
     setFormError('');
     if (state.depth < 3) setDepth(3); else applyLayout();
     renderDay(false);
@@ -337,9 +338,22 @@
     toast(isNew ? 'Actividad creada' : 'Actividad actualizada');
   });
 
+  // Confirmación dentro de la página: primer clic arma el botón, segundo clic elimina
+  let deleteArmed = false;
+  function resetDelete() {
+    deleteArmed = false;
+    $('btn-delete').textContent = 'Eliminar';
+    $('btn-delete').classList.remove('is-armed');
+  }
   $('btn-delete').addEventListener('click', () => {
     if (!state.draft?.id) return;
-    if (!confirm(`¿Eliminar la actividad "${state.draft.name}"?`)) return;
+    if (!deleteArmed) {
+      deleteArmed = true;
+      $('btn-delete').textContent = 'Pulsa otra vez para eliminar';
+      $('btn-delete').classList.add('is-armed');
+      return;
+    }
+    resetDelete();
     events = events.filter((x) => x.id !== state.draft.id);
     persist();
     renderCalendar();
@@ -427,7 +441,7 @@
   });
 
   $('logout').addEventListener('click', () => {
-    sessionStorage.removeItem('fp.session');
+    try { sessionStorage.removeItem('fp.session'); } catch { /* nada que borrar */ }
     location.replace('index.html');
   });
 

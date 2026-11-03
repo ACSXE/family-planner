@@ -2,7 +2,9 @@
   'use strict';
 
   // Si ya hay sesión abierta, ir directamente al planner
-  if (sessionStorage.getItem('fp.session')) {
+  let hasSession = false;
+  try { hasSession = !!sessionStorage.getItem('fp.session'); } catch { /* almacenamiento no disponible */ }
+  if (hasSession) {
     location.replace('planner.html');
     return;
   }
@@ -25,7 +27,13 @@
 
     if (user) {
       // Login OK → página principal
-      sessionStorage.setItem('fp.session', JSON.stringify({ username: user.username, name: user.name }));
+      try {
+        sessionStorage.setItem('fp.session', JSON.stringify({ username: user.username, name: user.name }));
+      } catch {
+        errorBox.textContent = 'Este navegador no permite guardar la sesión. Desactiva el modo privado o permite los datos del sitio.';
+        errorBox.hidden = false;
+        return;
+      }
       location.href = 'planner.html';
       return;
     }

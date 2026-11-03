@@ -14,10 +14,11 @@ const FP_CONFIG = {
   ],
 
   members: [
-    { id: 'papa',   name: 'Papá',   color: '#2563eb' },
-    { id: 'mama',   name: 'Mamá',   color: '#db2777' },
-    { id: 'hijo1',  name: 'Hijo 1', color: '#16a34a' },
-    { id: 'hijo2',  name: 'Hijo 2', color: '#ea580c' }
+    // El "id" no se cambia para que las actividades ya guardadas sigan asociadas a cada persona
+    { id: 'papa',   name: 'Alberto', color: '#4fb3e8' }, // azul cielo
+    { id: 'mama',   name: 'Laura',   color: '#d4a5a5' }, // rosa palo
+    { id: 'hijo1',  name: 'Sergio',  color: '#dc2626' }, // rojo
+    { id: 'hijo2',  name: 'Pablo',   color: '#eab308' }  // amarillo
   ],
 
   // Hora a la que se posiciona la vista diaria al abrir un día
