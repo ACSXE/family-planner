@@ -246,7 +246,8 @@
         type: 'button',
         class: 'event' + (state.draft?.id === e.id ? ' is-selected' : '') + (height < 40 ? ' event--short' : ''),
         'data-id': e.id,
-        style: `--c:${color};top:${top}px;height:${height}px;left:calc(${(it.col / it.ncols) * 100}% + 2px);width:calc(${100 / it.ncols}% - 4px)`
+        title: `${e.name} · ${e.start} – ${e.end}`,
+        style: `--c:${color};top:${top}px;height:${height}px;left:calc((100% - var(--free)) * ${it.col / it.ncols} + 2px);width:calc((100% - var(--free)) / ${it.ncols} - 4px)`
       },
         h('span', { class: 'event__name' }, e.name),
         h('span', { class: 'event__time' }, `${e.start} – ${e.end}`)

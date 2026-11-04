@@ -278,7 +278,12 @@ button { cursor: pointer; }
   position: absolute; right: 8px; transform: translateY(-50%);
   font-size: 12px; color: var(--text-muted); font-variant-numeric: tabular-nums;
 }
-.timeline__area { position: relative; flex: 1; min-width: 0; border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
+.timeline__area {
+  /* Espacio libre a la derecha que las actividades nunca ocupan:
+     ahí siempre se puede pulsar la franja para crear otra actividad */
+  --free: 44px;
+  position: relative; flex: 1; min-width: 0; border-left: 1px solid var(--border); border-right: 1px solid var(--border);
+}
 .slot {
   position: absolute; left: 0; right: 0; padding: 0;
   border: 0; border-top: 1px dashed #e8ecf2; background: transparent;
