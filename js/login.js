@@ -16,6 +16,20 @@
 
   userInput.focus();
 
+  // Mostrar / ocultar contraseña
+  const toggle = document.getElementById('toggle-password');
+  toggle.addEventListener('click', () => {
+    const show = passInput.type === 'password';
+    passInput.type = show ? 'text' : 'password';
+    const label = show ? 'Ocultar contraseña' : 'Mostrar contraseña';
+    toggle.setAttribute('aria-label', label);
+    toggle.title = label;
+    toggle.setAttribute('aria-pressed', String(show));
+    toggle.querySelector('.eye-open').toggleAttribute('hidden', show);
+    toggle.querySelector('.eye-closed').toggleAttribute('hidden', !show);
+    passInput.focus();
+  });
+
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     const username = userInput.value.trim();

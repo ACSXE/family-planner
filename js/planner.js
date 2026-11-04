@@ -14,7 +14,14 @@
   const memberById = Object.fromEntries(MEMBERS.map((m) => [m.id, m]));
   const HOUR_PX = 60;          // alto de una hora en la vista diaria
   const SLOT_MIN = 30;         // duración de cada franja seleccionable
-  const STORE_KEY = 'fp.events.' + session.username;
+  const STORE_KEY = 'fp.events.' + session.username;   // cada usuario tiene su propia agenda
+  const DATA_VERSION = '2';           // al subir este número se borran las actividades guardadas
+  try {
+    if (localStorage.getItem('fp.dataVersion') !== DATA_VERSION) {
+      Object.keys(localStorage).filter((k) => k.startsWith('fp.events')).forEach((k) => localStorage.removeItem(k));
+      localStorage.setItem('fp.dataVersion', DATA_VERSION);
+    }
+  } catch { /* almacenamiento no disponible */ }
 
   /*
    * Flexible Column Layout
@@ -45,7 +52,7 @@
   const toMin = (t) => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
   const fromMin = (m) => `${pad(Math.floor(m / 60))}:${pad(m % 60)}`;
   const uid = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));
-  const longDate = (iso) => { const d = parseIso(iso); return `${pad(d.getDate())} de ${MONTHS[d.getMonth()]} de ${d.getFullYear()}`; };
+  const longDate = (iso) => { const d = parseIso(iso); return `${d.getDate()} de ${MONTHS[d.getMonth()]} de ${d.getFullYear()}`; };
 
   function h(tag, attrs, ...children) {
     const el = document.createElement(tag);
@@ -89,9 +96,12 @@
 
 
   // Leyenda y checkboxes de asistentes
-  MEMBERS.filter((m) => m.canAccompany).forEach((m) => {
-    f.companion.append(h('option', { value: m.id }, m.name));
-  });
+  const companions = MEMBERS.filter((m) => m.canAccompany);
+  companions.forEach((m) => f.companion.append(h('option', { value: m.id }, m.name)));
+  if (companions.length > 1) {
+    f.companion.append(h('option', { value: companions.map((m) => m.id).join(',') },
+      companions.map((m) => m.name).join(', ').replace(/, ([^,]*)$/, ' y $1')));
+  }
 
   // "Acompañante" es obligatorio si y solo si asiste alguien marcado con needsCompanion
   function companionRequired() {
@@ -295,7 +305,7 @@
     f.start.value = d.start;
     f.end.value = d.end;
     f.att.querySelectorAll('input').forEach((cb) => { cb.checked = d.attendees.includes(cb.value); });
-    f.companion.value = memberById[d.companion]?.canAccompany ? d.companion : '';
+    f.companion.value = [...f.companion.options].some((o) => o.value === d.companion) ? d.companion : '';
     updateCompanionRequired();
     $('btn-delete').hidden = !d.id;
     resetDelete();

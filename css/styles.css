@@ -100,6 +100,15 @@ button { cursor: pointer; }
 .login__brand { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 40px; color: var(--primary); }
 .login__brand h1 { margin: 0; font-size: 24px; color: var(--text); }
 .login__brand .logo { width: 32px; height: 32px; }
+.password { position: relative; }
+.field .password input { padding-right: 46px; }
+.password__toggle {
+  position: absolute; top: 50%; right: 4px; transform: translateY(-50%);
+  width: 38px; height: 34px; padding: 0; display: grid; place-items: center;
+  border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--text-muted);
+}
+.password__toggle:hover { background: var(--primary-soft); color: var(--primary); }
+.password__toggle svg { width: 20px; height: 20px; }
 .login__error {
   margin: 0 0 16px; padding: 10px 12px; border-radius: var(--radius-sm);
   background: var(--danger-soft); color: var(--danger); border: 1px solid #f2c4c4; font-size: 14px;
@@ -238,7 +247,7 @@ button { cursor: pointer; }
   position: absolute; right: 8px; transform: translateY(-50%);
   font-size: 12px; color: var(--text-muted); font-variant-numeric: tabular-nums;
 }
-.timeline__area { position: relative; flex: 1; min-width: 0; border-left: 1px solid var(--border); }
+.timeline__area { position: relative; flex: 1; min-width: 0; border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
 .slot {
   position: absolute; left: 0; right: 0; padding: 0;
   border: 0; border-top: 1px dashed #e8ecf2; background: transparent;

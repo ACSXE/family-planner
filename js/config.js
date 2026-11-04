@@ -10,17 +10,18 @@
  */
 const FP_CONFIG = {
   users: [
-    { username: 'familia', password: 'planner2026', name: 'Familia' }
+    { username: 'alberto_carrasco_sanchez@hotmail.com', password: 'alberto#01', name: 'Alberto Carrasco' },
+    { username: 'laura_clc@hotmail.com',                password: 'laura#02',   name: 'Laura Liz' }
   ],
 
   members: [
     // canAccompany: aparece en el desplegable "Acompañante"
     // needsCompanion: si asiste, el campo "Acompañante" es obligatorio
-    // El "id" no se cambia para que las actividades ya guardadas sigan asociadas a cada persona
-    { id: 'papa',   name: 'Alberto', color: '#4fb3e8', canAccompany: true }, // azul cielo
-    { id: 'mama',   name: 'Laura',   color: '#86d19a', canAccompany: true }, // verde clarito
-    { id: 'hijo1',  name: 'Sergio',  color: '#dc2626', needsCompanion: true }, // rojo
-    { id: 'hijo2',  name: 'Pablo',   color: '#eab308', needsCompanion: true }  // amarillo
+    // Las actividades guardan el "id": si se cambia, dejan de estar asociadas a esa persona
+    { id: 'alberto', name: 'Alberto', color: '#4fb3e8', canAccompany: true },   // azul cielo
+    { id: 'laura',   name: 'Laura',   color: '#86d19a', canAccompany: true },   // verde clarito
+    { id: 'sergio',  name: 'Sergio',  color: '#dc2626', needsCompanion: true }, // rojo
+    { id: 'pablo',   name: 'Pablo',   color: '#eab308', needsCompanion: true }  // amarillo
   ],
 
   // Hora a la que se posiciona la vista diaria al abrir un día
