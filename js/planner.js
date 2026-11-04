@@ -475,6 +475,34 @@
     location.replace('index.html');
   });
 
+  // ---------- Menú de usuario ----------
+  const fullName = session.name || session.username;
+  const initials = fullName.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
+  $('user-initials').textContent = initials;
+  $('user-initials-lg').textContent = initials;
+  $('user-fullname').textContent = fullName;
+  $('user-email').textContent = session.username;
+  $('user-button').setAttribute('aria-label', `Cuenta de ${fullName}`);
+  $('user-button').title = fullName;
+
+  function setUserMenu(open) {
+    $('user-menu').hidden = !open;
+    $('user-button').setAttribute('aria-expanded', String(open));
+    if (open) $('logout').focus();
+  }
+  $('user-button').addEventListener('click', (e) => { e.stopPropagation(); setUserMenu($('user-menu').hidden); });
+  document.addEventListener('click', (e) => {
+    if (!$('user-menu').hidden && !e.target.closest('#user-menu')) setUserMenu(false);
+  });
+  // Escape cierra primero el menú (antes que las columnas)
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !$('user-menu').hidden) {
+      e.stopImmediatePropagation();
+      setUserMenu(false);
+      $('user-button').focus();
+    }
+  }, true);
+
   // ---------- Toast ----------
   let toastTimer = 0;
   function toast(msg) {

@@ -24,7 +24,22 @@
       <span>Family Planner</span>
     </div>
     <div class="shellbar__user">
-      <button class="btn btn--shell" id="logout" type="button">Cerrar sesión</button>
+      <button class="avatar avatar--sm" id="user-button" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="user-menu">
+        <span id="user-initials"></span>
+      </button>
+      <div class="user-menu" id="user-menu" role="dialog" aria-label="Cuenta" hidden>
+        <div class="user-menu__body">
+          <span class="avatar avatar--lg" aria-hidden="true" id="user-initials-lg"></span>
+          <p class="user-menu__name" id="user-fullname"></p>
+          <p class="user-menu__email" id="user-email"></p>
+        </div>
+        <div class="user-menu__footer">
+          <button class="user-menu__logout" id="logout" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M7.1 6.3a8 8 0 1 0 9.8 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            Cerrar sesión
+          </button>
+        </div>
+      </div>
     </div>
   </header>
 

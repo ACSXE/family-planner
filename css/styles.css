@@ -59,8 +59,6 @@ button { cursor: pointer; }
 .btn--danger:hover { background: var(--danger-soft); }
 .btn--danger.is-armed { background: var(--danger); color: #fff; border-color: var(--danger); }
 .btn--block { width: 100%; }
-.btn--shell { color: var(--shell-text); border-color: rgba(255,255,255,.35); min-height: 32px; padding: 0 12px; font-weight: 500; }
-.btn--shell:hover { background: rgba(255,255,255,.12); }
 .btn--back { padding: 0 10px 0 6px; min-height: 34px; }
 
 .icon-btn {
@@ -127,7 +125,40 @@ button { cursor: pointer; }
 }
 .shellbar__brand { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 16px; }
 .shellbar__brand .logo { width: 22px; height: 22px; }
-.shellbar__user { display: flex; align-items: center; gap: 12px; font-size: 14px; }
+.shellbar__user { position: relative; display: flex; align-items: center; gap: 12px; font-size: 14px; }
+
+/* ---------- Avatar y menú de usuario ---------- */
+.avatar {
+  display: inline-grid; place-items: center; flex: none; border-radius: 50%;
+  background: var(--primary-soft); color: var(--primary); font-weight: 600; letter-spacing: .02em;
+}
+.avatar--sm { width: 34px; height: 34px; padding: 0; font-size: 14px; border: 2px solid rgba(255,255,255,.85); }
+.avatar--sm:hover, .avatar--sm[aria-expanded="true"] { box-shadow: 0 0 0 3px rgba(255,255,255,.35); }
+.avatar--lg { width: 84px; height: 84px; font-size: 32px; font-weight: 500; }
+.user-menu {
+  position: absolute; top: calc(100% + 12px); right: -4px; z-index: 60;
+  width: 330px; max-width: calc(100vw - 24px);
+  background: var(--surface); color: var(--text);
+  border: 1px solid var(--border); border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(16, 32, 56, .18);
+}
+/* flechita que apunta al avatar */
+.user-menu::before {
+  content: ""; position: absolute; top: -7px; right: 16px; width: 12px; height: 12px;
+  background: var(--surface); border-left: 1px solid var(--border); border-top: 1px solid var(--border);
+  transform: rotate(45deg);
+}
+.user-menu__body { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 28px 20px 20px; text-align: center; }
+.user-menu__body .avatar { margin-bottom: 12px; }
+.user-menu__name { margin: 0; font-size: 16px; font-weight: 700; }
+.user-menu__email { margin: 0; font-size: 13px; color: var(--text-muted); overflow-wrap: anywhere; }
+.user-menu__footer { display: flex; justify-content: flex-end; padding: 10px 12px; border-top: 1px solid var(--border); }
+.user-menu__logout {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 0 12px;
+  border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--primary); font-weight: 600;
+}
+.user-menu__logout:hover { background: var(--primary-soft); }
+.user-menu__logout svg { width: 18px; height: 18px; }
 
 .workspace { flex: 1; min-height: 0; display: flex; }
 .fcl { flex: 1; min-width: 0; min-height: 0; display: flex; background: var(--bg); }
