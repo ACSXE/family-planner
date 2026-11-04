@@ -271,9 +271,9 @@ button { cursor: pointer; }
 .day__dots i { width: 4px; height: 4px; border-radius: 50%; }
 /* Más de 4 actividades: número con el total en la esquina */
 .day__count {
-  position: absolute; top: -6px; right: -6px; z-index: 1;
-  min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px;
-  background: var(--text); color: #fff; font-size: 10px; line-height: 16px; font-weight: 700; text-align: center;
+  position: absolute; top: -8px; right: -8px; z-index: 1;
+  min-width: 13px; height: 13px; padding: 0 3px; border-radius: 7px;
+  background: var(--text); color: #fff; font-size: 8.5px; line-height: 13px; font-weight: 700; text-align: center;
 }
 .day.is-selected .day__count { background: #fff; color: var(--primary); box-shadow: 0 0 0 1px var(--primary); }
 .day.is-selected .day__dots i { box-shadow: 0 0 0 1px #fff; }
