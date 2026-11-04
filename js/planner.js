@@ -155,14 +155,15 @@
 
         const dots = evs.length
           ? h('span', { class: 'day__dots', 'aria-hidden': 'true' },
-              evs.slice(0, 3).map((e) => h('i', { style: `background:${(memberById[e.attendees[0]] || {}).color || '#64748b'}` })))
+              evs.slice(0, 4).map((e) => h('i', { style: `background:${(memberById[e.attendees[0]] || {}).color || '#64748b'}` })))
           : null;
+        const more = evs.length > 4 ? h('span', { class: 'day__count', 'aria-hidden': 'true' }, String(evs.length)) : null;
 
         grid.append(h('button', {
           type: 'button', class: cls.join(' '), 'data-date': date,
           'aria-pressed': String(date === state.date),
           'aria-label': `${d} de ${MONTHS[m]}${evs.length ? `, ${evs.length} ${evs.length === 1 ? 'actividad' : 'actividades'}` : ''}`
-        }, h('span', { class: 'day__num' }, String(d)), dots));
+        }, h('span', { class: 'day__num' }, String(d)), dots, more));
       }
 
       frag.append(h('section', { class: 'month' + (isCurrent ? ' is-current' : '') },

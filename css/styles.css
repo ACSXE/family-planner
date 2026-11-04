@@ -267,8 +267,15 @@ button { cursor: pointer; }
 .day.is-weekend { color: var(--weekend); }
 .day.is-today { border: 2px solid var(--primary); color: var(--primary); }
 .day.is-selected { background: var(--primary); border-color: var(--primary); color: #fff; }
-.day__dots { display: flex; gap: 2px; height: 5px; }
-.day__dots i { width: 5px; height: 5px; border-radius: 50%; }
+.day__dots { display: flex; gap: 1.5px; height: 4px; }
+.day__dots i { width: 4px; height: 4px; border-radius: 50%; }
+/* Más de 4 actividades: número con el total en la esquina */
+.day__count {
+  position: absolute; top: -6px; right: -6px; z-index: 1;
+  min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px;
+  background: var(--text); color: #fff; font-size: 10px; line-height: 16px; font-weight: 700; text-align: center;
+}
+.day.is-selected .day__count { background: #fff; color: var(--primary); box-shadow: 0 0 0 1px var(--primary); }
 .day.is-selected .day__dots i { box-shadow: 0 0 0 1px #fff; }
 
 /* ---------- Columna 2: vista horaria ---------- */
@@ -304,8 +311,11 @@ button { cursor: pointer; }
 .event:hover { background: color-mix(in srgb, var(--c) 20%, #fff); }
 .event.is-selected { box-shadow: 0 0 0 2px var(--c); }
 .event__name { font-weight: 700; font-size: 13px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.event__time { color: var(--text-muted); }
+.event__time { color: var(--text-muted); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .event--short { flex-direction: row; align-items: center; gap: 8px; padding-top: 1px; padding-bottom: 1px; }
+/* En actividades cortas manda el nombre: el horario se recorta o desaparece si no cabe */
+.event--short .event__name { flex: 0 1 auto; min-width: 0; }
+.event--short .event__time { flex: 1 1 0; min-width: 0; }
 .now-line { position: absolute; left: 0; right: 0; height: 2px; background: #e11d48; z-index: 3; pointer-events: none; }
 .now-line::before { content: ""; position: absolute; left: -5px; top: -4px; width: 10px; height: 10px; border-radius: 50%; background: #e11d48; }
 
