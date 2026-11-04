@@ -285,7 +285,7 @@
     state.slot = startMin;
     state.draft = {
       id: null, name: '', description: '', date: state.date,
-      start: fromMin(startMin), end: fromMin(Math.min(startMin + 60, 23 * 60 + 59)), attendees: [], companion: ''
+      start: fromMin(startMin), end: fromMin(Math.min(startMin + SLOT_MIN, 23 * 60 + 59)), attendees: [], companion: ''
     };
     showDetail();
     f.name.focus({ preventScroll: true });
@@ -380,7 +380,7 @@
     if (!state.draft?.id) return;
     if (!deleteArmed) {
       deleteArmed = true;
-      $('btn-delete').textContent = 'Pulsa otra vez para eliminar';
+      $('btn-delete').textContent = 'Pulsa para eliminar';
       $('btn-delete').classList.add('is-armed');
       return;
     }
