@@ -119,7 +119,6 @@ button { cursor: pointer; }
 .shellbar__brand { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 16px; }
 .shellbar__brand .logo { width: 22px; height: 22px; }
 .shellbar__user { display: flex; align-items: center; gap: 12px; font-size: 14px; }
-.shellbar__name { opacity: .9; }
 
 .workspace { flex: 1; min-height: 0; display: flex; }
 .fcl { flex: 1; min-width: 0; min-height: 0; display: flex; background: var(--bg); }
@@ -171,6 +170,7 @@ button { cursor: pointer; }
 .col__title { margin: 0; font-size: 18px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 #col1 .col__title { flex: 1; }
 .col__subtitle { margin: 0; font-size: 13px; color: var(--text-muted); }
+.col__subtitle--strong { font-weight: 700; color: var(--text); }
 .col__hint { margin: 4px 0 0; font-size: 12px; color: var(--text-muted); }
 .col__actions { display: flex; gap: 2px; flex: none; }
 .col__body { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; }
@@ -260,10 +260,7 @@ button { cursor: pointer; }
 .event.is-selected { box-shadow: 0 0 0 2px var(--c); }
 .event__name { font-weight: 700; font-size: 13px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .event__time { color: var(--text-muted); }
-.event__who { display: flex; gap: 3px; margin-top: 2px; }
-.event__who i { width: 8px; height: 8px; border-radius: 50%; }
 .event--short { flex-direction: row; align-items: center; gap: 8px; padding-top: 1px; padding-bottom: 1px; }
-.event--short .event__who { display: none; }
 .now-line { position: absolute; left: 0; right: 0; height: 2px; background: #e11d48; z-index: 3; pointer-events: none; }
 .now-line::before { content: ""; position: absolute; left: -5px; top: -4px; width: 10px; height: 10px; border-radius: 50%; background: #e11d48; }
 
@@ -300,7 +297,6 @@ button { cursor: pointer; }
 /* ---------- Móvil ---------- */
 @media (max-width: 600px) {
   .shellbar { padding: 0 12px; }
-  .shellbar__name { display: none; }
   .col__header { padding: 8px 12px; }
   .months { padding: 12px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
   .day { font-size: 14px; }

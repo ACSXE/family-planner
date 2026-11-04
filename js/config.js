@@ -18,7 +18,7 @@ const FP_CONFIG = {
     // needsCompanion: si asiste, el campo "Acompañante" es obligatorio
     // El "id" no se cambia para que las actividades ya guardadas sigan asociadas a cada persona
     { id: 'papa',   name: 'Alberto', color: '#4fb3e8', canAccompany: true }, // azul cielo
-    { id: 'mama',   name: 'Laura',   color: '#d4a5a5', canAccompany: true }, // rosa palo
+    { id: 'mama',   name: 'Laura',   color: '#86d19a', canAccompany: true }, // verde clarito
     { id: 'hijo1',  name: 'Sergio',  color: '#dc2626', needsCompanion: true }, // rojo
     { id: 'hijo2',  name: 'Pablo',   color: '#eab308', needsCompanion: true }  // amarillo
   ],

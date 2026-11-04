@@ -87,7 +87,6 @@
   const form = $('detail-form');
   const f = { name: $('f-name'), desc: $('f-desc'), date: $('f-date'), start: $('f-start'), end: $('f-end'), att: $('f-attendees'), companion: $('f-companion') };
 
-  $('user-name').textContent = session.name || session.username;
 
   // Leyenda y checkboxes de asistentes
   MEMBERS.filter((m) => m.canAccompany).forEach((m) => {
@@ -217,7 +216,7 @@
     const labels = h('div', { class: 'timeline__labels', 'aria-hidden': 'true' });
     const area = h('div', { class: 'timeline__area', style: `height:${24 * HOUR_PX}px` });
     for (let hr = 0; hr < 24; hr++) {
-      labels.append(h('span', { style: `top:${hr * HOUR_PX}px` }, hr === 0 ? '' : String(hr)));
+      labels.append(h('span', { style: `top:${hr * HOUR_PX}px` }, String(hr)));
     }
     for (let m = 0; m < 24 * 60; m += SLOT_MIN) {
       area.append(h('button', {
@@ -240,9 +239,7 @@
         style: `--c:${color};top:${top}px;height:${height}px;left:calc(${(it.col / it.ncols) * 100}% + 2px);width:calc(${100 / it.ncols}% - 4px)`
       },
         h('span', { class: 'event__name' }, e.name),
-        h('span', { class: 'event__time' }, `${e.start} – ${e.end}`),
-        h('span', { class: 'event__who' }, e.attendees.map((a) => memberById[a]).filter(Boolean)
-          .map((m) => h('i', { style: `background:${m.color}`, title: m.name })))
+        h('span', { class: 'event__time' }, `${e.start} – ${e.end}`)
       ));
     }
     if (state.date === isoOf(new Date())) {
