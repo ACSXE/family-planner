@@ -1,7 +1,94 @@
-<!-- Pantalla Informe de actividad (de momento en blanco). Lógica en js/views/report-activity.js -->
-  <section class="report" id="report-activity-view" aria-labelledby="report-activity-title" data-view-root>
+<!--
+  Pantalla Informe de actividad: patrón List Report.
+    · Cabecera dinámica: título + barra de filtros que se puede plegar.
+    · Contenido: tabla de actividades que cumplen todos los filtros (lógica AND).
+  Lógica en js/views/report-activity.js
+-->
+  <section class="report lr" id="report-activity-view" aria-labelledby="report-activity-title" data-view-root>
     <header class="col__header">
-      <div class="col__row"><h1 class="col__title" id="report-activity-title">Informe de actividad</h1></div>
+      <div class="col__row">
+        <div class="col__heading">
+          <h1 class="col__title" id="report-activity-title">Informe de actividad</h1>
+          <p class="col__subtitle lr__summary" id="ra-summary" hidden></p>
+        </div>
+      </div>
     </header>
-    <div class="report__body"></div>
+
+    <!-- Barra de filtros (cabecera plegable) -->
+    <div class="lr__header" id="ra-header">
+      <form class="lr__filters" id="ra-filters" role="search" aria-label="Filtros de actividades" novalidate>
+        <div class="lr__fields">
+          <div class="field">
+            <label for="ra-name">Nombre actividad</label>
+            <input id="ra-name" type="text" autocomplete="off" spellcheck="false" placeholder="Por ejemplo: Méd*">
+            <span class="lr__help">Usa * como comodín</span>
+          </div>
+          <div class="field">
+            <label for="ra-date">Fecha actividad</label>
+            <input id="ra-date" type="date">
+          </div>
+          <div class="field">
+            <label for="ra-from">Hora inicio</label>
+            <input id="ra-from" type="time" step="300">
+          </div>
+          <div class="field">
+            <label for="ra-to">Hora fin</label>
+            <input id="ra-to" type="time" step="300">
+          </div>
+          <div class="field">
+            <label for="ra-attendee">Asistente</label>
+            <select id="ra-attendee"><option value="">Todos</option></select>
+          </div>
+          <div class="field">
+            <label for="ra-companion">Acompañante</label>
+            <select id="ra-companion"><option value="">Todos</option></select>
+          </div>
+        </div>
+        <p class="form-error lr__error" id="ra-error" role="alert" hidden></p>
+        <div class="lr__actions">
+          <button class="btn btn--ghost" id="ra-clear" type="button">Borrar filtros</button>
+          <button class="btn btn--primary" id="ra-search" type="submit">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.5 15.5L20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            Buscar
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Botón para plegar / desplegar la barra de filtros -->
+    <div class="lr__toggle-bar">
+      <button class="lr__toggle" id="ra-toggle" type="button" aria-expanded="true" aria-controls="ra-header" aria-label="Ocultar filtros" title="Ocultar filtros">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+
+    <!-- Resultados -->
+    <div class="report__body lr__content">
+      <div class="lr__card">
+        <div class="lr__toolbar">
+          <h2 class="lr__count" id="ra-count">Actividades</h2>
+        </div>
+        <div class="lr__scroll">
+          <table class="lr__table" aria-labelledby="ra-count">
+            <thead>
+              <tr>
+                <th scope="col">Asistente</th>
+                <th scope="col">Fecha actividad</th>
+                <th scope="col">Hora inicio - fin</th>
+                <th scope="col">Nombre actividad</th>
+                <th scope="col">Descripción actividad</th>
+                <th scope="col">Acompañante</th>
+              </tr>
+            </thead>
+            <tbody id="ra-rows"></tbody>
+          </table>
+        </div>
+        <p class="lr__empty" id="ra-empty" hidden></p>
+        <!-- Tabla "growing": se muestran bloques de filas y este botón añade el siguiente -->
+        <button class="lr__more" id="ra-more" type="button" hidden>
+          <span class="lr__more-label">Mostrar más</span>
+          <span class="lr__more-count" id="ra-more-count"></span>
+        </button>
+      </div>
+    </div>
   </section>

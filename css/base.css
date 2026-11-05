@@ -85,6 +85,13 @@ button { cursor: pointer; }
 .field [aria-invalid="true"] { border-color: var(--danger); }
 .field-row { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 12px; }
 .req { color: var(--danger); }
+.form-error {
+  margin: 0 0 16px; padding: 10px 12px; border-radius: var(--radius-sm);
+  background: var(--danger-soft); color: var(--danger); border: 1px solid #f2c4c4; font-size: 14px;
+}
+
+/* Bolita con el color de un miembro de la familia (--c) */
+.dot { width: 10px; height: 10px; border-radius: 50%; background: var(--c); flex: none; }
 
 /* ---------- Cabecera de panel (compartida por las pantallas) ---------- */
 .col__header {

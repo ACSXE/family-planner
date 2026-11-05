@@ -1,5 +1,85 @@
 /* ==========================================================
    Family Planner — Informe de actividad (views/report-activity.html)
+   Patrón List Report: cabecera con filtros plegable + tabla de resultados.
    ========================================================== */
 .report { flex: 1; min-width: 0; display: flex; flex-direction: column; background: var(--surface); }
 .report__body { flex: 1; min-height: 0; overflow: auto; background: var(--surface-2); }
+
+/* Título y cabecera de filtros forman un solo bloque blanco; la línea va debajo del botón de plegar */
+.lr .col__header { border-bottom: 0; }
+.lr__summary { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ---------- Barra de filtros ---------- */
+.lr__header { flex: none; background: var(--surface); padding: 4px 16px 22px; }
+.lr__fields {
+  display: grid; gap: 4px 16px;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+}
+.lr__fields .field { margin-bottom: 12px; }
+.lr__help { font-size: 12px; color: var(--text-muted); }
+.lr__error { margin-bottom: 12px; }
+.lr__actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 8px; }
+.lr__actions .btn svg { width: 18px; height: 18px; }
+
+/* ---------- Botón de plegar, centrado sobre la línea inferior de la cabecera ---------- */
+.lr__toggle-bar { flex: none; position: relative; height: 0; border-top: 1px solid var(--border); z-index: 2; }
+.lr__toggle {
+  position: absolute; left: 50%; top: 0; transform: translate(-50%, -50%);
+  width: 28px; height: 28px; padding: 0; display: grid; place-items: center;
+  border: 1px solid var(--border-strong); border-radius: 50%;
+  background: var(--surface); color: var(--primary); box-shadow: var(--shadow);
+}
+.lr__toggle:hover { background: var(--primary-soft); border-color: var(--primary); }
+.lr__toggle svg { width: 16px; height: 16px; transition: transform .15s; }
+.lr__toggle[aria-expanded="false"] svg { transform: rotate(180deg); }
+
+/* ---------- Resultados ---------- */
+.lr__content { padding: 24px 16px 16px; }
+.lr__card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); }
+.lr__toolbar { display: flex; align-items: center; min-height: 48px; padding: 0 16px; border-bottom: 1px solid var(--border); }
+.lr__count { margin: 0; font-size: 15px; font-weight: 700; }
+
+.lr__scroll { overflow-x: auto; }
+.lr__table { width: 100%; min-width: 900px; border-collapse: collapse; font-size: 14px; }
+.lr__table th {
+  padding: 10px 16px; text-align: left; white-space: nowrap;
+  font-size: 13px; font-weight: 600; color: var(--text-muted);
+  background: var(--surface-2); border-bottom: 1px solid var(--border);
+}
+.lr__table td { padding: 11px 16px; border-bottom: 1px solid var(--border); vertical-align: top; }
+.lr__table tbody tr:last-child td { border-bottom: 0; }
+.lr__table tbody tr:hover td { background: var(--surface-2); }
+.lr__name { font-weight: 600; }
+/* Asistentes: bolita con el color de cada persona delante de su nombre */
+.lr__people { white-space: nowrap; }
+.lr__person { display: inline-flex; align-items: center; gap: 6px; }
+.lr__person + .lr__person { margin-left: 10px; }
+.lr__nowrap { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.lr__desc[title] { cursor: help; }
+
+.lr__empty { margin: 0; padding: 32px 16px; text-align: center; color: var(--text-muted); }
+
+/* Botón "Mostrar más" al pie de la tabla */
+.lr__more {
+  display: flex; flex-direction: column; align-items: center; gap: 2px; width: 100%;
+  padding: 12px 16px; border: 0; border-top: 1px solid var(--border);
+  border-radius: 0 0 var(--radius) var(--radius); background: var(--surface);
+}
+.lr__more:hover { background: var(--primary-soft); }
+.lr__more-label { font-size: 14px; font-weight: 700; color: var(--primary); }
+.lr__more-count { font-size: 12px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+
+/* En pantallas anchas la cabecera de la tabla queda fija arriba al desplazarse.
+   (En pantallas estrechas la tabla se desplaza en horizontal dentro de su recuadro
+   y la cabecera no puede quedarse fija.) */
+@media (min-width: 1000px) {
+  .lr__scroll { overflow-x: visible; }
+  /* top negativo = margen superior de .lr__content, para que quede pegada al borde de la zona de resultados */
+  .lr__table th { position: sticky; top: -24px; z-index: 1; border-bottom: 0; box-shadow: inset 0 -1px 0 var(--border); }
+}
+
+@media (max-width: 600px) {
+  .lr__header { padding: 4px 12px 22px; }
+  .lr__content { padding: 24px 12px 12px; }
+  .lr__toolbar { padding: 0 12px; }
+}

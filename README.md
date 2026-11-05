@@ -18,9 +18,9 @@ index.html                 App shell: top bar, user menu, side navigation and th
 views/
   planner.html             Calendario screen (Flexible Column Layout)
   reports.html             Informes screen: one card per report
-  report-activity.html     Informe de actividad (blank for now)
+  report-activity.html     Informe de actividad: List Report (filter bar + results table)
 css/
-  base.css                 Design tokens, typography, buttons, form fields, panel header
+  base.css                 Design tokens, typography, buttons, form fields and errors, colour dot, panel header
   login.css                Login page only
   shell.css                Top bar, user menu, side navigation, toasts
   views/planner.css        Calendario screen only
@@ -31,12 +31,14 @@ js/
   core/dom.js              Small DOM helpers
   core/session.js          Sign in, session check and sign out
   core/storage.js          Activities stored in localStorage
+  core/family.js           Family members and companion options shared by the screens
+  core/time.js             Time and date helpers shared by the screens
   core/router.js           Loads each screen's HTML, CSS and JS when it is opened
   login.js                 Login page logic
   shell.js                 Side navigation, user menu and toasts
   views/planner.js         Calendario screen logic
   views/reports.js         Informes screen logic (builds the report cards)
-  views/report-activity.js Informe de actividad logic
+  views/report-activity.js Informe de actividad: filters, results and "Mostrar más"
 tools/
   build_artifact.py        Builds the copy published as a Claude artifact
 ```
@@ -48,6 +50,10 @@ Screens are loaded inside `index.html` by `js/core/router.js` when they are pick
 1. Create `views/<id>.html`. Mark the screen's root element with the `data-view-root` attribute.
 2. Create `css/views/<id>.css` and `js/views/<id>.js`. The script registers `FP.views.<id> = { mount(root), show(), hide() }`.
 3. Add `{ id: '<id>', label: '…', icon: '<icon id>' }` to `views` in `js/config.js`. The icon is a `<symbol>` in the icon block of `index.html`.
+
+### Shared code
+
+Logic or styles used by more than one screen go to `js/core/` and `css/base.css`, not into a screen's own files. For example, the companion options (`FP.family.companionOptions`) feed both the Calendario form and the Informe de actividad filter.
 
 ### Adding a report
 
@@ -66,6 +72,16 @@ python3 -m http.server
 Then open `http://localhost:8000/login.html`.
 
 Users are defined in `js/config.js`.
+
+## Informe de actividad
+
+A List Report: a collapsible filter bar above a results table.
+
+- Filters combine with AND; an empty filter does not restrict.
+- **Nombre actividad** ignores case and accents. `*` is a wildcard and the pattern must cover the whole name (`Med*` finds "Médico"); without `*` the name only has to contain the text.
+- **Hora inicio / Hora fin** form one time-range filter: activities that take place, even partly, inside the range.
+- **Acompañante** "Alberto" also finds activities accompanied by "Alberto y Laura".
+- Results show 20 rows at a time; "Mostrar más" adds the next 20.
 
 > This is a proof of concept. The login is client-side only and activities are stored in the browser's `localStorage`: it is not secure and data is not shared between devices.
 

@@ -48,7 +48,7 @@ FP.views.planner = (() => {
     const pad = (n) => String(n).padStart(2, '0');
     const isoOf = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
     const parseIso = (s) => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
-    const toMin = (t) => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+    const { toMin } = FP.time;
     const fromMin = (m) => `${pad(Math.floor(m / 60))}:${pad(m % 60)}`;
     const uid = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));
     const longDate = (iso) => { const d = parseIso(iso); return `${d.getDate()} de ${MONTHS[d.getMonth()]} de ${d.getFullYear()}`; };
@@ -80,12 +80,7 @@ FP.views.planner = (() => {
 
 
     // Leyenda y checkboxes de asistentes
-    const companions = MEMBERS.filter((m) => m.canAccompany);
-    companions.forEach((m) => f.companion.append(h('option', { value: m.id }, m.name)));
-    if (companions.length > 1) {
-      f.companion.append(h('option', { value: companions.map((m) => m.id).join(',') },
-        companions.map((m) => m.name).join(', ').replace(/, ([^,]*)$/, ' y $1')));
-    }
+    FP.family.companionOptions.forEach((o) => f.companion.append(h('option', { value: o.value }, o.label)));
 
     // "Acompañante" es obligatorio si y solo si asiste alguien marcado con needsCompanion
     function companionRequired() {
