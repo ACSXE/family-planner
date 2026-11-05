@@ -16,6 +16,8 @@
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
 }
 .lr__fields .field { margin-bottom: 12px; }
+/* Etiquetas de los filtros: mismo tamaño que la cabecera de las columnas y en el color del texto */
+.lr__fields .field label, .lr__fields .field__label { font-size: 14px; color: var(--text); }
 .lr__error { margin-bottom: 12px; }
 .lr__actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 8px; }
 .lr__actions .btn svg { width: 18px; height: 18px; }
@@ -54,7 +56,7 @@
 .lr__person { display: inline-flex; align-items: center; gap: 6px; }
 .lr__person + .lr__person { margin-left: 10px; }
 .lr__nowrap { white-space: nowrap; font-variant-numeric: tabular-nums; }
-.lr__desc[title] { cursor: help; }
+.lr__desc[title], .lr__name[title] { cursor: help; }
 
 .lr__empty { margin: 0; padding: 32px 16px; text-align: center; color: var(--text-muted); }
 

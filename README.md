@@ -83,6 +83,7 @@ A List Report: a collapsible filter bar above a results table.
 - **Hora inicio / Hora fin** form one time-range filter: activities that take place, even partly, inside the range.
 - **Asistente** and **Acompañante** are multi-selects with checkboxes; values ticked in the same filter combine with OR (Acompañante "Alberto" also finds activities accompanied by "Alberto y Laura"). Ticked values show as tokens in the field, with "+N" when they do not fit.
 - Results show 20 rows at a time; "Mostrar más" adds the next 20.
+- Long values are cut at the last space before 20 characters (Nombre actividad) or 40 (Descripción actividad) and end with "..."; the full text shows on hover.
 
 > This is a proof of concept. The login is client-side only and activities are stored in the browser's `localStorage`: it is not secure and data is not shared between devices.
 

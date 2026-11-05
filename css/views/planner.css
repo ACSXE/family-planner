@@ -115,18 +115,19 @@
 
 /* ---------- Columna 3: detalle ---------- */
 .detail { padding: 20px 16px 32px; max-width: 640px; margin: 0 auto; }
-.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+/* Asistentes: rejilla de dos columnas iguales */
+.chips { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
 .field .chip {
   position: relative;
-  display: inline-flex; align-items: center; gap: 8px;
-  min-height: 38px; padding: 0 14px 0 10px;
-  border: 1px solid var(--border-strong); border-radius: 999px;
+  display: flex; align-items: center; gap: 8px; min-width: 0;
+  min-height: 40px; padding: 0 12px;
+  border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
   background: var(--surface); font-size: 14px; font-weight: 500; color: var(--text) !important;
   cursor: pointer; user-select: none;
 }
 .chip input { position: absolute; opacity: 0; pointer-events: none; }
 .chip:has(input:checked) { border-color: var(--c); background: color-mix(in srgb, var(--c) 12%, #fff); }
-.chip:has(input:checked)::after { content: "\2713"; color: var(--c); font-weight: 700; margin-left: 2px; }
+.chip:has(input:checked)::after { content: "\2713"; color: var(--c); font-weight: 700; margin-left: auto; }
 .chip:has(input:focus-visible) { outline: 2px solid var(--primary); outline-offset: 2px; }
 .detail__actions { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 8px; border-top: 1px solid var(--border); margin-top: 8px; padding-top: 16px; }
 

@@ -22,9 +22,22 @@ FP.views = FP.views || {};
 FP.views['report-activity'] = (() => {
   'use strict';
 
-  const DESC_MAX = 25;   // caracteres visibles de la descripción antes de "..."
+  const DESC_MAX = 40;   // caracteres máximos visibles de la descripción antes de "..."
+  const NAME_MAX = 20;   // caracteres máximos visibles del nombre antes de "..."
   const PAGE_SIZE = 20;  // filas por bloque de la tabla
   let refresh = null;
+
+  // Recorta en el último espacio antes de "max" caracteres (sin partir palabras) y
+  // añade "..."; si la primera palabra ya es más larga, corta justo en "max".
+  // Devuelve null si el texto cabe entero.
+  function truncateWords(text, max) {
+    const chars = Array.from(text || '');
+    if (chars.length <= max) return null;
+    const head = chars.slice(0, max + 1).join('');
+    const cut = head.lastIndexOf(' ');
+    const kept = (cut > 0 ? head.slice(0, cut) : chars.slice(0, max).join('')).replace(/[\s,;:.]+$/, '');
+    return kept + '...';
+  }
 
   // Texto comparable: sin acentos, en minúsculas y sin espacios en los extremos
   const normalize = (s) => (s || '').normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().trim();
@@ -59,10 +72,12 @@ FP.views['report-activity'] = (() => {
     const inTimeRange = (e, from, to) =>
       (!from || toMin(e.end) > toMin(from)) && (!to || toMin(e.start) < toMin(to));
 
-    function cellDescription(text) {
-      const chars = Array.from(text || '');
-      if (chars.length <= DESC_MAX) return h('td', { class: 'lr__desc' }, text || '');
-      return h('td', { class: 'lr__desc', title: text }, chars.slice(0, DESC_MAX).join('') + '...');
+    // Celda con texto recortado por palabras; el texto completo va en el recuadro de ayuda
+    function cellTruncated(text, max, cls) {
+      const short = truncateWords(text, max);
+      return short
+        ? h('td', { class: cls, title: text }, short)
+        : h('td', { class: cls }, text || '');
     }
 
     function cellPeople(ids) {
@@ -93,9 +108,9 @@ FP.views['report-activity'] = (() => {
       cellPeople(e.attendees),
       h('td', { class: 'lr__nowrap' }, formatDate(e.date)),
       h('td', { class: 'lr__nowrap' }, `${e.start} - ${e.end}`),
-      h('td', { class: 'lr__name' }, e.name),
-      cellDescription(e.description),
-      h('td', null, companionLabel(e.companion))
+      cellTruncated(e.name, NAME_MAX, 'lr__name'),
+      cellTruncated(e.description, DESC_MAX, 'lr__desc'),
+      h('td', null, companionLabel(e.companion) || '-')   // "-" cuando no hay acompañante
     );
 
     function updateMore() {
