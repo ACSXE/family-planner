@@ -1,0 +1,6 @@
+/* ==========================================================
+   Family Planner — Informe de actividad (views/report-activity.html)
+   ========================================================== */
+.report { flex: 1; min-width: 0; display: flex; flex-direction: column; background: var(--surface); }
+.report .btn--back { text-decoration: none; }
+.report__body { flex: 1; min-height: 0; overflow: auto; background: var(--surface-2); }

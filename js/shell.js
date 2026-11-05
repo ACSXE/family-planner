@@ -56,14 +56,16 @@
 
   // ---------- Menú lateral (generado desde FP_CONFIG.views) ----------
   const nav = $('sidenav');
-  FP_CONFIG.views.forEach((v) => {
+  FP_CONFIG.views.filter((v) => !v.parent).forEach((v) => {
     const item = h('a', { class: 'sidenav__item', href: '#' + v.id, 'data-view': v.id },
       h('span', { class: 'sidenav__label' }, v.label));
     item.insertAdjacentHTML('afterbegin', `<svg class="sidenav__icon" aria-hidden="true"><use href="#${v.icon}"/></svg>`);
     nav.append(item);
   });
 
+  // Una pantalla con "parent" (por ejemplo, un informe) marca en el menú a su pantalla padre
   function markActive(id) {
+    id = FP_CONFIG.views.find((v) => v.id === id)?.parent || id;
     nav.querySelectorAll('.sidenav__item').forEach((a) => {
       const active = a.dataset.view === id;
       a.classList.toggle('is-active', active);

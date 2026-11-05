@@ -1,7 +1,9 @@
-<!-- Pantalla Informes (de momento en blanco). Lógica en js/views/reports.js -->
+<!-- Pantalla Informes: una tarjeta por informe (FP_CONFIG.reports). Lógica en js/views/reports.js -->
   <section class="reports" id="reports-view" aria-labelledby="reports-title" data-view-root>
     <header class="col__header">
       <div class="col__row"><h1 class="col__title" id="reports-title">Informes</h1></div>
     </header>
-    <div class="reports__body"></div>
+    <div class="reports__body">
+      <ul class="report-cards" id="report-cards" aria-labelledby="reports-title"></ul>
+    </div>
   </section>
