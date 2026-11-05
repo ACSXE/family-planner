@@ -1,0 +1,144 @@
+/* ==========================================================
+   Family Planner — pantalla Calendario (views/planner.html)
+   Flexible Column Layout de 3 columnas.
+   ========================================================== */
+.fcl { flex: 1; min-width: 0; min-height: 0; display: flex; background: var(--bg); }
+
+.col {
+  min-width: 0; display: flex; flex-direction: column;
+  background: var(--surface-2);
+}
+#col1 .col__title { flex: 1; }
+
+/* Separadores con "layout arrow" */
+.sep {
+  flex: none; width: 8px; position: relative;
+  background: var(--bg);
+  border-left: 1px solid var(--border); border-right: 1px solid var(--border);
+}
+.sep__btn {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 20px; height: 64px; padding: 0;
+  display: grid; place-items: center;
+  border: 1px solid var(--border-strong); border-radius: 10px;
+  background: var(--surface); color: var(--primary); box-shadow: var(--shadow);
+  z-index: 2;
+}
+.sep__btn:hover { background: var(--primary-soft); border-color: var(--primary); }
+.sep__btn svg { width: 14px; height: 14px; }
+
+/* ---------- Columna 1: meses ---------- */
+.year-nav { display: flex; align-items: center; gap: 2px; }
+.year-nav__label { font-weight: 700; font-size: 16px; min-width: 48px; text-align: center; font-variant-numeric: tabular-nums; }
+
+.legend { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13px; color: var(--text-muted); }
+.legend li { display: flex; align-items: center; gap: 6px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; background: var(--c); flex: none; }
+
+.months {
+  display: grid; gap: 12px; padding: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(232px, 1fr));
+}
+.month {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 12px 12px 14px; box-shadow: var(--shadow);
+}
+.month.is-current { border-color: #9cc5ee; }
+.month__title { margin: 0 0 8px; font-size: 14px; font-weight: 700; }
+.month.is-current .month__title { color: var(--primary); }
+.month__grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.month__dow { text-align: center; font-size: 11px; font-weight: 600; color: var(--text-muted); padding-bottom: 2px; }
+.month__dow.is-weekend { color: var(--weekend); }
+
+.day {
+  position: relative; aspect-ratio: 1; min-height: 30px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  padding: 0; border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--surface-2); font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums;
+  transition: background .12s, border-color .12s;
+}
+.day--empty { border: 0; background: none; }
+.day:hover { background: var(--primary-soft); border-color: #9cc5ee; }
+.day.is-weekend { color: var(--weekend); }
+.day.is-today { border: 2px solid var(--primary); color: var(--primary); }
+.day.is-selected { background: var(--primary); border-color: var(--primary); color: #fff; }
+.day__dots { display: flex; gap: 1.5px; height: 4px; }
+.day__dots i { width: 4px; height: 4px; border-radius: 50%; }
+/* Más de 4 actividades: número con el total en la esquina */
+.day__count {
+  position: absolute; top: -8px; right: -8px; z-index: 1;
+  min-width: 13px; height: 13px; padding: 0 3px; border-radius: 7px;
+  background: var(--text); color: #fff; font-size: 8.5px; line-height: 13px; font-weight: 700; text-align: center;
+}
+.day.is-selected .day__count { background: #fff; color: var(--primary); box-shadow: 0 0 0 1px var(--primary); }
+.day.is-selected .day__dots i { box-shadow: 0 0 0 1px #fff; }
+
+/* ---------- Columna 2: vista horaria ---------- */
+.timeline { display: flex; padding: 12px 12px 24px 0; background: var(--surface); min-height: 100%; }
+.timeline__labels { position: relative; flex: none; width: 48px; }
+.timeline__labels span {
+  position: absolute; right: 8px; transform: translateY(-50%);
+  font-size: 12px; color: var(--text-muted); font-variant-numeric: tabular-nums;
+}
+.timeline__area {
+  /* Espacio libre a la derecha que las actividades nunca ocupan:
+     ahí siempre se puede pulsar la franja para crear otra actividad */
+  --free: 44px;
+  position: relative; flex: 1; min-width: 0; border-left: 1px solid var(--border); border-right: 1px solid var(--border);
+}
+.slot {
+  position: absolute; left: 0; right: 0; padding: 0;
+  border: 0; border-top: 1px dashed #e8ecf2; background: transparent;
+}
+.slot--hour { border-top: 1px solid var(--border); }
+.slot:hover { background: var(--primary-soft); }
+.slot.is-selected { background: #d4e7fa; box-shadow: inset 3px 0 0 var(--primary); }
+
+.event {
+  position: absolute; z-index: 1; overflow: hidden;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 1px;
+  padding: 4px 8px; text-align: left;
+  border: 1px solid color-mix(in srgb, var(--c) 35%, transparent);
+  border-left: 4px solid var(--c); border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--c) 12%, #fff);
+  font-size: 12px; line-height: 1.25;
+}
+.event:hover { background: color-mix(in srgb, var(--c) 20%, #fff); }
+.event.is-selected { box-shadow: 0 0 0 2px var(--c); }
+.event__name { font-weight: 700; font-size: 13px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.event__time { color: var(--text-muted); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.event--short { flex-direction: row; align-items: center; gap: 8px; padding-top: 1px; padding-bottom: 1px; }
+/* En actividades cortas manda el nombre: el horario se recorta o desaparece si no cabe */
+.event--short .event__name { flex: 0 1 auto; min-width: 0; }
+.event--short .event__time { flex: 1 1 0; min-width: 0; }
+.now-line { position: absolute; left: 0; right: 0; height: 2px; background: #e11d48; z-index: 3; pointer-events: none; }
+.now-line::before { content: ""; position: absolute; left: -5px; top: -4px; width: 10px; height: 10px; border-radius: 50%; background: #e11d48; }
+
+/* ---------- Columna 3: detalle ---------- */
+.detail { padding: 20px 16px 32px; max-width: 640px; margin: 0 auto; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.field .chip {
+  position: relative;
+  display: inline-flex; align-items: center; gap: 8px;
+  min-height: 38px; padding: 0 14px 0 10px;
+  border: 1px solid var(--border-strong); border-radius: 999px;
+  background: var(--surface); font-size: 14px; font-weight: 500; color: var(--text) !important;
+  cursor: pointer; user-select: none;
+}
+.chip input { position: absolute; opacity: 0; pointer-events: none; }
+.chip:has(input:checked) { border-color: var(--c); background: color-mix(in srgb, var(--c) 12%, #fff); }
+.chip:has(input:checked)::after { content: "\2713"; color: var(--c); font-weight: 700; margin-left: 2px; }
+.chip:has(input:focus-visible) { outline: 2px solid var(--primary); outline-offset: 2px; }
+.form-error {
+  margin: 0 0 16px; padding: 10px 12px; border-radius: var(--radius-sm);
+  background: var(--danger-soft); color: var(--danger); border: 1px solid #f2c4c4; font-size: 14px;
+}
+.detail__actions { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 8px; border-top: 1px solid var(--border); margin-top: 8px; padding-top: 16px; }
+
+/* ---------- Móvil ---------- */
+@media (max-width: 600px) {
+  .months { padding: 12px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+  .day { font-size: 14px; }
+  .detail { padding: 16px 12px 32px; }
+  .btn--danger { margin-left: 0; }
+}

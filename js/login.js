@@ -1,11 +1,13 @@
+/*
+ * Pantalla de login (login.html).
+ * Login correcto → index.html. Login incorrecto → mensaje de error en esta misma pantalla.
+ */
 (() => {
   'use strict';
 
-  // Si ya hay sesión abierta, ir directamente al planner
-  let hasSession = false;
-  try { hasSession = !!sessionStorage.getItem('fp.session'); } catch { /* almacenamiento no disponible */ }
-  if (hasSession) {
-    location.replace('planner.html');
+  // Si ya hay sesión abierta, ir directamente a la aplicación
+  if (FP.session.get()) {
+    location.replace(FP.pages.home);
     return;
   }
 
@@ -32,23 +34,18 @@
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
-    const username = userInput.value.trim();
-    const password = passInput.value;
-
-    const user = FP_CONFIG.users.find(
-      (u) => u.username.toLowerCase() === username.toLowerCase() && u.password === password
-    );
+    const user = FP.session.authenticate(userInput.value.trim(), passInput.value);
 
     if (user) {
-      // Login OK → página principal
+      // Login OK → aplicación
       try {
-        sessionStorage.setItem('fp.session', JSON.stringify({ username: user.username, name: user.name }));
+        FP.session.start(user);
       } catch {
         errorBox.textContent = 'Este navegador no permite guardar la sesión. Desactiva el modo privado o permite los datos del sitio.';
         errorBox.hidden = false;
         return;
       }
-      location.href = 'planner.html';
+      location.href = FP.pages.home;
       return;
     }
 

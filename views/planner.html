@@ -1,61 +1,5 @@
-<!doctype html>
-<html lang="es">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Family Planner</title>
-  <link rel="stylesheet" href="css/styles.css">
-</head>
-<body class="app">
-  <!-- Iconos reutilizables -->
-  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
-    <symbol id="i-left" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-    <symbol id="i-right" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-    <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
-    <symbol id="i-full" viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-    <symbol id="i-planner" viewBox="0 0 24 24"><path d="M5.5 4.5h13A2.5 2.5 0 0 1 21 7v2.5H3V7a2.5 2.5 0 0 1 2.5-2.5z" fill="currentColor" opacity=".22"/><rect x="3" y="4.5" width="18" height="16.5" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3 9.5h18" stroke="currentColor" stroke-width="1.8"/><path d="M8 2.5v4M16 2.5v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><g fill="currentColor"><rect x="6" y="12" width="2.4" height="2.2" rx=".5"/><rect x="10.8" y="12" width="2.4" height="2.2" rx=".5"/><rect x="15.6" y="12" width="2.4" height="2.2" rx=".5"/><rect x="6" y="16.2" width="2.4" height="2.2" rx=".5"/><rect x="10.8" y="16.2" width="2.4" height="2.2" rx=".5"/></g></symbol>
-    <symbol id="i-report" viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 3v4h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9.5 17v-3M12 17v-6M14.5 17v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
-    <symbol id="i-exitfull" viewBox="0 0 24 24"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-  </svg>
-
-  <header class="shellbar">
-    <div class="shellbar__brand">
-      <svg class="logo" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 10h18M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="15.5" r="2" fill="currentColor"/></svg>
-      <span>Family Planner</span>
-    </div>
-    <div class="shellbar__user">
-      <button class="avatar avatar--sm" id="user-button" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="user-menu">
-        <span id="user-initials"></span>
-      </button>
-      <div class="user-menu" id="user-menu" role="dialog" aria-label="Cuenta" hidden>
-        <div class="user-menu__body">
-          <span class="avatar avatar--lg" aria-hidden="true" id="user-initials-lg"></span>
-          <p class="user-menu__name" id="user-fullname"></p>
-          <p class="user-menu__email" id="user-email"></p>
-        </div>
-        <div class="user-menu__footer">
-          <button class="user-menu__logout" id="logout" type="button">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M7.1 6.3a8 8 0 1 0 9.8 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-            Cerrar sesión
-          </button>
-        </div>
-      </div>
-    </div>
-  </header>
-
-  <div class="workspace">
-  <nav class="sidenav" aria-label="Navegación principal">
-    <a class="sidenav__item" href="#planner" data-view="planner">
-      <svg class="sidenav__icon" aria-hidden="true"><use href="#i-planner"/></svg>
-      <span class="sidenav__label">Calendario</span>
-    </a>
-    <a class="sidenav__item" href="#reports" data-view="reports">
-      <svg class="sidenav__icon" aria-hidden="true"><use href="#i-report"/></svg>
-      <span class="sidenav__label">Informes</span>
-    </a>
-  </nav>
-
-  <main class="fcl" id="fcl">
+<!-- Pantalla Calendario: Flexible Column Layout de 3 columnas. Lógica en js/views/planner.js -->
+  <main class="fcl" id="fcl" data-view-root>
     <!-- Columna 1: calendario anual -->
     <section class="col" id="col1" aria-labelledby="cal-title">
       <header class="col__header">
@@ -162,19 +106,3 @@
       </div>
     </section>
   </main>
-
-  <!-- Pantalla Informes (de momento en blanco) -->
-  <section class="reports" id="reports-view" aria-labelledby="reports-title" hidden>
-    <header class="col__header">
-      <div class="col__row"><h1 class="col__title" id="reports-title">Informes</h1></div>
-    </header>
-    <div class="reports__body"></div>
-  </section>
-  </div>
-
-  <div class="toast" id="toast" role="status" aria-live="polite"></div>
-
-  <script src="js/config.js"></script>
-  <script src="js/planner.js"></script>
-</body>
-</html>

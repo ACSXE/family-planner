@@ -24,6 +24,14 @@ const FP_CONFIG = {
     { id: 'pablo',   name: 'Pablo',   color: '#eab308', needsCompanion: true }  // amarillo
   ],
 
+  // Pantallas del menú lateral, en orden (la primera es la de inicio).
+  // Cada pantalla <id> tiene sus ficheros: views/<id>.html, css/views/<id>.css y js/views/<id>.js
+  // "icon" es el id de un icono del bloque de iconos de index.html
+  views: [
+    { id: 'planner', label: 'Calendario', icon: 'i-planner' },
+    { id: 'reports', label: 'Informes',   icon: 'i-report' }
+  ],
+
   // Hora a la que se posiciona la vista diaria al abrir un día
   scrollToHour: 8
 };

@@ -1,0 +1,5 @@
+/* ==========================================================
+   Family Planner — pantalla Informes (views/reports.html)
+   ========================================================== */
+.reports { flex: 1; min-width: 0; display: flex; flex-direction: column; background: var(--surface); }
+.reports__body { flex: 1; }

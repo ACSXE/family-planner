@@ -1,0 +1,110 @@
+/* ==========================================================
+   Family Planner — estilos comunes (tema claro)
+   Colores, tipografía, botones, campos de formulario y cabecera
+   de panel. Lo cargan todas las páginas.
+   ========================================================== */
+:root {
+  color-scheme: light;
+  --bg: #f3f5f8;
+  --surface: #ffffff;
+  --surface-2: #f7f9fc;
+  --border: #dfe4ec;
+  --border-strong: #c6cfdb;
+  --text: #1d2a3a;
+  --text-muted: #5b6b80;
+  --primary: #0a6ed1;
+  --primary-hover: #085caf;
+  --primary-soft: #e6f1fc;
+  --weekend: #c2410c;
+  --danger: #c62828;
+  --danger-soft: #fdecec;
+  --shell: #2c4562;
+  --shell-text: #ffffff;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --shadow: 0 1px 2px rgba(16, 32, 56, .06), 0 2px 8px rgba(16, 32, 56, .06);
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; height: 100%; }
+html { color-scheme: light; }
+body {
+  font-family: var(--font);
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+button, input, textarea, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+.logo { width: 26px; height: 26px; flex: none; }
+
+/* ---------- Botones ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 38px; padding: 0 16px;
+  border: 1px solid transparent; border-radius: var(--radius-sm);
+  background: transparent; font-weight: 600; white-space: nowrap;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.btn svg { width: 18px; height: 18px; }
+.btn--primary { background: var(--primary); color: #fff; }
+.btn--primary:hover { background: var(--primary-hover); }
+.btn--ghost { color: var(--primary); border-color: var(--border); background: var(--surface); }
+.btn--ghost:hover { background: var(--primary-soft); }
+.btn--danger { color: var(--danger); border-color: #f2c4c4; background: var(--surface); margin-left: auto; }
+.btn--danger:hover { background: var(--danger-soft); }
+.btn--danger.is-armed { background: var(--danger); color: #fff; border-color: var(--danger); }
+.btn--block { width: 100%; }
+.btn--back { padding: 0 10px 0 6px; min-height: 34px; }
+
+.icon-btn {
+  display: inline-grid; place-items: center;
+  width: 36px; height: 36px; padding: 0;
+  border: 1px solid transparent; border-radius: var(--radius-sm);
+  background: transparent; color: var(--primary);
+}
+.icon-btn:hover { background: var(--primary-soft); }
+.icon-btn svg { width: 18px; height: 18px; }
+
+/* ---------- Formularios ---------- */
+.field { display: flex; flex-direction: column; gap: 6px; margin: 0 0 16px; border: 0; padding: 0; min-width: 0; }
+.field label, .field legend { font-size: 13px; font-weight: 600; color: var(--text-muted); padding: 0; }
+.field input, .field textarea, .field select {
+  width: 100%; min-width: 0; min-height: 42px; padding: 9px 12px;
+  border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+.field textarea { resize: vertical; min-height: 90px; }
+.field input:focus, .field textarea:focus, .field select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(10,110,209,.18); }
+.field [aria-invalid="true"] { border-color: var(--danger); }
+.field-row { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 12px; }
+.req { color: var(--danger); }
+
+/* ---------- Cabecera de panel (compartida por las pantallas) ---------- */
+.col__header {
+  flex: none; background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 10px 16px;
+}
+.col__row { display: flex; align-items: center; gap: 8px; min-height: 40px; }
+.col__heading { flex: 1; min-width: 0; }
+.col__title { margin: 0; font-size: 18px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.col__subtitle { margin: 0; font-size: 13px; color: var(--text-muted); }
+.col__subtitle--strong { font-weight: 700; color: var(--text); }
+.col__hint { margin: 4px 0 0; font-size: 12px; color: var(--text-muted); }
+.col__actions { display: flex; gap: 2px; flex: none; }
+.col__body { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; }
+
+/* ---------- Móvil ---------- */
+@media (max-width: 600px) {
+  .col__header { padding: 8px 12px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
