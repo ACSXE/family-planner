@@ -101,7 +101,8 @@ button { cursor: pointer; }
 /* Ruta en la línea del título: "Informes › Informe de actividad" */
 .crumbs { display: flex; align-items: center; gap: 6px; }
 .crumbs__link { flex: none; font-size: 18px; font-weight: 700; color: var(--primary); text-decoration: none; border-radius: 4px; }
-.crumbs__sep { flex: none; width: 16px; height: 16px; color: var(--text-muted); }
+/* subido para centrarlo con la altura de las mayúsculas del texto */
+.crumbs__sep { flex: none; width: 16px; height: 16px; color: var(--text-muted); position: relative; top: -2px; }
 .crumbs .col__title { min-width: 0; }
 .col__body { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; }
 
