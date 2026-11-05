@@ -15,7 +15,7 @@ FP.views.reports = {
         h('p', { class: 'report-card__desc' }, r.description),
         h('span', { class: 'report-card__open' }, 'Ver informe'));
       card.insertAdjacentHTML('afterbegin', `<span class="report-card__icon" aria-hidden="true"><svg><use href="#${r.icon}"/></svg></span>`);
-      card.querySelector('.report-card__open').insertAdjacentHTML('beforeend', '<svg aria-hidden="true"><use href="#i-arrow-right"/></svg>');
+      card.querySelector('.report-card__open').insertAdjacentHTML('beforeend', '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>');
       list.append(h('li', null, card));
     });
   },
