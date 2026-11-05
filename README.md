@@ -56,6 +56,11 @@ Screens are loaded inside `index.html` by `js/core/router.js` when they are pick
 
 Logic or styles used by more than one screen go to `js/core/` and `css/base.css`, not into a screen's own files. For example, the companion options (`FP.family.companionOptions`) feed both the Calendario form and the Informe de actividad filter.
 
+### Colours and form fields
+
+- Buttons use `--action` (currently the app blue, `--primary`): filled buttons on that background, outline and icon buttons in that colour. Destructive actions (Eliminar) stay red. Changing `--action` in `css/base.css` recolours every button.
+- Field labels, field values, dropdowns and table column headers share one size, `--field-font-size` (13px), in the text colour; placeholders stay grey.
+
 ### Adding a report
 
 1. Create the report screen as above (`views/report-<name>.html`, its CSS and JS).

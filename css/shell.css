@@ -41,9 +41,9 @@
 .user-menu__footer { display: flex; justify-content: flex-end; padding: 10px 12px; border-top: 1px solid var(--border); }
 .user-menu__logout {
   display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 0 12px;
-  border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--primary); font-weight: 600;
+  border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--action); font-weight: 600;
 }
-.user-menu__logout:hover { background: var(--primary-soft); }
+.user-menu__logout:hover { background: var(--action-soft); }
 .user-menu__logout svg { width: 18px; height: 18px; }
 
 .workspace { flex: 1; min-height: 0; display: flex; }

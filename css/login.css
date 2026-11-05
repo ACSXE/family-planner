@@ -17,9 +17,9 @@
 .password__toggle {
   position: absolute; top: 50%; right: 4px; transform: translateY(-50%);
   width: 38px; height: 34px; padding: 0; display: grid; place-items: center;
-  border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--text-muted);
+  border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--action);
 }
-.password__toggle:hover { background: var(--primary-soft); color: var(--primary); }
+.password__toggle:hover { background: var(--action-soft); color: var(--action); }
 .password__toggle svg { width: 20px; height: 20px; }
 .login__error {
   margin: 0 0 16px; padding: 10px 12px; border-radius: var(--radius-sm);

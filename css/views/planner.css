@@ -21,10 +21,10 @@
   width: 20px; height: 64px; padding: 0;
   display: grid; place-items: center;
   border: 1px solid var(--border-strong); border-radius: 10px;
-  background: var(--surface); color: var(--primary); box-shadow: var(--shadow);
+  background: var(--surface); color: var(--action); box-shadow: var(--shadow);
   z-index: 2;
 }
-.sep__btn:hover { background: var(--primary-soft); border-color: var(--primary); }
+.sep__btn:hover { background: var(--action-soft); border-color: var(--action); }
 .sep__btn svg { width: 14px; height: 14px; }
 
 /* ---------- Columna 1: meses ---------- */
@@ -122,7 +122,7 @@
   display: flex; align-items: center; gap: 8px; min-width: 0;
   min-height: 40px; padding: 0 12px;
   border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
-  background: var(--surface); font-size: 14px; font-weight: 500; color: var(--text) !important;
+  background: var(--surface); font-size: var(--field-font-size); font-weight: 500; color: var(--text) !important;
   cursor: pointer; user-select: none;
 }
 .chip input { position: absolute; opacity: 0; pointer-events: none; }
