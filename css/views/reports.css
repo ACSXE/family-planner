@@ -18,11 +18,13 @@
   transition: border-color .15s, box-shadow .15s;
 }
 .report-card:hover { border-color: #9cc5ee; box-shadow: 0 2px 4px rgba(16, 32, 56, .06), 0 6px 16px rgba(16, 32, 56, .10); }
-.report-card__icon { display: block; margin-bottom: 10px; color: var(--text); }
-.report-card__icon svg { display: block; width: 40px; height: 40px; }
+.report-card__icon { display: block; margin-bottom: 10px; color: var(--primary); }
+/* el dibujo deja margen dentro de su recuadro: se desplaza para alinear su borde con el texto */
+.report-card__icon svg { display: block; width: 40px; height: 40px; margin-left: -2.25px; }
 .report-card__title { margin: 0; font-size: 16px; font-weight: 700; }
 .report-card__desc { margin: 0; font-size: 13px; color: var(--text-muted); flex: 1; }
-.report-card__open { margin-top: 10px; display: inline-flex; align-items: center; gap: 4px; font-size: 14px; font-weight: 600; color: var(--primary); }
+.report-card__open { margin-top: 10px; display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; color: var(--primary); }
+.report-card__open svg { width: 16px; height: 16px; flex: none; }
 
 @media (max-width: 600px) {
   .report-cards { padding: 12px; gap: 12px; }

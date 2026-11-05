@@ -1,7 +1,14 @@
 <!-- Pantalla Informe de actividad (de momento en blanco). Lógica en js/views/report-activity.js -->
   <section class="report" id="report-activity-view" aria-labelledby="report-activity-title" data-view-root>
     <header class="col__header">
-      <div class="col__row"><h1 class="col__title" id="report-activity-title">Informe de actividad</h1></div>
+      <div class="col__row">
+        <!-- Ruta: "Informes" vuelve a la lista de informes -->
+        <nav class="col__heading crumbs" aria-label="Ruta">
+          <a class="crumbs__link" href="#reports">Informes</a>
+          <svg class="crumbs__sep" aria-hidden="true"><use href="#i-arrow-right"/></svg>
+          <h1 class="col__title" id="report-activity-title">Informe de actividad</h1>
+        </nav>
+      </div>
     </header>
     <div class="report__body"></div>
   </section>
