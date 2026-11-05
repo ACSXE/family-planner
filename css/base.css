@@ -98,12 +98,6 @@ button { cursor: pointer; }
 .col__subtitle--strong { font-weight: 700; color: var(--text); }
 .col__hint { margin: 4px 0 0; font-size: 12px; color: var(--text-muted); }
 .col__actions { display: flex; gap: 2px; flex: none; }
-/* Ruta en la línea del título: "Informes → Informe de actividad" */
-.crumbs { display: flex; align-items: center; gap: 8px; }
-.crumbs__link { flex: none; font-size: 18px; font-weight: 700; color: var(--text-muted); text-decoration: none; border-radius: 4px; }
-/* subida 2px para centrarla con la altura de las mayúsculas del texto */
-.crumbs__sep { flex: none; width: 18px; height: 18px; color: var(--text-muted); position: relative; top: -2px; }
-.crumbs .col__title { min-width: 0; }
 .col__body { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; }
 
 /* ---------- Móvil ---------- */
