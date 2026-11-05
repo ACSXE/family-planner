@@ -53,11 +53,11 @@ FP.views['report-activity'] = (() => {
 
     // Desplegables con casillas: Asistente con la bolita de color de cada persona
     const attendeeSelect = FP.multiSelect($('ra-attendee'), {
-      labelledBy: 'ra-attendee-label', placeholder: 'Todos',
+      labelledBy: 'ra-attendee-label',
       options: members.map((m) => ({ value: m.id, label: m.name, colors: [m.color] }))
     });
     const companionSelect = FP.multiSelect($('ra-companion'), {
-      labelledBy: 'ra-companion-label', placeholder: 'Todos',
+      labelledBy: 'ra-companion-label',
       options: companions.map((m) => ({ value: m.id, label: m.name }))
     });
 
