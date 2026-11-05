@@ -2,17 +2,17 @@
  * Informe de actividad (views/report-activity.html) — patrón List Report.
  *
  * Filtros (se combinan con lógica AND; un filtro vacío no restringe):
- *   · Nombre actividad: sin distinguir mayúsculas ni acentos. Con "*" como comodín
- *     el patrón debe cubrir el nombre entero ("Med*" → "Médico"); sin "*" basta con
- *     que el nombre contenga el texto.
+ *   · Nombre actividad: el nombre contiene el texto, sin distinguir mayúsculas ni
+ *     acentos ("med" encuentra "Médico").
  *   · Fecha actividad: día exacto.
  *   · Hora inicio / Hora fin: forman una franja horaria (un solo filtro). Salen las
  *     actividades que ocurren, aunque sea en parte, dentro de la franja. Solo con
  *     Hora inicio: las que siguen en marcha a esa hora o empiezan después. Solo con
  *     Hora fin: las que empiezan antes de esa hora.
- *   · Asistente: la actividad incluye a esa persona.
- *   · Acompañante: una persona encuentra también las actividades acompañadas por
- *     "Alberto y Laura"; la opción combinada solo encuentra esa combinación.
+ *   · Asistente (varios valores): la actividad incluye a alguna de las personas marcadas.
+ *   · Acompañante (varios valores): la actividad va acompañada por alguna de las
+ *     personas marcadas, sola o junto a otra ("Alberto" encuentra también las
+ *     acompañadas por "Alberto y Laura").
  * Los resultados se calculan al abrir la pantalla y al pulsar Buscar (o Enter).
  * La tabla muestra bloques de PAGE_SIZE filas; "Mostrar más" añade el siguiente bloque.
  */
@@ -27,41 +27,37 @@ FP.views['report-activity'] = (() => {
   let refresh = null;
 
   // Texto comparable: sin acentos, en minúsculas y sin espacios en los extremos
-  const normalize = (s) => (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
-  const escapeRegExp = (s) => s.replace(/[.+?^${}()|[\]\\]/g, '\\$&');
-
-  function nameMatcher(query) {
-    const q = normalize(query);
-    if (!q) return () => true;
-    if (q.includes('*')) {
-      const re = new RegExp('^' + q.split('*').map(escapeRegExp).join('.*') + '$');
-      return (name) => re.test(normalize(name));
-    }
-    return (name) => normalize(name).includes(q);
-  }
+  const normalize = (s) => (s || '').normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().trim();
 
   function mount(root) {
     const { h } = FP.dom;
     const $ = (id) => root.querySelector('#' + id);
     const session = FP.session.get();
     const { toMin, formatDate } = FP.time;
-    const { members, byId: memberById, companionOptions, companionLabel } = FP.family;
+    const { members, byId: memberById, companions, companionLabel } = FP.family;
 
-    const f = { name: $('ra-name'), date: $('ra-date'), from: $('ra-from'), to: $('ra-to'), attendee: $('ra-attendee'), companion: $('ra-companion') };
-    members.forEach((m) => f.attendee.append(h('option', { value: m.id }, m.name)));
-    companionOptions.forEach((o) => f.companion.append(h('option', { value: o.value }, o.label)));
+    const f = { name: $('ra-name'), date: $('ra-date'), from: $('ra-from'), to: $('ra-to') };
 
-    let applied = { name: '', date: '', from: '', to: '', attendee: '', companion: '' };
+    // Desplegables con casillas: Asistente con la bolita de color de cada persona
+    const attendeeSelect = FP.multiSelect($('ra-attendee'), {
+      labelledBy: 'ra-attendee-label', placeholder: 'Todos',
+      options: members.map((m) => ({ value: m.id, label: m.name, colors: [m.color] }))
+    });
+    const companionSelect = FP.multiSelect($('ra-companion'), {
+      labelledBy: 'ra-companion-label', placeholder: 'Todos',
+      options: companions.map((m) => ({ value: m.id, label: m.name }))
+    });
+
+    let applied = { name: '', date: '', from: '', to: '', attendees: [], companions: [] };
     let results = [];          // actividades que cumplen los filtros
     let shown = PAGE_SIZE;     // cuántas se muestran ahora
 
-    const companionMatches = (value, wanted) =>
-      !wanted || (wanted.includes(',') ? value === wanted : (value || '').split(',').includes(wanted));
+    // El acompañante guardado puede ser una persona o varias ("alberto,laura")
+    const companionMatches = (value, wanted) => (value || '').split(',').includes(wanted);
 
     // Franja horaria: la actividad [inicio, fin) se solapa con [desde, hasta)
     const inTimeRange = (e, from, to) =>
       (!from || toMin(e.end) > toMin(from)) && (!to || toMin(e.start) < toMin(to));
-
 
     function cellDescription(text) {
       const chars = Array.from(text || '');
@@ -88,8 +84,8 @@ FP.views['report-activity'] = (() => {
       if (applied.from && applied.to) parts.push(`Hora: de ${applied.from} a ${applied.to}`);
       else if (applied.from) parts.push(`Hora: desde las ${applied.from}`);
       else if (applied.to) parts.push(`Hora: hasta las ${applied.to}`);
-      if (applied.attendee) parts.push(`Asistente: ${memberById[applied.attendee]?.name || applied.attendee}`);
-      if (applied.companion) parts.push(`Acompañante: ${companionLabel(applied.companion) || applied.companion}`);
+      if (applied.attendees.length) parts.push(`Asistente: ${applied.attendees.map((id) => memberById[id]?.name || id).join(', ')}`);
+      if (applied.companions.length) parts.push(`Acompañante: ${applied.companions.map((id) => memberById[id]?.name || id).join(', ')}`);
       return parts.length ? 'Filtros: ' + parts.join(' · ') : 'Sin filtros';
     }
 
@@ -118,14 +114,14 @@ FP.views['report-activity'] = (() => {
 
     function render() {
       const all = FP.storage.loadEvents(session.username);
-      const matchName = nameMatcher(applied.name);
+      const name = normalize(applied.name);
       results = all
         .filter((e) =>
-          matchName(e.name) &&
+          (!name || normalize(e.name).includes(name)) &&
           (!applied.date || e.date === applied.date) &&
           inTimeRange(e, applied.from, applied.to) &&
-          (!applied.attendee || e.attendees.includes(applied.attendee)) &&
-          companionMatches(e.companion, applied.companion))
+          (!applied.attendees.length || e.attendees.some((id) => applied.attendees.includes(id))) &&
+          (!applied.companions.length || applied.companions.some((w) => companionMatches(e.companion, w))))
         .sort((a, b) => (a.date + a.start).localeCompare(b.date + b.start));
 
       $('ra-rows').replaceChildren(...results.slice(0, shown).map(row));
@@ -156,7 +152,7 @@ FP.views['report-activity'] = (() => {
       setError('');
       applied = {
         name: f.name.value.trim(), date: f.date.value, from: f.from.value, to: f.to.value,
-        attendee: f.attendee.value, companion: f.companion.value
+        attendees: attendeeSelect.values(), companions: companionSelect.values()
       };
       shown = PAGE_SIZE;   // cada búsqueda empieza por el primer bloque
       render();
@@ -166,6 +162,8 @@ FP.views['report-activity'] = (() => {
     $('ra-filters').addEventListener('submit', (e) => { e.preventDefault(); search(); });
     $('ra-clear').addEventListener('click', () => {
       $('ra-filters').reset();
+      attendeeSelect.clear();
+      companionSelect.clear();
       search();
       f.name.focus();
     });
@@ -179,9 +177,10 @@ FP.views['report-activity'] = (() => {
       $('ra-toggle').setAttribute('aria-expanded', String(open));
       $('ra-toggle').setAttribute('aria-label', label);
       $('ra-toggle').title = label;
+      if (open) { attendeeSelect.refresh(); companionSelect.refresh(); }
     });
 
-    refresh = render;
+    refresh = () => { attendeeSelect.refresh(); companionSelect.refresh(); render(); };
     render();
   }
 

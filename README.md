@@ -20,7 +20,7 @@ views/
   reports.html             Informes screen: one card per report
   report-activity.html     Informe de actividad: List Report (filter bar + results table)
 css/
-  base.css                 Design tokens, typography, buttons, form fields and errors, colour dot, panel header
+  base.css                 Design tokens, typography, buttons, form fields and errors, colour dot, multi-select, panel header
   login.css                Login page only
   shell.css                Top bar, user menu, side navigation, toasts
   views/planner.css        Calendario screen only
@@ -33,6 +33,7 @@ js/
   core/storage.js          Activities stored in localStorage
   core/family.js           Family members and companion options shared by the screens
   core/time.js             Time and date helpers shared by the screens
+  core/multiselect.js      Multi-select dropdown with checkboxes (styles in base.css)
   core/router.js           Loads each screen's HTML, CSS and JS when it is opened
   login.js                 Login page logic
   shell.js                 Side navigation, user menu and toasts
@@ -78,9 +79,9 @@ Users are defined in `js/config.js`.
 A List Report: a collapsible filter bar above a results table.
 
 - Filters combine with AND; an empty filter does not restrict.
-- **Nombre actividad** ignores case and accents. `*` is a wildcard and the pattern must cover the whole name (`Med*` finds "Médico"); without `*` the name only has to contain the text.
+- **Nombre actividad**: the name contains the text, ignoring case and accents (`med` finds "Médico").
 - **Hora inicio / Hora fin** form one time-range filter: activities that take place, even partly, inside the range.
-- **Acompañante** "Alberto" also finds activities accompanied by "Alberto y Laura".
+- **Asistente** and **Acompañante** are multi-selects with checkboxes; values ticked in the same filter combine with OR (Acompañante "Alberto" also finds activities accompanied by "Alberto y Laura"). Ticked values show as tokens in the field, with "+N" when they do not fit.
 - Results show 20 rows at a time; "Mostrar más" adds the next 20.
 
 > This is a proof of concept. The login is client-side only and activities are stored in the browser's `localStorage`: it is not secure and data is not shared between devices.

@@ -2,7 +2,8 @@
  * Datos de la familia derivados de FP_CONFIG.members, compartidos por las pantallas.
  *   FP.family.members               → miembros, en el orden de config.js
  *   FP.family.byId                  → { id: miembro }
- *   FP.family.companionOptions      → opciones del desplegable "Acompañante":
+ *   FP.family.companions            → personas que pueden acompañar (canAccompany)
+ *   FP.family.companionOptions      → opciones del desplegable "Acompañante" del Calendario:
  *                                     cada persona con canAccompany y, si hay más
  *                                     de una, la combinación ("Alberto y Laura")
  *   FP.family.companionLabel(value) → texto de una opción ('' si no hay acompañante)
@@ -26,6 +27,7 @@ FP.family = (() => {
   return {
     members,
     byId,
+    companions,
     companionOptions,
     companionLabel: (value) => labels[value] || ''
   };

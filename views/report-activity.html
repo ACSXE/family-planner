@@ -20,8 +20,7 @@
         <div class="lr__fields">
           <div class="field">
             <label for="ra-name">Nombre actividad</label>
-            <input id="ra-name" type="text" autocomplete="off" spellcheck="false" placeholder="Por ejemplo: Méd*">
-            <span class="lr__help">Usa * como comodín</span>
+            <input id="ra-name" type="text" autocomplete="off" spellcheck="false">
           </div>
           <div class="field">
             <label for="ra-date">Fecha actividad</label>
@@ -36,20 +35,21 @@
             <input id="ra-to" type="time" step="300">
           </div>
           <div class="field">
-            <label for="ra-attendee">Asistente</label>
-            <select id="ra-attendee"><option value="">Todos</option></select>
+            <span class="field__label" id="ra-attendee-label">Asistente</span>
+            <div id="ra-attendee"></div>
           </div>
           <div class="field">
-            <label for="ra-companion">Acompañante</label>
-            <select id="ra-companion"><option value="">Todos</option></select>
+            <span class="field__label" id="ra-companion-label">Acompañante</span>
+            <div id="ra-companion"></div>
           </div>
         </div>
         <p class="form-error lr__error" id="ra-error" role="alert" hidden></p>
         <div class="lr__actions">
-          <button class="btn btn--ghost" id="ra-clear" type="button">Borrar filtros</button>
-          <button class="btn btn--primary" id="ra-search" type="submit">
+          <button class="btn btn--primary btn--icon" id="ra-clear" type="button" aria-label="Borrar filtros" title="Borrar filtros">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.4-5.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M4 4v4.5h4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <button class="btn btn--primary btn--icon" id="ra-search" type="submit" aria-label="Buscar" title="Buscar">
             <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.5 15.5L20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-            Buscar
           </button>
         </div>
       </form>
