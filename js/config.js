@@ -40,7 +40,7 @@ const FP_CONFIG = {
     {
       view: 'report-activity',
       title: 'Informe de actividad',
-      description: 'Consulta las actividades planificadas de la familia.',
+      description: 'Consulta las actividades planificadas de la familia',
       icon: 'i-report-activity'
     }
   ],
