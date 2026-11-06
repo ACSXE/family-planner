@@ -8,7 +8,7 @@
 window.FP = window.FP || {};
 
 FP.storage = (() => {
-  const DATA_VERSION = '2';   // al subir este número se borran las actividades guardadas
+  const DATA_VERSION = '3';   // al subir este número se borran las actividades guardadas
   const key = (username) => 'fp.events.' + username;
 
   return {
