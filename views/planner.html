@@ -101,18 +101,22 @@
 
           <p class="form-error" id="form-error" role="alert" hidden></p>
 
-          <!-- Aviso al salir con cambios sin guardar -->
-          <div class="detail__unsaved" id="detail-unsaved" role="alert" hidden>
-            <span>Tienes cambios sin guardar.</span>
-            <div class="detail__unsaved-actions">
-              <button class="btn btn--ghost" id="unsaved-discard" type="button">Descartar</button>
-              <button class="btn btn--primary" id="unsaved-keep" type="button">Seguir editando</button>
-            </div>
-          </div>
-
           <div class="detail__actions" id="detail-actions">
             <button class="btn btn--primary" id="btn-edit" type="button">Editar</button>
             <button class="btn btn--primary" id="btn-save" type="submit">Guardar</button>
+          </div>
+
+          <!-- Aviso al salir con cambios sin guardar: ocupa el sitio de la barra de Guardar mientras dura.
+               Guardar guarda y continúa; pulsar en el formulario o Escape = seguir editando. -->
+          <div class="detail__unsaved" id="detail-unsaved" role="alert" hidden>
+            <p class="detail__unsaved-text">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l9.5 17h-19z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 10v4.5M12 17.6v.2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              Tienes cambios sin guardar
+            </p>
+            <div class="detail__unsaved-actions">
+              <button class="btn btn--ghost" id="unsaved-discard" type="button">Descartar</button>
+              <button class="btn btn--primary" id="unsaved-save" type="button">Guardar</button>
+            </div>
           </div>
         </form>
       </div>

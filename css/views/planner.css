@@ -147,13 +147,18 @@
 .icon-btn.detail__trash:not(.is-armed):hover { color: var(--danger); background: var(--danger-soft); }
 .icon-btn.detail__trash.is-armed { background: var(--danger); color: #fff; }
 
-/* Aviso de cambios sin guardar */
-.detail__unsaved {
-  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px;
-  margin: 0 0 12px; padding: 10px 12px; border-radius: var(--radius-sm);
-  background: #fff7e6; border: 1px solid #f3d29b; color: var(--text); font-size: var(--field-font-size); font-weight: 600;
+/* Aviso de cambios sin guardar: sustituye a la barra de Guardar (texto arriba, botones debajo a la derecha) */
+.detail__unsaved { border-top: 1px solid var(--border); margin-top: 8px; padding-top: 12px; }
+.detail__unsaved-text {
+  display: flex; align-items: center; gap: 6px; margin: 0 0 10px;
+  font-size: var(--field-font-size); font-weight: 600; color: var(--text);
 }
-.detail__unsaved-actions { display: flex; gap: 8px; margin-left: auto; }
+.detail__unsaved-text svg { width: 18px; height: 18px; flex: none; color: #b7791f; }
+/* Descartar y Guardar con el mismo ancho y alto (toman el del más ancho), alineados a la derecha */
+.detail__unsaved-actions {
+  display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 8px;
+  width: max-content; max-width: 100%; margin-left: auto;
+}
 
 /* ---------- Móvil ---------- */
 @media (max-width: 600px) {

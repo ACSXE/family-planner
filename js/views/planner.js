@@ -283,12 +283,14 @@ FP.views.planner = (() => {
     function guard(action) {
       if (!isDirty()) { hideUnsaved(); action(); return; }
       pendingAction = action;
+      $('detail-actions').hidden = true;      // el aviso ocupa el sitio de Guardar
       $('detail-unsaved').hidden = false;
-      $('unsaved-keep').focus();
+      $('unsaved-save').focus();
     }
     function hideUnsaved() {
       pendingAction = null;
       $('detail-unsaved').hidden = true;
+      $('detail-actions').hidden = !state.mode || state.mode === 'readonly';   // vuelve Guardar
     }
     $('unsaved-discard').addEventListener('click', () => {
       const action = pendingAction;
@@ -296,7 +298,16 @@ FP.views.planner = (() => {
       snapshot = JSON.stringify(readForm());   // los cambios se descartan
       if (action) action();
     });
-    $('unsaved-keep').addEventListener('click', () => { hideUnsaved(); f.name.focus(); });
+    // Guardar desde el aviso: guarda y, si sale bien, hace lo que se había pulsado
+    $('unsaved-save').addEventListener('click', async () => {
+      const action = pendingAction;
+      hideUnsaved();
+      if (await save() && action) action();
+    });
+    // Pulsar en cualquier campo del formulario = seguir editando (vuelve la barra con Guardar)
+    form.addEventListener('pointerdown', (e) => {
+      if (!$('detail-unsaved').hidden && !e.target.closest('#detail-unsaved')) hideUnsaved();
+    }, true);
 
     function fillForm(d) {
       f.name.value = d.name;
@@ -376,9 +387,11 @@ FP.views.planner = (() => {
       f.name.focus();
     });
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      if (state.mode !== 'new' && state.mode !== 'edit') return;
+    form.addEventListener('submit', (e) => { e.preventDefault(); save(); });
+
+    // Valida y guarda. Devuelve true si se ha guardado; si no, muestra el error y se sigue editando.
+    async function save() {
+      if (state.mode !== 'new' && state.mode !== 'edit') return false;
       const data = readForm();
       if (!data.name) return setFormError('Indica el nombre de la actividad.', f.name);
       if (!data.date) return setFormError('Indica la fecha.', f.date);
@@ -415,7 +428,8 @@ FP.views.planner = (() => {
       renderCalendar();
       renderDay(dateChanged);
       FP.toast(isNew ? 'Actividad creada' : 'Actividad actualizada');
-    });
+      return true;
+    }
 
     // Papelera: primer clic la arma ("Eliminar" en rojo), segundo clic elimina
     let deleteArmed = false;

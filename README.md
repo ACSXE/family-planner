@@ -107,7 +107,7 @@ GitHub Pages serves the `main` branch as is (no build step): every push to `main
 
 - Guardar returns to the viewing state; the close button (X, or "‹ Día" on phones) closes the detail in any state.
 - The trash turns red on the first click and deletes on the second; clicking elsewhere or Escape resets it.
-- Leaving while creating or editing with unsaved changes (close, another activity, slot or day, Hoy, Escape) asks "Tienes cambios sin guardar · Descartar / Seguir editando".
+- Leaving while creating or editing with unsaved changes (close, another activity, slot or day, Hoy, Escape) replaces the Guardar bar with "Tienes cambios sin guardar" and two equal-size buttons: **Descartar** drops the changes and continues; **Guardar** saves and continues (on a validation or connection error it stays in editing and shows the error). Clicking any field or Escape keeps editing.
 
 ## Informe de actividad
 
