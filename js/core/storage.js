@@ -41,9 +41,10 @@ FP.storage = (() => {
     companion: a.companion || ''
   });
 
-  function fail(error, action) {
+  // Mensajes cortos: los de guardar y eliminar se ven en una línea bajo el título del detalle
+  function fail(error, message) {
     console.error(error);
-    throw new Error(`No se ha podido ${action}. Comprueba la conexión e inténtalo de nuevo.`);
+    throw new Error(message);
   }
 
   // Restos de la versión anterior, que guardaba las actividades en este navegador
@@ -55,28 +56,28 @@ FP.storage = (() => {
     async list() {
       const { data, error } = await FP.db.from('activities').select(COLUMNS)
         .order('date').order('start_time');
-      if (error) fail(error, 'cargar las actividades');
+      if (error) fail(error, 'No se han podido cargar las actividades. Comprueba la conexión.');
       return data.map(fromRow);
     },
 
     async create(activity) {
       const { data, error } = await FP.db.from('activities').insert(toRow(activity)).select(COLUMNS).single();
-      if (error) fail(error, 'guardar la actividad');
+      if (error) fail(error, 'Error al guardar. Revisa la conexión');
       return fromRow(data);
     },
 
     async update(activity) {
       const { data, error } = await FP.db.from('activities').update(toRow(activity))
         .eq('id', activity.id).select(COLUMNS);
-      if (error) fail(error, 'guardar los cambios');
-      if (!data.length) throw new Error('Solo puede modificar esta actividad quien la creó.');
+      if (error) fail(error, 'Error al guardar. Revisa la conexión');
+      if (!data.length) throw new Error('Solo quien la creó puede modificarla');
       return fromRow(data[0]);
     },
 
     async remove(id) {
       const { data, error } = await FP.db.from('activities').delete().eq('id', id).select('id');
-      if (error) fail(error, 'eliminar la actividad');
-      if (!data.length) throw new Error('Solo puede eliminar esta actividad quien la creó.');
+      if (error) fail(error, 'Error al eliminar. Revisa la conexión');
+      if (!data.length) throw new Error('Solo quien la creó puede eliminarla');
     },
 
     canEdit(activity) {

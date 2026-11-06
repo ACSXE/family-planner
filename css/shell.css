@@ -64,19 +64,24 @@
 }
 .sidenav__icon { width: 20px; height: 20px; flex: none; }
 .sidenav__label { display: none; }
-/* Activo: fondo azul claro + barra a la izquierda */
+/* Activo: fondo azul claro */
 .sidenav__item.is-active { background: var(--primary-soft); color: var(--primary); }
-.sidenav__item.is-active::before {
-  content: ""; position: absolute; left: -8px; top: 8px; bottom: 8px;
-  width: 3px; border-radius: 0 3px 3px 0; background: var(--primary);
-}
-/* Hover / foco: la etiqueta sale flotando hacia la derecha sobre el contenido */
-.sidenav__item:hover, .sidenav__item:focus-visible {
+/* Ratón encima o foco con teclado: la etiqueta sale flotando hacia la derecha sobre el contenido.
+   Solo en dispositivos con ratón: en pantallas táctiles el "hover" se queda pegado tras tocar. */
+.sidenav__item:focus-visible {
   background: var(--primary-soft); color: var(--primary);
   padding-right: 16px;
   box-shadow: 0 2px 8px rgba(16, 32, 56, .16);
 }
-.sidenav__item:hover .sidenav__label, .sidenav__item:focus-visible .sidenav__label { display: inline; }
+.sidenav__item:focus-visible .sidenav__label { display: inline; }
+@media (hover: hover) {
+  .sidenav__item:hover {
+    background: var(--primary-soft); color: var(--primary);
+    padding-right: 16px;
+    box-shadow: 0 2px 8px rgba(16, 32, 56, .16);
+  }
+  .sidenav__item:hover .sidenav__label { display: inline; }
+}
 
 /* ---------- Toast ---------- */
 .toast {

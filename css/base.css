@@ -155,6 +155,11 @@ button { cursor: pointer; }
 .col__subtitle { margin: 0; font-size: 13px; color: var(--text-muted); }
 .col__subtitle--strong { font-weight: 700; color: var(--text); }
 .col__hint { margin: 4px 0 0; font-size: 12px; color: var(--text-muted); }
+/* Mensaje de error bajo el título: siempre en una línea */
+.col__error { display: flex; align-items: center; gap: 4px; margin: 4px 0 0; font-size: 12px; font-weight: 600; color: var(--danger); }
+.col__error[hidden] { display: none; }
+.col__error svg { flex: none; width: 14px; height: 14px; }
+.col__error span { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .col__actions { display: flex; gap: 2px; flex: none; }
 .col__body { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; }
 

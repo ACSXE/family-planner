@@ -131,8 +131,6 @@
 .chip:has(input:checked)::after { content: "\2713"; color: var(--c); font-weight: 700; margin-left: auto; }
 .chip:has(input:focus-visible) { outline: 2px solid var(--primary); outline-offset: 2px; }
 /* Aviso "Creada por…" y formulario en solo lectura */
-/* Error al guardar, debajo de la cabecera de la columna 3 */
-.detail__error { flex: none; margin: 12px 16px 0; }
 .detail__owner {
   margin: 0 0 16px; padding: 10px 12px; border-radius: var(--radius-sm);
   background: var(--primary-soft); color: var(--text); font-size: var(--field-font-size);
@@ -167,6 +165,5 @@
   .months { padding: 12px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
   .day { font-size: 14px; }
   .detail { padding: 16px 12px 32px; }
-  .detail__error { margin: 12px 12px 0; }
   .btn--danger { margin-left: 0; }
 }

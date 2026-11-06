@@ -374,11 +374,16 @@ FP.views.planner = (() => {
       setDepth(2);
       renderDay(false);
     }
+    function clearInvalid() {
+      form.querySelectorAll('[aria-invalid]').forEach((el) => el.removeAttribute('aria-invalid'));
+    }
     function setFormError(msg, field) {
       const box = $('form-error');
-      box.textContent = msg;
+      $('form-error-text').textContent = msg;
+      box.title = msg;   // por si en una pantalla muy estrecha no cabe entero
       box.hidden = !msg;
-      form.querySelectorAll('[aria-invalid]').forEach((el) => el.removeAttribute('aria-invalid'));
+      syncHeaders();   // un error largo puede ocupar dos líneas
+      clearInvalid();
       if (field) { field.setAttribute('aria-invalid', 'true'); field.focus(); }
     }
 
@@ -395,15 +400,15 @@ FP.views.planner = (() => {
     async function save() {
       if (state.mode !== 'new' && state.mode !== 'edit') return false;
       const data = readForm();
-      if (!data.name) return setFormError('Indica el nombre de la actividad.', f.name);
-      if (!data.date) return setFormError('Indica la fecha.', f.date);
-      if (!data.start) return setFormError('Indica la hora de inicio.', f.start);
-      if (!data.end) return setFormError('Indica la hora de fin.', f.end);
-      if (toMin(data.end) <= toMin(data.start)) return setFormError('La hora de fin debe ser posterior a la de inicio.', f.end);
-      if (!data.attendees.length) return setFormError('Selecciona al menos un asistente.', f.att.querySelector('input'));
+      if (!data.name) return setFormError('Es obligatorio indicar el nombre', f.name);
+      if (!data.date) return setFormError('Es obligatorio indicar la fecha', f.date);
+      if (!data.start) return setFormError('Es obligatorio indicar la hora inicio', f.start);
+      if (!data.end) return setFormError('Es obligatorio indicar la hora fin', f.end);
+      if (toMin(data.end) <= toMin(data.start)) return setFormError('La hora fin debe ser posterior a inicio', f.end);
+      if (!data.attendees.length) return setFormError('Es obligatorio seleccionar un asistente', f.att.querySelector('input'));
       if (companionRequired() && !data.companion) {
         const kids = data.attendees.map((id) => memberById[id]).filter((m) => m?.needsCompanion).map((m) => m.name);
-        return setFormError(`Selecciona un acompañante: es obligatorio cuando ${kids.length > 1 ? 'asisten' : 'asiste'} ${kids.join(' y ')}.`, f.companion);
+        return setFormError('Es obligatorio seleccionar un acompañante', f.companion);
       }
 
       const isNew = !data.id;
