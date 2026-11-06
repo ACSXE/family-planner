@@ -51,10 +51,13 @@ button { cursor: pointer; }
 
 .logo { width: 26px; height: 26px; flex: none; }
 
-/* ---------- Botones ---------- */
+/* ---------- Botones ----------
+   Un solo modelo para toda la app: 40px de alto, texto de 14px en negrita.
+   Tipos: --primary (relleno), --ghost (secundario, con borde), --danger (peligro).
+   --icon: solo icono, cuadrado de 40x40. */
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-  min-height: 38px; padding: 0 16px;
+  min-height: 40px; padding: 0 16px; font-size: 14px;
   border: 1px solid transparent; border-radius: var(--radius-sm);
   background: transparent; font-weight: 600; white-space: nowrap;
   transition: background .15s, border-color .15s, color .15s;
@@ -68,8 +71,8 @@ button { cursor: pointer; }
 .btn--danger:hover { background: var(--danger-soft); }
 .btn--danger.is-armed { background: var(--danger); color: #fff; border-color: var(--danger); }
 .btn--block { width: 100%; }
-.btn--icon { width: 38px; padding: 0; }
-.btn--back { padding: 0 10px 0 6px; min-height: 34px; }
+.btn--icon { width: 40px; padding: 0; }
+.btn--back { padding: 0 10px 0 6px; }
 
 .icon-btn {
   display: inline-grid; place-items: center;

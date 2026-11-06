@@ -23,8 +23,10 @@
 .report-card__icon svg { display: block; width: 40px; height: 40px; margin-left: -2.25px; }
 .report-card__title { margin: 0; font-size: 16px; font-weight: 700; }
 .report-card__desc { margin: 0; font-size: 13px; color: var(--text-muted); flex: 1; }
-.report-card__open { margin-top: 10px; display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; color: var(--primary); }
-.report-card__open svg { width: 16px; height: 16px; flex: none; }
+.report-card__open { margin-top: 10px; font-size: 14px; font-weight: 600; color: var(--primary); }
+/* vertical-align: middle centra la flecha con la altura de las minúsculas del tipo
+   de letra que use cada sistema (Segoe UI, San Francisco, Roboto…) */
+.report-card__open svg { width: 16px; height: 16px; margin-left: 6px; vertical-align: middle; }
 
 @media (max-width: 600px) {
   .report-cards { padding: 12px; gap: 12px; }

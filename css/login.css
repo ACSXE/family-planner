@@ -25,4 +25,4 @@
   margin: 0 0 16px; padding: 10px 12px; border-radius: var(--radius-sm);
   background: var(--danger-soft); color: var(--danger); border: 1px solid #f2c4c4; font-size: 14px;
 }
-.login .btn--primary { min-height: 44px; margin-top: 4px; }
+.login .btn--primary { margin-top: 4px; }
