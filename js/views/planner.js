@@ -197,6 +197,7 @@ FP.views.planner = (() => {
       const d = parseIso(state.date);
       $('day-title').textContent = longDate(state.date);
       $('day-weekday').textContent = DOW_LONG[d.getDay()];
+      syncHeaders();
 
       const labels = h('div', { class: 'timeline__labels', 'aria-hidden': 'true' });
       const area = h('div', { class: 'timeline__area', style: `height:${24 * HOUR_PX}px` });
@@ -362,6 +363,7 @@ FP.views.planner = (() => {
       fillForm(state.draft);
       setMode(mode);
       if (state.depth < 3) setDepth(3); else applyLayout();
+      $('detail-body').scrollTop = 0;   // el detalle se abre siempre desde arriba
       renderDay(false);
     }
     function closeDetail() {
@@ -504,6 +506,16 @@ FP.views.planner = (() => {
       $('close-detail').hidden = !(n === 3 && max > 1);
 
       document.body.dataset.columns = max;
+      syncHeaders();
+    }
+    // Las cabeceras de las columnas visibles tienen todas la altura de la más alta
+    function syncHeaders() {
+      const headers = cols.map((c) => c.querySelector('.col__header'));
+      headers.forEach((h) => { h.style.minHeight = ''; });
+      const visible = headers.filter((h) => h.offsetParent !== null);
+      if (visible.length < 2) return;
+      const tallest = Math.max(...visible.map((h) => h.offsetHeight));
+      visible.forEach((h) => { h.style.minHeight = `${tallest}px`; });
     }
     function setSeparator(sep, arrow, visible, n) {
       sep.hidden = !visible;

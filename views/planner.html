@@ -36,7 +36,7 @@
             <button class="icon-btn" id="close-day" type="button" aria-label="Cerrar"><svg><use href="#i-close"/></svg></button>
           </div>
         </div>
-        <p class="col__hint">Pulsa una franja horaria para crear o ver una actividad</p>
+        <p class="col__hint">Selecciona una franja horaria libre o una actividad</p>
       </header>
       <div class="col__body" id="day-body">
         <div class="timeline" id="timeline"></div>
@@ -62,7 +62,9 @@
           </div>
         </div>
       </header>
-      <div class="col__body">
+      <!-- Errores al guardar: justo debajo de la cabecera, siempre a la vista -->
+      <p class="form-error detail__error" id="form-error" role="alert" hidden></p>
+      <div class="col__body" id="detail-body">
         <form class="detail" id="detail-form" novalidate>
           <!-- Aviso de solo lectura cuando la actividad la creó otra persona -->
           <p class="detail__owner" id="detail-owner" hidden></p>
@@ -98,8 +100,6 @@
               <option value=""></option>
             </select>
           </div>
-
-          <p class="form-error" id="form-error" role="alert" hidden></p>
 
           <div class="detail__actions" id="detail-actions">
             <button class="btn btn--primary" id="btn-edit" type="button">Editar</button>
