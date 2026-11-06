@@ -63,7 +63,6 @@ FP.views.planner = (() => {
       date: null,          // día seleccionado (YYYY-MM-DD)
       depth: 1,            // columnas abiertas (1..3)
       variant: { 1: 0, 2: 0, 3: 0 },
-      fullscreen: false,
       draft: null,         // actividad mostrada en la columna 3
       slot: null           // minuto de inicio de la franja seleccionada
     };
@@ -149,20 +148,20 @@ FP.views.planner = (() => {
 
     $('months').addEventListener('click', (e) => {
       const btn = e.target.closest('button.day');
-      if (btn) selectDate(btn.dataset.date);
+      if (btn) guard(() => selectDate(btn.dataset.date));
     });
     $('year-prev').addEventListener('click', () => { state.year--; renderCalendar(); });
     $('year-next').addEventListener('click', () => { state.year++; renderCalendar(); });
-    $('btn-today').addEventListener('click', () => {
+    $('btn-today').addEventListener('click', () => guard(() => {
       state.year = new Date().getFullYear();
       renderCalendar();
       selectDate(isoOf(new Date()));
-    });
+    }));
 
     function selectDate(date, { keepDetail = false } = {}) {
       state.date = date;
       state.year = parseIso(date).getFullYear();
-      if (!keepDetail) { state.draft = null; state.slot = null; setDepth(2); }
+      if (!keepDetail) { state.mode = null; state.draft = null; state.slot = null; setDepth(2); }
       renderCalendar();
       renderDay(true);
       const sel = $('months').querySelector('.day.is-selected');
@@ -244,12 +243,12 @@ FP.views.planner = (() => {
 
     $('timeline').addEventListener('click', (e) => {
       const ev = e.target.closest('.event');
-      if (ev) { openExisting(ev.dataset.id); return; }
+      if (ev) { guard(() => openExisting(ev.dataset.id)); return; }
       const slot = e.target.closest('.slot');
-      if (slot) openNew(Number(slot.dataset.min));
+      if (slot) guard(() => openNew(Number(slot.dataset.min)));
     });
-    $('day-prev').addEventListener('click', () => shiftDay(-1));
-    $('day-next').addEventListener('click', () => shiftDay(1));
+    $('day-prev').addEventListener('click', () => guard(() => shiftDay(-1)));
+    $('day-next').addEventListener('click', () => guard(() => shiftDay(1)));
     function shiftDay(n) {
       const d = parseIso(state.date);
       d.setDate(d.getDate() + n);
@@ -257,25 +256,49 @@ FP.views.planner = (() => {
     }
 
     // ============ Columna 3: detalle ============
-    function openNew(startMin) {
-      state.slot = startMin;
-      state.draft = {
-        id: null, name: '', description: '', date: state.date,
-        start: fromMin(startMin), end: fromMin(Math.min(startMin + SLOT_MIN, 23 * 60 + 59)), attendees: [], companion: ''
-      };
-      showDetail();
-      f.name.focus({ preventScroll: true });
+    /*
+     * Estados del detalle (state.mode):
+     *   'new'      creando una actividad      → campos editables · Guardar
+     *   'view'     viendo una actividad mía   → campos bloqueados · Editar · papelera
+     *   'edit'     editando una actividad mía → campos editables · Guardar · papelera
+     *   'readonly' viendo la de otra persona  → campos bloqueados · aviso "Creada por…"
+     * La X de la cabecera (o "‹ Día" en móvil) cierra el detalle en cualquier estado.
+     */
+    let snapshot = '';        // contenido del formulario al empezar a crear o editar
+    let pendingAction = null; // acción en espera mientras se muestra el aviso de cambios sin guardar
+
+    const readForm = () => ({
+      id: state.draft?.id || null,
+      name: f.name.value.trim(),
+      description: f.desc.value.trim(),
+      date: f.date.value,
+      start: f.start.value,
+      end: f.end.value,
+      attendees: [...f.att.querySelectorAll('input:checked')].map((cb) => cb.value),
+      companion: f.companion.value
+    });
+    const isDirty = () => (state.mode === 'new' || state.mode === 'edit') && JSON.stringify(readForm()) !== snapshot;
+
+    // Ejecuta la acción; si hay cambios sin guardar, antes pregunta
+    function guard(action) {
+      if (!isDirty()) { hideUnsaved(); action(); return; }
+      pendingAction = action;
+      $('detail-unsaved').hidden = false;
+      $('unsaved-keep').focus();
     }
-    function openExisting(id) {
-      const e = events.find((x) => x.id === id);
-      if (!e) return;
-      state.slot = toMin(e.start);
-      state.draft = structuredClone(e);
-      showDetail();
+    function hideUnsaved() {
+      pendingAction = null;
+      $('detail-unsaved').hidden = true;
     }
-    function showDetail() {
-      const d = state.draft;
-      $('detail-title').textContent = d.id ? 'Detalle de la actividad' : 'Nueva actividad';
+    $('unsaved-discard').addEventListener('click', () => {
+      const action = pendingAction;
+      hideUnsaved();
+      snapshot = JSON.stringify(readForm());   // los cambios se descartan
+      if (action) action();
+    });
+    $('unsaved-keep').addEventListener('click', () => { hideUnsaved(); f.name.focus(); });
+
+    function fillForm(d) {
       f.name.value = d.name;
       f.desc.value = d.description;
       f.date.value = d.date;
@@ -284,28 +307,55 @@ FP.views.planner = (() => {
       f.att.querySelectorAll('input').forEach((cb) => { cb.checked = d.attendees.includes(cb.value); });
       f.companion.value = [...f.companion.options].some((o) => o.value === d.companion) ? d.companion : '';
       updateCompanionRequired();
-      setReadOnly(!FP.storage.canEdit(d), d);
-      $('btn-delete').hidden = !d.id || !FP.storage.canEdit(d);
+    }
+
+    function setMode(mode) {
+      state.mode = mode;
+      const editable = mode === 'new' || mode === 'edit';
+      form.classList.toggle('is-readonly', !editable);
+      form.querySelectorAll('input, textarea, select').forEach((el) => { el.disabled = !editable; });
+      $('detail-title').textContent = mode === 'new' ? 'Nueva actividad' : mode === 'edit' ? 'Editar actividad' : 'Detalle actividad';
+      $('btn-save').hidden = !editable;
+      $('btn-edit').hidden = mode !== 'view';
+      $('detail-actions').hidden = mode === 'readonly';
+      $('btn-delete').hidden = !(mode === 'view' || mode === 'edit');
       resetDelete();
+      const owner = $('detail-owner');
+      owner.hidden = mode !== 'readonly';
+      if (mode === 'readonly') {
+        const name = FP.session.nameOf(state.draft.createdBy) || 'otra persona';
+        owner.textContent = `Creada por ${name}. Solo quien la creó puede modificarla o eliminarla.`;
+      }
+      if (editable) snapshot = JSON.stringify(readForm());
+      hideUnsaved();
       setFormError('');
+    }
+
+    function openNew(startMin) {
+      state.slot = startMin;
+      state.draft = {
+        id: null, name: '', description: '', date: state.date,
+        start: fromMin(startMin), end: fromMin(Math.min(startMin + SLOT_MIN, 23 * 60 + 59)), attendees: [], companion: ''
+      };
+      showDetail('new');
+      f.name.focus({ preventScroll: true });
+    }
+    function openExisting(id) {
+      const e = events.find((x) => x.id === id);
+      if (!e) return;
+      state.slot = toMin(e.start);
+      state.draft = structuredClone(e);
+      showDetail(FP.storage.canEdit(e) ? 'view' : 'readonly');
+    }
+    function showDetail(mode) {
+      fillForm(state.draft);
+      setMode(mode);
       if (state.depth < 3) setDepth(3); else applyLayout();
       renderDay(false);
     }
-    // Las actividades de otra persona se ven pero no se pueden modificar
-    function setReadOnly(readOnly, d) {
-      form.classList.toggle('is-readonly', readOnly);
-      form.querySelectorAll('input, textarea, select').forEach((el) => { el.disabled = readOnly; });
-      $('btn-save').hidden = readOnly;
-      $('btn-cancel').textContent = readOnly ? 'Cerrar' : 'Cancelar';
-      const owner = $('detail-owner');
-      owner.hidden = !readOnly;
-      if (readOnly) {
-        const name = FP.session.nameOf(d.createdBy) || 'otra persona';
-        owner.textContent = `Creada por ${name}. Solo quien la creó puede modificarla o eliminarla.`;
-      }
-    }
-
     function closeDetail() {
+      hideUnsaved();
+      state.mode = null;
       state.draft = null;
       state.slot = null;
       setDepth(2);
@@ -319,19 +369,17 @@ FP.views.planner = (() => {
       if (field) { field.setAttribute('aria-invalid', 'true'); field.focus(); }
     }
 
+    // Editar: habilita los campos; el botón pasa a Guardar
+    $('btn-edit').addEventListener('click', () => {
+      if (state.mode !== 'view') return;
+      setMode('edit');
+      f.name.focus();
+    });
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      if (!FP.storage.canEdit(state.draft || {})) return;
-      const data = {
-        id: state.draft?.id || null,
-        name: f.name.value.trim(),
-        description: f.desc.value.trim(),
-        date: f.date.value,
-        start: f.start.value,
-        end: f.end.value,
-        attendees: [...f.att.querySelectorAll('input:checked')].map((cb) => cb.value),
-        companion: f.companion.value
-      };
+      if (state.mode !== 'new' && state.mode !== 'edit') return;
+      const data = readForm();
       if (!data.name) return setFormError('Indica el nombre de la actividad.', f.name);
       if (!data.date) return setFormError('Indica la fecha.', f.date);
       if (!data.start) return setFormError('Indica la hora de inicio.', f.start);
@@ -356,12 +404,11 @@ FP.views.planner = (() => {
       if (isNew) events.push(saved);
       else events = events.map((x) => (x.id === saved.id ? saved : x));
 
+      // Guardada: vuelve a "ver" (campos bloqueados, botón Editar)
       state.draft = structuredClone(saved);
-      state.slot = toMin(data.start);
-      $('detail-title').textContent = 'Detalle de la actividad';
-      $('btn-delete').hidden = false;
-      setFormError('');
-      setReadOnly(false, saved);
+      state.slot = toMin(saved.start);
+      fillForm(saved);
+      setMode('view');
       const dateChanged = saved.date !== state.date;
       state.date = saved.date;
       state.year = parseIso(saved.date).getFullYear();
@@ -370,19 +417,22 @@ FP.views.planner = (() => {
       FP.toast(isNew ? 'Actividad creada' : 'Actividad actualizada');
     });
 
-    // Confirmación dentro de la página: primer clic arma el botón, segundo clic elimina
+    // Papelera: primer clic la arma ("Eliminar" en rojo), segundo clic elimina
     let deleteArmed = false;
     function resetDelete() {
       deleteArmed = false;
-      $('btn-delete').textContent = 'Eliminar';
       $('btn-delete').classList.remove('is-armed');
+      $('btn-delete').setAttribute('aria-label', 'Eliminar actividad');
+      $('btn-delete').title = 'Eliminar actividad';
     }
-    $('btn-delete').addEventListener('click', async () => {
+    $('btn-delete').addEventListener('click', async (e) => {
+      e.stopPropagation();
       if (!state.draft?.id || !FP.storage.canEdit(state.draft)) return;
       if (!deleteArmed) {
         deleteArmed = true;
-        $('btn-delete').textContent = 'Pulsa para eliminar';
         $('btn-delete').classList.add('is-armed');
+        $('btn-delete').setAttribute('aria-label', 'Pulsa otra vez para eliminar la actividad');
+        $('btn-delete').title = 'Pulsa otra vez para eliminar';
         return;
       }
       resetDelete();
@@ -400,7 +450,11 @@ FP.views.planner = (() => {
       closeDetail();
       FP.toast('Actividad eliminada');
     });
-    $('btn-cancel').addEventListener('click', closeDetail);
+    // Pulsar en cualquier otro sitio desarma la papelera (pointerdown también llega
+    // desde los campos bloqueados, que no generan "click")
+    document.addEventListener('pointerdown', (e) => {
+      if (deleteArmed && !e.target.closest('#btn-delete')) resetDelete();
+    }, true);
 
     // ============ Layout (Flexible Column Layout) ============
     function maxColumns() {
@@ -410,7 +464,6 @@ FP.views.planner = (() => {
     function setDepth(n) {
       if (n !== state.depth) {
         if (n > state.depth) state.variant[n] = 0; // al abrir una columna se usa el reparto por defecto
-        state.fullscreen = false;
         state.depth = n;
       }
       applyLayout();
@@ -421,11 +474,10 @@ FP.views.planner = (() => {
       const variants = LAYOUTS[max][n];
       const v = Math.min(state.variant[n] || 0, variants.length - 1);
       let w = variants[v];
-      if (state.fullscreen) { w = [0, 0, 0]; w[n - 1] = 100; }
 
       cols.forEach((c, i) => { c.hidden = w[i] === 0; c.style.flex = `${w[i]} 1 0`; });
 
-      const arrows = state.fullscreen ? {} : (ARROWS[`${max}-${n}`] || [])[v] || {};
+      const arrows = (ARROWS[`${max}-${n}`] || [])[v] || {};
       setSeparator(sepA, arrows.a, w[0] > 0 && w[1] > 0, n);
       setSeparator(sepB, arrows.b, w[1] > 0 && w[2] > 0, n);
 
@@ -433,13 +485,7 @@ FP.views.planner = (() => {
       $('back-day').hidden = !(n >= 2 && w[0] === 0);
       $('back-detail').hidden = !(n === 3 && w[1] === 0);
 
-      // Pantalla completa y cerrar sólo en la última columna abierta
-      const fsBtn = n === 3 ? $('fs-detail') : $('fs-day');
-      $('fs-day').hidden = !(n === 2 && max > 1);
-      $('fs-detail').hidden = !(n === 3 && max > 1);
-      fsBtn.querySelector('use').setAttribute('href', state.fullscreen ? '#i-exitfull' : '#i-full');
-      fsBtn.setAttribute('aria-label', state.fullscreen ? 'Salir de pantalla completa' : 'Pantalla completa');
-      fsBtn.title = fsBtn.getAttribute('aria-label');
+      // Cerrar sólo en la última columna abierta
       $('close-day').hidden = !(n === 2 && max > 1);
       $('close-detail').hidden = !(n === 3 && max > 1);
 
@@ -458,14 +504,12 @@ FP.views.planner = (() => {
     }
 
     $('back-day').addEventListener('click', () => {
-      if (state.depth === 3 && maxColumns() === 2) closeDetail();   // tablet: vuelve a calendario + día
-      else { state.draft = null; state.slot = null; setDepth(1); }
+      if (state.depth === 3 && maxColumns() === 2) guard(closeDetail);   // tablet: vuelve a calendario + día
+      else guard(() => { state.mode = null; state.draft = null; state.slot = null; setDepth(1); });
     });
-    $('back-detail').addEventListener('click', closeDetail);
+    $('back-detail').addEventListener('click', () => guard(closeDetail));
     $('close-day').addEventListener('click', () => { state.slot = null; setDepth(1); });
-    $('close-detail').addEventListener('click', closeDetail);
-    $('fs-day').addEventListener('click', () => { state.fullscreen = !state.fullscreen; applyLayout(); });
-    $('fs-detail').addEventListener('click', () => { state.fullscreen = !state.fullscreen; applyLayout(); });
+    $('close-detail').addEventListener('click', () => guard(closeDetail));
 
     let resizeRaf = 0;
     window.addEventListener('resize', () => {
@@ -476,8 +520,9 @@ FP.views.planner = (() => {
     // Escape cierra la última columna abierta (solo con esta pantalla visible)
     document.addEventListener('keydown', (e) => {
       if (e.key !== 'Escape' || root.hidden) return;
-      if (state.fullscreen) { state.fullscreen = false; applyLayout(); }
-      else if (state.depth === 3) closeDetail();
+      if (deleteArmed) resetDelete();
+      else if (!$('detail-unsaved').hidden) hideUnsaved();
+      else if (state.depth === 3) guard(closeDetail);
       else if (state.depth === 2) setDepth(1);
     });
 

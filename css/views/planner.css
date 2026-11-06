@@ -61,8 +61,9 @@
 .day.is-weekend { color: var(--weekend); }
 .day.is-today { border: 2px solid var(--primary); color: var(--primary); }
 .day.is-selected { background: var(--primary); border-color: var(--primary); color: #fff; }
-.day__dots { display: flex; gap: 1.5px; height: 4px; }
-.day__dots i { width: 4px; height: 4px; border-radius: 50%; }
+/* Puntos de actividades: hasta 4 por día (6px; caben 4 incluso en la casilla más estrecha) */
+.day__dots { display: flex; gap: 2px; height: 6px; }
+.day__dots i { width: 6px; height: 6px; border-radius: 50%; }
 /* Más de 4 actividades: número con el total en la esquina */
 .day__count {
   position: absolute; top: -8px; right: -8px; z-index: 1;
@@ -139,7 +140,20 @@
 }
 .detail.is-readonly .field textarea { resize: none; }
 .detail.is-readonly .chip { cursor: default; }
-.detail__actions { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 8px; border-top: 1px solid var(--border); margin-top: 8px; padding-top: 16px; }
+/* Barra inferior: un solo botón (Guardar o Editar), alineado a la derecha */
+.detail__actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; border-top: 1px solid var(--border); margin-top: 8px; padding-top: 16px; }
+
+/* Papelera de la cabecera: al pasar el ratón, roja; tras el primer clic, botón rojo relleno */
+.icon-btn.detail__trash:not(.is-armed):hover { color: var(--danger); background: var(--danger-soft); }
+.icon-btn.detail__trash.is-armed { background: var(--danger); color: #fff; }
+
+/* Aviso de cambios sin guardar */
+.detail__unsaved {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px;
+  margin: 0 0 12px; padding: 10px 12px; border-radius: var(--radius-sm);
+  background: #fff7e6; border: 1px solid #f3d29b; color: var(--text); font-size: var(--field-font-size); font-weight: 600;
+}
+.detail__unsaved-actions { display: flex; gap: 8px; margin-left: auto; }
 
 /* ---------- Móvil ---------- */
 @media (max-width: 600px) {

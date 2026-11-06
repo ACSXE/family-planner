@@ -96,6 +96,19 @@ Then open `http://localhost:8000/login.html`.
 
 GitHub Pages serves the `main` branch as is (no build step): every push to `main` updates https://acsxe.github.io/family-planner/. `.nojekyll` tells GitHub Pages to publish the files without processing them.
 
+## Activity detail (Calendario, right column)
+
+| State | Fields | Header | Bottom right |
+|---|---|---|---|
+| Creating a new activity | editable | close (X) | Guardar |
+| Viewing your own activity | locked | trash, close | Editar |
+| Editing your own activity | editable | trash, close | Guardar |
+| Viewing someone else's activity | locked, "Creada por …" notice | close | — |
+
+- Guardar returns to the viewing state; the close button (X, or "‹ Día" on phones) closes the detail in any state.
+- The trash turns red on the first click and deletes on the second; clicking elsewhere or Escape resets it.
+- Leaving while creating or editing with unsaved changes (close, another activity, slot or day, Hoy, Escape) asks "Tienes cambios sin guardar · Descartar / Seguir editando".
+
 ## Informe de actividad
 
 A List Report: a collapsible filter bar above a results table.
