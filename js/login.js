@@ -2,11 +2,11 @@
  * Pantalla de login (login.html).
  * Login correcto → index.html. Login incorrecto → mensaje de error en esta misma pantalla.
  */
-(() => {
+(async () => {
   'use strict';
 
   // Si ya hay sesión abierta, ir directamente a la aplicación
-  if (FP.session.get()) {
+  if (await FP.session.current()) {
     location.replace(FP.pages.home);
     return;
   }
@@ -32,29 +32,31 @@
     passInput.focus();
   });
 
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const user = FP.session.authenticate(userInput.value.trim(), passInput.value);
+  const submit = form.querySelector('button[type=submit]');
 
-    if (user) {
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorBox.hidden = true;
+    submit.disabled = true;
+    const result = await FP.session.signIn(userInput.value.trim(), passInput.value);
+    submit.disabled = false;
+
+    if (result.ok) {
       // Login OK → aplicación
-      try {
-        FP.session.start(user);
-      } catch {
-        errorBox.textContent = 'Este navegador no permite guardar la sesión. Desactiva el modo privado o permite los datos del sitio.';
-        errorBox.hidden = false;
-        return;
-      }
       location.href = FP.pages.home;
       return;
     }
 
     // Login not OK → mensaje de error
-    errorBox.textContent = 'El usuario o la contraseña introducidos no son correctos.';
+    errorBox.textContent = result.reason === 'credentials'
+      ? 'El usuario o la contraseña introducidos no son correctos.'
+      : 'No se ha podido conectar. Comprueba la conexión e inténtalo de nuevo.';
     errorBox.hidden = false;
-    userInput.setAttribute('aria-invalid', 'true');
-    passInput.setAttribute('aria-invalid', 'true');
-    passInput.value = '';
+    if (result.reason === 'credentials') {
+      userInput.setAttribute('aria-invalid', 'true');
+      passInput.setAttribute('aria-invalid', 'true');
+      passInput.value = '';
+    }
     passInput.focus();
   });
 

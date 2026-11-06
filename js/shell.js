@@ -1,13 +1,12 @@
 /*
- * Armazón de la aplicación (index.html): comprueba la sesión, pinta el menú de
- * usuario y el menú lateral, ofrece FP.toast() a las pantallas y arranca el router.
+ * Armazón de la aplicación (index.html): comprueba la sesión con Supabase, pinta el
+ * menú de usuario y el menú lateral, ofrece FP.toast() a las pantallas y arranca el router.
  */
-(() => {
+(async () => {
   'use strict';
 
-  const session = FP.session.require();
+  const session = await FP.session.require();
   if (!session) return;
-  FP.storage.migrate();
 
   const { $, h } = FP.dom;
 
@@ -22,12 +21,12 @@
   };
 
   // ---------- Menú de usuario ----------
-  const fullName = session.name || session.username;
+  const fullName = session.name;
   const initials = fullName.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
   $('user-initials').textContent = initials;
   $('user-initials-lg').textContent = initials;
   $('user-fullname').textContent = fullName;
-  $('user-email').textContent = session.username;
+  $('user-email').textContent = session.email;
   $('user-button').setAttribute('aria-label', `Cuenta de ${fullName}`);
   $('user-button').title = fullName;
 
@@ -49,8 +48,8 @@
     }
   }, true);
 
-  $('logout').addEventListener('click', () => {
-    FP.session.end();
+  $('logout').addEventListener('click', async () => {
+    await FP.session.end();
     location.replace(FP.pages.login);
   });
 

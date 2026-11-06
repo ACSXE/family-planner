@@ -13,7 +13,8 @@
  *   · Acompañante (varios valores): la actividad va acompañada por alguna de las
  *     personas marcadas, sola o junto a otra ("Alberto" encuentra también las
  *     acompañadas por "Alberto y Laura").
- * Los resultados se calculan al abrir la pantalla y al pulsar Buscar (o Enter).
+ * Las actividades se cargan de Supabase al abrir la pantalla y al pulsar Buscar (o Enter);
+ * la agenda es compartida, así que aparecen las de toda la familia.
  * La tabla muestra bloques de PAGE_SIZE filas; "Mostrar más" añade el siguiente bloque.
  */
 window.FP = window.FP || {};
@@ -45,7 +46,6 @@ FP.views['report-activity'] = (() => {
   function mount(root) {
     const { h } = FP.dom;
     const $ = (id) => root.querySelector('#' + id);
-    const session = FP.session.get();
     const { toMin, formatDate } = FP.time;
     const { members, byId: memberById, companions, companionLabel } = FP.family;
 
@@ -127,8 +127,32 @@ FP.views['report-activity'] = (() => {
       updateMore();
     }
 
+    let all = [];              // todas las actividades de la familia (última carga)
+    let loaded = false;
+
+    // Carga las actividades de Supabase y vuelve a pintar los resultados
+    async function load() {
+      if (!loaded) showMessage('Cargando actividades…');
+      try {
+        all = await FP.storage.list();
+        loaded = true;
+      } catch (err) {
+        if (!loaded) showMessage(err.message); else FP.toast(err.message);
+        return;
+      }
+      render();
+    }
+
+    function showMessage(text) {
+      $('ra-rows').replaceChildren();
+      $('ra-more').hidden = true;
+      $('ra-count').textContent = 'Actividades';
+      root.querySelector('.lr__scroll').hidden = true;
+      $('ra-empty').textContent = text;
+      $('ra-empty').hidden = false;
+    }
+
     function render() {
-      const all = FP.storage.loadEvents(session.username);
       const name = normalize(applied.name);
       results = all
         .filter((e) =>
@@ -170,7 +194,8 @@ FP.views['report-activity'] = (() => {
         attendees: attendeeSelect.values(), companions: companionSelect.values()
       };
       shown = PAGE_SIZE;   // cada búsqueda empieza por el primer bloque
-      render();
+      if (loaded) render(); // resultado inmediato con lo ya cargado…
+      load();              // …y se actualiza con lo último de la base de datos
     }
 
     $('ra-more').addEventListener('click', showMore);
@@ -195,8 +220,7 @@ FP.views['report-activity'] = (() => {
       if (open) { attendeeSelect.refresh(); companionSelect.refresh(); }
     });
 
-    refresh = () => { attendeeSelect.refresh(); companionSelect.refresh(); render(); };
-    render();
+    refresh = () => { attendeeSelect.refresh(); companionSelect.refresh(); load(); };
   }
 
   return {

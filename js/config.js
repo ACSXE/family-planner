@@ -1,18 +1,16 @@
 /*
  * Family Planner — configuración
  * --------------------------------
- * Edita aquí los usuarios que pueden entrar y los miembros de la familia.
- *
- * AVISO: esta versión es 100 % estática (sin servidor). Las credenciales viven
- * en este fichero y cualquiera que abra el código fuente puede leerlas. Sirve
- * para uso doméstico/demostración; para protegerlo de verdad hace falta validar
- * el login en un servidor.
+ * Los usuarios y sus contraseñas se gestionan en Supabase (Authentication → Users),
+ * no en este fichero.
  */
 const FP_CONFIG = {
-  users: [
-    { username: 'alberto_carrasco_sanchez@hotmail.com', password: 'alberto#01', name: 'Alberto Carrasco' },
-    { username: 'laura_clc@hotmail.com',                password: 'laura#02',   name: 'Laura Liz' }
-  ],
+  // Proyecto de Supabase. La clave "publishable" está pensada para ir en el navegador:
+  // los datos los protegen las reglas de acceso de la base de datos (supabase/schema.sql).
+  supabase: {
+    url: 'https://hdzeibaonokdcicqmuzw.supabase.co',
+    publishableKey: 'sb_publishable_9k9SgCiHv4Y4eCDLstt2Kg_CKGLNiRO'
+  },
 
   members: [
     // canAccompany: aparece en el desplegable "Acompañante"

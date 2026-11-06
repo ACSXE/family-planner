@@ -62,6 +62,8 @@
       </header>
       <div class="col__body">
         <form class="detail" id="detail-form" novalidate>
+          <!-- Aviso de solo lectura cuando la actividad la creó otra persona -->
+          <p class="detail__owner" id="detail-owner" hidden></p>
           <div class="field">
             <label for="f-name">Nombre <span class="req" aria-hidden="true">*</span></label>
             <input id="f-name" type="text" maxlength="120" required>
@@ -98,7 +100,7 @@
           <p class="form-error" id="form-error" role="alert" hidden></p>
 
           <div class="detail__actions">
-            <button class="btn btn--primary" type="submit">Guardar</button>
+            <button class="btn btn--primary" id="btn-save" type="submit">Guardar</button>
             <button class="btn btn--ghost" id="btn-cancel" type="button">Cancelar</button>
             <button class="btn btn--danger" id="btn-delete" type="button">Eliminar</button>
           </div>

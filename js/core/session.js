@@ -1,11 +1,14 @@
 /*
- * Sesión del usuario (se guarda en sessionStorage: dura mientras la pestaña esté abierta).
- *   FP.pages                         → rutas de las páginas
- *   FP.session.authenticate(u, p)    → usuario de FP_CONFIG.users o null
- *   FP.session.start(user)           → abre la sesión (lanza un error si el navegador no deja guardarla)
- *   FP.session.get()                 → { username, name } o null
- *   FP.session.require()             → la sesión, o redirige al login si no hay
- *   FP.session.end()                 → cierra la sesión
+ * Sesión del usuario con Supabase Auth.
+ *   FP.pages                        → rutas de las páginas
+ *   await FP.session.signIn(e, p)   → { ok: true } o { ok: false, reason: 'credentials' | 'network' }
+ *   await FP.session.current()      → { id, email, name } o null
+ *   await FP.session.require()      → el usuario, o redirige al login si no hay sesión
+ *   FP.session.user                 → el usuario de la sesión, una vez cargado por require()
+ *   FP.session.nameOf(id)           → nombre visible de cualquier usuario ("Laura Liz")
+ *   await FP.session.end()          → cierra la sesión
+ *
+ * Los nombres visibles salen de la tabla "profiles" (supabase/schema.sql).
  */
 window.FP = window.FP || {};
 
@@ -15,31 +18,48 @@ FP.pages = {
 };
 
 FP.session = (() => {
-  const KEY = 'fp.session';
+  let names = {};   // id de usuario → nombre visible
+
+  async function loadNames() {
+    const { data, error } = await FP.db.from('profiles').select('id, full_name');
+    if (!error) names = Object.fromEntries(data.map((p) => [p.id, p.full_name]));
+  }
 
   return {
-    authenticate(username, password) {
-      return FP_CONFIG.users.find(
-        (u) => u.username.toLowerCase() === username.toLowerCase() && u.password === password
-      ) || null;
+    user: null,
+
+    async signIn(email, password) {
+      try {
+        const { error } = await FP.db.auth.signInWithPassword({ email, password });
+        if (!error) return { ok: true };
+        return { ok: false, reason: error.status === 400 ? 'credentials' : 'network' };
+      } catch {
+        return { ok: false, reason: 'network' };
+      }
     },
 
-    start(user) {
-      sessionStorage.setItem(KEY, JSON.stringify({ username: user.username, name: user.name }));
+    async current() {
+      const { data } = await FP.db.auth.getSession();
+      const u = data.session?.user;
+      if (!u) return null;
+      await loadNames();
+      return { id: u.id, email: u.email, name: names[u.id] || u.email };
     },
 
-    get() {
-      try { return JSON.parse(sessionStorage.getItem(KEY)); } catch { return null; }
+    async require() {
+      const user = await this.current();
+      if (!user) { location.replace(FP.pages.login); return null; }
+      this.user = user;
+      return user;
     },
 
-    require() {
-      const session = this.get();
-      if (!session) location.replace(FP.pages.login);
-      return session;
+    nameOf(id) {
+      return names[id] || '';
     },
 
-    end() {
-      try { sessionStorage.removeItem(KEY); } catch { /* nada que borrar */ }
+    async end() {
+      try { await FP.db.auth.signOut(); } catch { /* se sale igualmente */ }
+      this.user = null;
     }
   };
 })();

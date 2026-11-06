@@ -129,6 +129,16 @@
 .chip:has(input:checked) { border-color: var(--c); background: color-mix(in srgb, var(--c) 12%, #fff); }
 .chip:has(input:checked)::after { content: "\2713"; color: var(--c); font-weight: 700; margin-left: auto; }
 .chip:has(input:focus-visible) { outline: 2px solid var(--primary); outline-offset: 2px; }
+/* Aviso "Creada por…" y formulario en solo lectura */
+.detail__owner {
+  margin: 0 0 16px; padding: 10px 12px; border-radius: var(--radius-sm);
+  background: var(--primary-soft); color: var(--text); font-size: var(--field-font-size);
+}
+.detail.is-readonly .field input:not([type=checkbox]), .detail.is-readonly .field textarea, .detail.is-readonly .field select {
+  background: var(--surface-2); color: var(--text); opacity: 1; -webkit-text-fill-color: var(--text);
+}
+.detail.is-readonly .field textarea { resize: none; }
+.detail.is-readonly .chip { cursor: default; }
 .detail__actions { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 8px; border-top: 1px solid var(--border); margin-top: 8px; padding-top: 16px; }
 
 /* ---------- Móvil ---------- */

@@ -9,9 +9,9 @@ FP.views.planner = (() => {
   'use strict';
 
   let applyLayoutRef = null;
+  let reloadRef = null;
 
   function mount(root) {
-    const session = FP.session.get();
 
     // ---------- Constantes ----------
     const MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
@@ -50,15 +50,11 @@ FP.views.planner = (() => {
     const parseIso = (s) => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
     const { toMin } = FP.time;
     const fromMin = (m) => `${pad(Math.floor(m / 60))}:${pad(m % 60)}`;
-    const uid = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));
     const longDate = (iso) => { const d = parseIso(iso); return `${d.getDate()} de ${MONTHS[d.getMonth()]} de ${d.getFullYear()}`; };
 
     // ---------- Datos ----------
-    function persist() {
-      try { FP.storage.saveEvents(session.username, events); return true; }
-      catch { FP.toast('No se ha podido guardar en este navegador'); return false; }
-    }
-    let events = FP.storage.loadEvents(session.username);
+    // Actividades de toda la familia, cargadas desde Supabase (ver reload())
+    let events = [];
     const eventsOn = (date) => events.filter((e) => e.date === date).sort((a, b) => a.start.localeCompare(b.start));
 
     // ---------- Estado ----------
@@ -288,12 +284,27 @@ FP.views.planner = (() => {
       f.att.querySelectorAll('input').forEach((cb) => { cb.checked = d.attendees.includes(cb.value); });
       f.companion.value = [...f.companion.options].some((o) => o.value === d.companion) ? d.companion : '';
       updateCompanionRequired();
-      $('btn-delete').hidden = !d.id;
+      setReadOnly(!FP.storage.canEdit(d), d);
+      $('btn-delete').hidden = !d.id || !FP.storage.canEdit(d);
       resetDelete();
       setFormError('');
       if (state.depth < 3) setDepth(3); else applyLayout();
       renderDay(false);
     }
+    // Las actividades de otra persona se ven pero no se pueden modificar
+    function setReadOnly(readOnly, d) {
+      form.classList.toggle('is-readonly', readOnly);
+      form.querySelectorAll('input, textarea, select').forEach((el) => { el.disabled = readOnly; });
+      $('btn-save').hidden = readOnly;
+      $('btn-cancel').textContent = readOnly ? 'Cerrar' : 'Cancelar';
+      const owner = $('detail-owner');
+      owner.hidden = !readOnly;
+      if (readOnly) {
+        const name = FP.session.nameOf(d.createdBy) || 'otra persona';
+        owner.textContent = `Creada por ${name}. Solo quien la creó puede modificarla o eliminarla.`;
+      }
+    }
+
     function closeDetail() {
       state.draft = null;
       state.slot = null;
@@ -308,8 +319,9 @@ FP.views.planner = (() => {
       if (field) { field.setAttribute('aria-invalid', 'true'); field.focus(); }
     }
 
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
+      if (!FP.storage.canEdit(state.draft || {})) return;
       const data = {
         id: state.draft?.id || null,
         name: f.name.value.trim(),
@@ -332,18 +344,27 @@ FP.views.planner = (() => {
       }
 
       const isNew = !data.id;
-      if (isNew) { data.id = uid(); events.push(data); }
-      else events = events.map((x) => (x.id === data.id ? data : x));
-      if (!persist()) return;
+      let saved;
+      $('btn-save').disabled = true;
+      try {
+        saved = isNew ? await FP.storage.create(data) : await FP.storage.update(data);
+      } catch (err) {
+        return setFormError(err.message);
+      } finally {
+        $('btn-save').disabled = false;
+      }
+      if (isNew) events.push(saved);
+      else events = events.map((x) => (x.id === saved.id ? saved : x));
 
-      state.draft = structuredClone(data);
+      state.draft = structuredClone(saved);
       state.slot = toMin(data.start);
       $('detail-title').textContent = 'Detalle de la actividad';
       $('btn-delete').hidden = false;
       setFormError('');
-      const dateChanged = data.date !== state.date;
-      state.date = data.date;
-      state.year = parseIso(data.date).getFullYear();
+      setReadOnly(false, saved);
+      const dateChanged = saved.date !== state.date;
+      state.date = saved.date;
+      state.year = parseIso(saved.date).getFullYear();
       renderCalendar();
       renderDay(dateChanged);
       FP.toast(isNew ? 'Actividad creada' : 'Actividad actualizada');
@@ -356,8 +377,8 @@ FP.views.planner = (() => {
       $('btn-delete').textContent = 'Eliminar';
       $('btn-delete').classList.remove('is-armed');
     }
-    $('btn-delete').addEventListener('click', () => {
-      if (!state.draft?.id) return;
+    $('btn-delete').addEventListener('click', async () => {
+      if (!state.draft?.id || !FP.storage.canEdit(state.draft)) return;
       if (!deleteArmed) {
         deleteArmed = true;
         $('btn-delete').textContent = 'Pulsa para eliminar';
@@ -365,8 +386,16 @@ FP.views.planner = (() => {
         return;
       }
       resetDelete();
-      events = events.filter((x) => x.id !== state.draft.id);
-      persist();
+      const id = state.draft.id;
+      $('btn-delete').disabled = true;
+      try {
+        await FP.storage.remove(id);
+      } catch (err) {
+        return setFormError(err.message);
+      } finally {
+        $('btn-delete').disabled = false;
+      }
+      events = events.filter((x) => x.id !== id);
       renderCalendar();
       closeDetail();
       FP.toast('Actividad eliminada');
@@ -452,8 +481,35 @@ FP.views.planner = (() => {
       else if (state.depth === 2) setDepth(1);
     });
 
+    // ---------- Carga de actividades ----------
+    // Al abrir la pantalla, al volver a ella y al volver a la pestaña del navegador,
+    // para ver lo que haya añadido o cambiado la otra persona.
+    let loading = null;
+    async function reload() {
+      if (loading) return loading;
+      loading = (async () => {
+        try {
+          events = await FP.storage.list();
+        } catch (err) {
+          FP.toast(err.message);
+          return;
+        } finally {
+          loading = null;
+        }
+        // Si la actividad abierta ya no existe (la eliminó quien la creó), se cierra el detalle
+        if (state.draft?.id && !events.some((e) => e.id === state.draft.id)) closeDetail();
+        renderCalendar();
+        if (state.date) renderDay(false);
+      })();
+      return loading;
+    }
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden && !root.hidden) reload();
+    });
+
     // ---------- Inicio ----------
     applyLayoutRef = applyLayout;
+    reloadRef = reload;
     renderCalendar();
     applyLayout();
     const cur = $('months').querySelector('.month.is-current');
@@ -462,7 +518,10 @@ FP.views.planner = (() => {
 
   return {
     mount,
-    show() { if (applyLayoutRef) applyLayoutRef(); },
+    show() {
+      if (applyLayoutRef) applyLayoutRef();
+      if (reloadRef) reloadRef();
+    },
     hide() {}
   };
 })();

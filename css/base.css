@@ -71,6 +71,7 @@ button { cursor: pointer; }
 .btn--danger:hover { background: var(--danger-soft); }
 .btn--danger.is-armed { background: var(--danger); color: #fff; border-color: var(--danger); }
 .btn--block { width: 100%; }
+.btn:disabled { opacity: .6; cursor: progress; }
 .btn--icon { width: 40px; padding: 0; }
 .btn--back { padding: 0 10px 0 6px; }
 

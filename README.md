@@ -10,6 +10,10 @@ After signing in, the user sees a three-column layout based on SAP Fiori's Flexi
 
 The layout adapts to the screen size and shows fewer columns on smaller devices.
 
+**Live app:** https://acsxe.github.io/family-planner/ (GitHub Pages).
+
+Sign-in and data are handled by [Supabase](https://supabase.com): users sign in with Supabase Auth and activities are stored in a Postgres table. The agenda is shared by the family: every user sees every activity, but only the person who created an activity can edit or delete it (enforced by the database, see `supabase/schema.sql`). Activities created by someone else open read-only, with a "Creada por …" notice.
+
 ## Structure
 
 ```
@@ -27,10 +31,11 @@ css/
   views/reports.css        Informes screen only
   views/report-activity.css  Informe de actividad only
 js/
-  config.js                Users, family members, screens and the list of reports
+  config.js                Supabase project, family members, screens and the list of reports
   core/dom.js              Small DOM helpers
-  core/session.js          Sign in, session check and sign out
-  core/storage.js          Activities stored in localStorage
+  core/supabase.js         Supabase client shared by the whole app (FP.db)
+  core/session.js          Sign in, session check, user names and sign out (Supabase Auth)
+  core/storage.js          Activities in Supabase: list, create, update, remove
   core/family.js           Family members and companion options shared by the screens
   core/time.js             Time and date helpers shared by the screens
   core/multiselect.js      Multi-select dropdown with checkboxes (styles in base.css)
@@ -40,8 +45,11 @@ js/
   views/planner.js         Calendario screen logic
   views/reports.js         Informes screen logic (builds the report cards)
   views/report-activity.js Informe de actividad: filters, results and "Mostrar más"
+  vendor/                  Third-party libraries (supabase-js 2.118.0, MIT) — see js/vendor/README.md
+supabase/
+  schema.sql               Database tables and access rules; run it in the Supabase SQL Editor
 tools/
-  build_artifact.py        Builds the copy published as a Claude artifact
+  build_artifact.py        Builds the copy published as a Claude artifact (see below)
 ```
 
 Screens are loaded inside `index.html` by `js/core/router.js` when they are picked in the side navigation (`#planner`, `#reports`) or opened from a report card (`#report-activity`). A screen is loaded once and then hidden and shown, so it keeps its state when you come back to it.
@@ -67,6 +75,13 @@ Logic or styles used by more than one screen go to `js/core/` and `css/base.css`
 2. Add `{ id: 'report-<name>', parent: 'reports' }` to `views` in `js/config.js`: it gets no side navigation entry, and "Informes" stays highlighted while it is open.
 3. Add `{ view: 'report-<name>', title: '…', description: '…', icon: '<icon id>' }` to `reports` in `js/config.js`: its card appears on the Informes screen, in that order.
 
+## Supabase setup
+
+1. Create a Supabase project and put its URL and **publishable** key in `supabase` in `js/config.js`. The publishable key is meant to be public; never put the `service_role` key in this repository.
+2. In **Authentication → Users**, create the family's users (email and password, "Auto Confirm User" ticked).
+3. In **Authentication → Sign In / Providers**, turn off **Allow new users to sign up**, so nobody else can create an account.
+4. Run `supabase/schema.sql` in the **SQL Editor**. It creates the `activities` and `profiles` tables and their access rules; its last statement stores each user's display name (edit the emails and names there for other users). It can be run again safely.
+
 ## Run
 
 Screens are loaded with `fetch`, so the app must be served over HTTP (opening the files directly with a double click does not work):
@@ -77,7 +92,9 @@ python3 -m http.server
 
 Then open `http://localhost:8000/login.html`.
 
-Users are defined in `js/config.js`.
+## Deploy
+
+GitHub Pages serves the `main` branch as is (no build step): every push to `main` updates https://acsxe.github.io/family-planner/. `.nojekyll` tells GitHub Pages to publish the files without processing them.
 
 ## Informe de actividad
 
@@ -90,9 +107,9 @@ A List Report: a collapsible filter bar above a results table.
 - Results show 20 rows at a time; "Mostrar más" adds the next 20.
 - Long values are cut at the last space before 20 characters (Nombre actividad) or 40 (Descripción actividad) and end with "..."; the full text shows on hover.
 
-> This is a proof of concept. The login is client-side only and activities are stored in the browser's `localStorage`: it is not secure and data is not shared between devices.
-
 ## Publishing as a Claude artifact
+
+The Claude artifact viewer blocks connections to other servers, so the artifact cannot reach Supabase: the artifact published before the Supabase integration stays as a browser-only demo, and the real app is the GitHub Pages one. The tool below is kept for that demo.
 
 The artifact viewer wraps the entry page in its own document, so `index.html` is published without its `<!doctype>`, `<head>` and `<body>` tags. Generate that copy with:
 
