@@ -2,13 +2,14 @@
  * Sesión del usuario con Supabase Auth.
  *   FP.pages                        → rutas de las páginas
  *   await FP.session.signIn(e, p)   → { ok: true } o { ok: false, reason: 'credentials' | 'network' }
- *   await FP.session.current()      → { id, email, name } o null
+ *   await FP.session.current()      → { id, memberId, email, name } o null  (id = usuario de Supabase)
  *   await FP.session.require()      → el usuario, o redirige al login si no hay sesión
  *   FP.session.user                 → el usuario de la sesión, una vez cargado por require()
- *   FP.session.nameOf(id)           → nombre visible de cualquier usuario ("Laura Liz")
+ *   FP.session.nameOf(memberId)     → nombre completo de un miembro ("Laura Liz", de FP.family)
  *   await FP.session.end()          → cierra la sesión
  *
- * Los nombres visibles salen de la tabla "profiles" (supabase/schema.sql).
+ * El member_id del usuario sale de la tabla "users" y su nombre completo de
+ * "family_members" (supabase/migrations/002_family_members.sql).
  */
 window.FP = window.FP || {};
 
@@ -18,13 +19,6 @@ FP.pages = {
 };
 
 FP.session = (() => {
-  let names = {};   // id de usuario → nombre visible
-
-  async function loadNames() {
-    const { data, error } = await FP.db.from('profiles').select('id, full_name');
-    if (!error) names = Object.fromEntries(data.map((p) => [p.id, p.full_name]));
-  }
-
   return {
     user: null,
 
@@ -42,8 +36,10 @@ FP.session = (() => {
       const { data } = await FP.db.auth.getSession();
       const u = data.session?.user;
       if (!u) return null;
-      await loadNames();
-      return { id: u.id, email: u.email, name: names[u.id] || u.email };
+      // Miembro de la familia que corresponde a este usuario (tabla users)
+      const { data: appUser } = await FP.db.from('users')
+        .select('member_id, family_members(full_name)').eq('user_id', u.id).maybeSingle();
+      return { id: u.id, memberId: appUser?.member_id ?? null, email: u.email, name: appUser?.family_members?.full_name || u.email };
     },
 
     async require() {
@@ -53,8 +49,8 @@ FP.session = (() => {
       return user;
     },
 
-    nameOf(id) {
-      return names[id] || '';
+    nameOf(memberId) {
+      return FP.family?.byId[memberId]?.fullName || '';
     },
 
     async end() {

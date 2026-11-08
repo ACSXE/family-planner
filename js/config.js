@@ -2,25 +2,18 @@
  * Family Planner — configuración
  * --------------------------------
  * Los usuarios y sus contraseñas se gestionan en Supabase (Authentication → Users),
- * no en este fichero.
+ * y los miembros de la familia en la tabla "family_members": no en este fichero.
  */
 const FP_CONFIG = {
   // Proyecto de Supabase. La clave "publishable" está pensada para ir en el navegador:
-  // los datos los protegen las reglas de acceso de la base de datos (supabase/schema.sql).
+  // los datos los protegen las reglas de acceso de la base de datos (supabase/migrations/).
   supabase: {
     url: 'https://hdzeibaonokdcicqmuzw.supabase.co',
     publishableKey: 'sb_publishable_9k9SgCiHv4Y4eCDLstt2Kg_CKGLNiRO'
   },
 
-  members: [
-    // canAccompany: aparece en el desplegable "Acompañante"
-    // needsCompanion: si asiste, el campo "Acompañante" es obligatorio
-    // Las actividades guardan el "id": si se cambia, dejan de estar asociadas a esa persona
-    { id: 'alberto', name: 'Alberto', color: '#4fb3e8', canAccompany: true },   // azul cielo
-    { id: 'laura',   name: 'Laura',   color: '#86d19a', canAccompany: true },   // verde clarito
-    { id: 'sergio',  name: 'Sergio',  color: '#dc2626', needsCompanion: true }, // rojo
-    { id: 'pablo',   name: 'Pablo',   color: '#eab308', needsCompanion: true }  // amarillo
-  ],
+  // Los miembros de la familia (nombre, color, quién puede acompañar y quién necesita
+  // acompañante) están en la tabla "family_members" de Supabase.
 
   // Pantallas de la aplicación (la primera es la de inicio).
   // Cada pantalla <id> tiene sus ficheros: views/<id>.html, css/views/<id>.css y js/views/<id>.js

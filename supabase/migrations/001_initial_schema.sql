@@ -1,8 +1,8 @@
 -- ============================================================
 -- Family Planner · esquema de base de datos en Supabase
 -- ------------------------------------------------------------
--- Ejecutar en Supabase → SQL Editor → New query → Run.
--- Se puede volver a ejecutar sin perder datos.
+-- Migración 001 (primera versión). Ejecutar en Supabase → SQL Editor → New query → Run.
+-- Una vez aplicada 002_family_members.sql, NO volver a ejecutar este fichero.
 --
 -- Reglas de acceso (Row Level Security):
 --   · Cualquier usuario con sesión VE todas las actividades (agenda compartida).

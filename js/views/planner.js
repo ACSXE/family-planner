@@ -17,8 +17,8 @@ FP.views.planner = (() => {
     const MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
     const DOW_SHORT = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
     const DOW_LONG = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-    const MEMBERS = FP_CONFIG.members;
-    const memberById = Object.fromEntries(MEMBERS.map((m) => [m.id, m]));
+    const MEMBERS = FP.family.members;
+    const memberById = FP.family.byId;
     const HOUR_PX = 60;          // alto de una hora en la vista diaria
     const SLOT_MIN = 30;         // duración de cada franja seleccionable
 
@@ -275,8 +275,8 @@ FP.views.planner = (() => {
       date: f.date.value,
       start: f.start.value,
       end: f.end.value,
-      attendees: [...f.att.querySelectorAll('input:checked')].map((cb) => cb.value),
-      companion: f.companion.value
+      attendees: [...f.att.querySelectorAll('input:checked')].map((cb) => Number(cb.value)),
+      companions: f.companion.value ? f.companion.value.split(',').map(Number) : []
     });
     const isDirty = () => (state.mode === 'new' || state.mode === 'edit') && JSON.stringify(readForm()) !== snapshot;
 
@@ -316,8 +316,9 @@ FP.views.planner = (() => {
       f.date.value = d.date;
       f.start.value = d.start;
       f.end.value = d.end;
-      f.att.querySelectorAll('input').forEach((cb) => { cb.checked = d.attendees.includes(cb.value); });
-      f.companion.value = [...f.companion.options].some((o) => o.value === d.companion) ? d.companion : '';
+      f.att.querySelectorAll('input').forEach((cb) => { cb.checked = d.attendees.includes(Number(cb.value)); });
+      const companion = FP.family.companionsValue(d.companions);
+      f.companion.value = [...f.companion.options].some((o) => o.value === companion) ? companion : '';
       updateCompanionRequired();
     }
 
@@ -347,7 +348,7 @@ FP.views.planner = (() => {
       state.slot = startMin;
       state.draft = {
         id: null, name: '', description: '', date: state.date,
-        start: fromMin(startMin), end: fromMin(Math.min(startMin + SLOT_MIN, 23 * 60 + 59)), attendees: [], companion: ''
+        start: fromMin(startMin), end: fromMin(Math.min(startMin + SLOT_MIN, 23 * 60 + 59)), attendees: [], companions: []
       };
       showDetail('new');
       f.name.focus({ preventScroll: true });
@@ -406,8 +407,7 @@ FP.views.planner = (() => {
       if (!data.end) return setFormError('Es obligatorio indicar la hora fin', f.end);
       if (toMin(data.end) <= toMin(data.start)) return setFormError('La hora fin debe ser posterior a inicio', f.end);
       if (!data.attendees.length) return setFormError('Es obligatorio seleccionar un asistente', f.att.querySelector('input'));
-      if (companionRequired() && !data.companion) {
-        const kids = data.attendees.map((id) => memberById[id]).filter((m) => m?.needsCompanion).map((m) => m.name);
+      if (companionRequired() && !data.companions.length) {
         return setFormError('Es obligatorio seleccionar un acompañante', f.companion);
       }
 

@@ -12,7 +12,7 @@ The layout adapts to the screen size and shows fewer columns on smaller devices.
 
 **Live app:** https://acsxe.github.io/family-planner/ (GitHub Pages).
 
-Sign-in and data are handled by [Supabase](https://supabase.com): users sign in with Supabase Auth and activities are stored in a Postgres table. The agenda is shared by the family: every user sees every activity, but only the person who created an activity can edit or delete it (enforced by the database, see `supabase/schema.sql`). Activities created by someone else open read-only, with a "Creada por …" notice.
+Sign-in and data are handled by [Supabase](https://supabase.com): users sign in with Supabase Auth and activities are stored in a Postgres table. The agenda is shared by the family: every user sees every activity, but only the person who created an activity can edit or delete it (enforced by the database, see `supabase/migrations/`). Activities created by someone else open read-only, with a "Creada por …" notice.
 
 ## Structure
 
@@ -31,12 +31,12 @@ css/
   views/reports.css        Informes screen only
   views/report-activity.css  Informe de actividad only
 js/
-  config.js                Supabase project, family members, screens and the list of reports
+  config.js                Supabase project, screens and the list of reports
   core/dom.js              Small DOM helpers
   core/supabase.js         Supabase client shared by the whole app (FP.db)
   core/session.js          Sign in, session check, user names and sign out (Supabase Auth)
-  core/storage.js          Activities in Supabase: list, create, update, remove
-  core/family.js           Family members and companion options shared by the screens
+  core/storage.js          Activities in Supabase: list, create/update (save_activity), remove
+  core/family.js           Family members (table family_members) and companion options shared by the screens
   core/time.js             Time and date helpers shared by the screens
   core/multiselect.js      Multi-select dropdown with checkboxes (styles in base.css)
   core/router.js           Loads each screen's HTML, CSS and JS when it is opened
@@ -47,7 +47,9 @@ js/
   views/report-activity.js Informe de actividad: filters, results and "Mostrar más"
   vendor/                  Third-party libraries (supabase-js 2.118.0, MIT) — see js/vendor/README.md
 supabase/
-  schema.sql               Database tables and access rules; run it in the Supabase SQL Editor
+  migrations/              Database changes, run in order in the Supabase SQL Editor
+    001_initial_schema.sql   First version: activities and profiles (profiles is replaced by users in 002)
+    002_family_members.sql   Family members with numeric member_id (keeps existing activities)
 tools/
   build_artifact.py        Builds the copy published as a Claude artifact (see below)
 ```
@@ -80,7 +82,22 @@ Logic or styles used by more than one screen go to `js/core/` and `css/base.css`
 1. Create a Supabase project and put its URL and **publishable** key in `supabase` in `js/config.js`. The publishable key is meant to be public; never put the `service_role` key in this repository.
 2. In **Authentication → Users**, create the family's users (email and password, "Auto Confirm User" ticked).
 3. In **Authentication → Sign In / Providers**, turn off **Allow new users to sign up**, so nobody else can create an account.
-4. Run `supabase/schema.sql` in the **SQL Editor**. It creates the `activities` and `profiles` tables and their access rules; its last statement stores each user's display name (edit the emails and names there for other users). It can be run again safely.
+4. Run the files in `supabase/migrations/` in the **SQL Editor**, in order and once each. The user emails and names, and the family members, are in those files: edit them for another family.
+
+### Data model
+
+`member_id` (a number) identifies a family member in every table:
+
+| Table | Key | Contents |
+|---|---|---|
+| `family_members` | `member_id` | Everyone in the family: name, full name, colour, `can_accompany`, `needs_companion` |
+| `users` | `member_id` | Family members who are users of the app (not the children): `user_id`, the only link to Supabase Auth |
+| `user_settings` | `user_id` | Each user's own settings: weekly e-mail on/off, `language` (ISO 639-1, `es`), `locale` (`es-ES`, dates and numbers), time zone. Created automatically for every user |
+| `activities` | `activity_id` | Name, description, date, times and `created_by` (`member_id`) |
+| `activity_attendees` | `activity_id` + `member_id` | One row per attendee |
+| `activity_companions` | `activity_id` + `member_id` | One row per companion |
+
+Access rules: signed-in users read the family members and all activities, and only their own row of `users`. Activities are created and changed only through the `save_activity()` function, which checks the rules (at least one attendee, a companion when Sergio or Pablo attend, only people with `can_accompany` as companions, only the creator can change it) and saves the activity, its attendees and companions in one go. Only the creator can delete an activity. Each user reads and changes only their own `user_settings` (by `user_id`). Deleting a user in Supabase removes their `users` row and settings, but keeps the family member and their activities.
 
 ## Run
 

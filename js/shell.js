@@ -10,6 +10,14 @@
 
   const { $, h } = FP.dom;
 
+  // Miembros de la familia (tabla family_members): los usan todas las pantallas
+  try {
+    await FP.family.load();
+  } catch (err) {
+    document.getElementById('workspace').textContent = err.message;
+    return;
+  }
+
   // ---------- Avisos ----------
   let toastTimer = 0;
   FP.toast = (msg) => {

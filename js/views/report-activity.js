@@ -65,8 +65,6 @@ FP.views['report-activity'] = (() => {
     let results = [];          // actividades que cumplen los filtros
     let shown = PAGE_SIZE;     // cuántas se muestran ahora
 
-    // El acompañante guardado puede ser una persona o varias ("alberto,laura")
-    const companionMatches = (value, wanted) => (value || '').split(',').includes(wanted);
 
     // Franja horaria: la actividad [inicio, fin) se solapa con [desde, hasta)
     const inTimeRange = (e, from, to) =>
@@ -110,7 +108,7 @@ FP.views['report-activity'] = (() => {
       h('td', { class: 'lr__nowrap' }, `${e.start} - ${e.end}`),
       cellTruncated(e.name, NAME_MAX, 'lr__name'),
       cellTruncated(e.description, DESC_MAX, 'lr__desc'),
-      h('td', null, companionLabel(e.companion) || '-')   // "-" cuando no hay acompañante
+      h('td', null, companionLabel(e.companions) || '-')   // "-" cuando no hay acompañante
     );
 
     function updateMore() {
@@ -160,7 +158,7 @@ FP.views['report-activity'] = (() => {
           (!applied.date || e.date === applied.date) &&
           inTimeRange(e, applied.from, applied.to) &&
           (!applied.attendees.length || e.attendees.some((id) => applied.attendees.includes(id))) &&
-          (!applied.companions.length || applied.companions.some((w) => companionMatches(e.companion, w))))
+          (!applied.companions.length || applied.companions.some((id) => e.companions.includes(id))))
         .sort((a, b) => (a.date + a.start).localeCompare(b.date + b.start));
 
       $('ra-rows').replaceChildren(...results.slice(0, shown).map(row));
@@ -191,7 +189,7 @@ FP.views['report-activity'] = (() => {
       setError('');
       applied = {
         name: f.name.value.trim(), date: f.date.value, from: f.from.value, to: f.to.value,
-        attendees: attendeeSelect.values(), companions: companionSelect.values()
+        attendees: attendeeSelect.values().map(Number), companions: companionSelect.values().map(Number)
       };
       shown = PAGE_SIZE;   // cada búsqueda empieza por el primer bloque
       if (loaded) render(); // resultado inmediato con lo ya cargado…
