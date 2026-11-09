@@ -22,6 +22,7 @@ FP.idle = (() => {
     const countdown = document.getElementById('idle-countdown');
     const stay = document.getElementById('idle-stay');
     const leave = document.getElementById('idle-logout');
+    const box = dialog.querySelector('.modal__box');
     let last = Date.now();
     let ended = false;
 
@@ -39,7 +40,7 @@ FP.idle = (() => {
       countdown.textContent = format(remaining);
       if (warning()) return;
       dialog.hidden = false;
-      stay.focus();
+      box.focus();   // el foco va al aviso (Intro = seguir conectado), sin marcar ningún botón
     }
 
     function keepAlive() {
@@ -72,14 +73,16 @@ FP.idle = (() => {
     stay.addEventListener('click', keepAlive);
     leave.addEventListener('click', () => end('manual'));
 
-    // Con el aviso abierto el teclado solo actúa sobre él: Escape = seguir conectado,
-    // y el tabulador se queda dentro del aviso
+    // Con el aviso abierto el teclado solo actúa sobre él: Escape (o Intro con el foco en el
+    // aviso) = seguir conectado, y el tabulador se queda dentro del aviso
     window.addEventListener('keydown', (e) => {
       if (!warning()) return;
-      if (e.key === 'Escape') { e.preventDefault(); e.stopImmediatePropagation(); keepAlive(); return; }
+      if (e.key === 'Escape' || (e.key === 'Enter' && document.activeElement === box)) {
+        e.preventDefault(); e.stopImmediatePropagation(); keepAlive(); return;
+      }
       if (e.key === 'Tab') {
         e.preventDefault();
-        (document.activeElement === stay ? leave : stay).focus();
+        (document.activeElement === leave ? stay : leave).focus();
       }
     }, true);
   }

@@ -21,16 +21,14 @@
 }
 .password__toggle:hover { background: var(--action-soft); color: var(--action); }
 .password__toggle svg { width: 20px; height: 20px; }
-.login__error {
-  margin: 0 0 16px; padding: 10px 12px; border-radius: var(--radius-sm);
-  background: var(--danger-soft); color: var(--danger); border: 1px solid #f2c4c4; font-size: 14px;
-}
 .login .btn--primary { margin-top: 4px; }
-/* Aviso informativo (p. ej. sesión cerrada por inactividad) */
-.login__notice {
+/* Mensajes (informativo y de error): mismo sitio, bajo el título, y mismo formato */
+.login__msg {
   display: flex; gap: 8px; align-items: flex-start;
-  margin: 0 0 20px; padding: 10px 12px; border-radius: var(--radius-sm);
-  background: var(--primary-soft); color: var(--text); border: 1px solid #b9d6f4; font-size: 14px;
+  margin: 0 0 20px; padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid; font-size: 14px;
 }
-.login__notice[hidden] { display: none; }
-.login__notice svg { flex: none; width: 18px; height: 18px; margin-top: 1px; color: var(--primary); }
+.login__msg[hidden] { display: none; }
+.login__msg svg { flex: none; width: 18px; height: 18px; margin-top: 1px; }
+.login__msg--info { background: var(--primary-soft); color: var(--text); border-color: #b9d6f4; }
+.login__msg--info svg { color: var(--primary); }
+.login__msg--error { background: var(--danger-soft); color: var(--danger); border-color: #f2c4c4; }

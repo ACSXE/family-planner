@@ -104,17 +104,21 @@
 }
 .modal[hidden] { display: none; }
 .modal__box {
-  width: 100%; max-width: 400px; padding: 24px;
-  background: var(--surface); border-radius: 14px; box-shadow: 0 16px 40px rgba(16, 32, 56, .25);
-  text-align: center;
+  width: 100%; max-width: 420px; padding: 24px; text-align: center;
+  background: var(--surface); border-radius: var(--radius); box-shadow: 0 16px 40px rgba(16, 32, 56, .25);
 }
+.modal__box:focus { outline: none; }
+.modal__head { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-bottom: 8px; }
 .modal__icon {
-  display: inline-grid; place-items: center; width: 48px; height: 48px; margin-bottom: 12px;
+  flex: none; display: grid; place-items: center; width: 48px; height: 48px;
   border-radius: 50%; background: #fdf3e1; color: #b7791f;
 }
 .modal__icon svg { width: 26px; height: 26px; }
-.modal__title { margin: 0 0 8px; font-size: 18px; }
+.modal__title { margin: 0; font-size: 18px; }
 .modal__text { margin: 0 0 20px; color: var(--text-muted); font-size: 14px; line-height: 1.45; }
 .modal__text strong { color: var(--text); font-variant-numeric: tabular-nums; }
-/* Los dos botones del mismo tamaño, uno junto a otro */
-.modal__actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+/* Botones como en el resto de la app: mismo tamaño (el del más ancho), centrados en el aviso */
+.modal__actions {
+  display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 8px;
+  width: max-content; max-width: 100%; margin: 0 auto;
+}

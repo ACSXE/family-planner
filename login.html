@@ -15,7 +15,15 @@
         <h1>Family Planner</h1>
       </div>
 
-      <p class="login__notice" id="login-notice" role="status" hidden></p>
+      <!-- Mensajes de la pantalla: el informativo y el de error ocupan el mismo sitio y tienen el mismo formato -->
+      <p class="login__msg login__msg--info" id="login-notice" role="status" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Tu sesión se ha cerrado por inactividad. Vuelve a entrar para continuar.</span>
+      </p>
+      <p class="login__msg login__msg--error" id="login-error" role="alert" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7.5v5.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="16.5" r="1.2" fill="currentColor"/></svg>
+        <span id="login-error-text"></span>
+      </p>
 
       <div class="field">
         <label for="username">Usuario</label>
@@ -33,8 +41,6 @@
           </button>
         </div>
       </div>
-
-      <p class="login__error" id="login-error" role="alert" hidden></p>
 
       <button class="btn btn--primary btn--block" type="submit">Entrar</button>
     </form>

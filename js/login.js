@@ -18,10 +18,7 @@
 
   // Llegada tras un cierre por inactividad (js/core/idle.js): se explica y se limpia la dirección
   if (new URLSearchParams(location.search).has('inactividad')) {
-    const notice = document.getElementById('login-notice');
-    notice.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
-      '<span>Tu sesión se ha cerrado por inactividad. Vuelve a entrar para continuar.</span>';
-    notice.hidden = false;
+    document.getElementById('login-notice').hidden = false;
     history.replaceState(null, '', location.pathname);
   }
 
@@ -58,7 +55,7 @@
     }
 
     // Login not OK → mensaje de error
-    errorBox.textContent = result.reason === 'credentials'
+    document.getElementById('login-error-text').textContent = result.reason === 'credentials'
       ? 'El usuario o la contraseña introducidos no son correctos.'
       : 'No se ha podido conectar. Comprueba la conexión e inténtalo de nuevo.';
     errorBox.hidden = false;
