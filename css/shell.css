@@ -117,6 +117,8 @@
 .modal__title { margin: 0; font-size: 18px; }
 .modal__text { margin: 0 0 20px; color: var(--text-muted); font-size: 14px; line-height: 1.45; }
 .modal__text strong { color: var(--text); font-variant-numeric: tabular-nums; }
+/* "45 segundos" nunca se parte en dos líneas */
+.modal__nowrap { white-space: nowrap; }
 /* Botones como en el resto de la app: mismo tamaño (el del más ancho), centrados en el aviso */
 .modal__actions {
   display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 8px;

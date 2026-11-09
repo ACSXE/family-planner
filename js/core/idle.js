@@ -20,6 +20,7 @@ FP.idle = (() => {
     const warn = Math.min(warningSeconds * 1000, limit / 2);
     const dialog = document.getElementById('idle-dialog');
     const countdown = document.getElementById('idle-countdown');
+    const unit = document.getElementById('idle-unit');
     const stay = document.getElementById('idle-stay');
     const leave = document.getElementById('idle-logout');
     const box = dialog.querySelector('.modal__box');
@@ -27,11 +28,12 @@ FP.idle = (() => {
     let ended = false;
 
     const warning = () => !dialog.hidden;
-    // Cuenta atrás con su unidad: "45 segundos", "1 segundo"; si pasa de un minuto, "1:30 min"
+    // Cuenta atrás: número (en negrita) y unidad por separado. "45 segundos", "1 segundo";
+    // si pasa de un minuto, "1:30 min"
     const format = (ms) => {
       const s = Math.max(0, Math.ceil(ms / 1000));
-      if (s > 60) return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')} min`;
-      return `${s} ${s === 1 ? 'segundo' : 'segundos'}`;
+      if (s > 60) return [`${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`, 'min'];
+      return [String(s), s === 1 ? 'segundo' : 'segundos'];
     };
 
     function activity() {
@@ -39,7 +41,7 @@ FP.idle = (() => {
     }
 
     function showWarning(remaining) {
-      countdown.textContent = format(remaining);
+      [countdown.textContent, unit.textContent] = format(remaining);
       if (warning()) return;
       dialog.hidden = false;
       box.focus();   // el foco va al aviso (Intro = seguir conectado), sin marcar ningún botón
