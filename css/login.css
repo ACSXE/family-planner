@@ -26,3 +26,11 @@
   background: var(--danger-soft); color: var(--danger); border: 1px solid #f2c4c4; font-size: 14px;
 }
 .login .btn--primary { margin-top: 4px; }
+/* Aviso informativo (p. ej. sesión cerrada por inactividad) */
+.login__notice {
+  display: flex; gap: 8px; align-items: flex-start;
+  margin: 0 0 20px; padding: 10px 12px; border-radius: var(--radius-sm);
+  background: var(--primary-soft); color: var(--text); border: 1px solid #b9d6f4; font-size: 14px;
+}
+.login__notice[hidden] { display: none; }
+.login__notice svg { flex: none; width: 18px; height: 18px; margin-top: 1px; color: var(--primary); }

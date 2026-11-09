@@ -16,6 +16,15 @@
   const passInput = document.getElementById('password');
   const errorBox = document.getElementById('login-error');
 
+  // Llegada tras un cierre por inactividad (js/core/idle.js): se explica y se limpia la dirección
+  if (new URLSearchParams(location.search).has('inactividad')) {
+    const notice = document.getElementById('login-notice');
+    notice.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+      '<span>Tu sesión se ha cerrado por inactividad. Vuelve a entrar para continuar.</span>';
+    notice.hidden = false;
+    history.replaceState(null, '', location.pathname);
+  }
+
   userInput.focus();
 
   // Mostrar / ocultar contraseña
@@ -37,6 +46,7 @@
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     errorBox.hidden = true;
+    document.getElementById('login-notice').hidden = true;
     submit.disabled = true;
     const result = await FP.session.signIn(userInput.value.trim(), passInput.value);
     submit.disabled = false;

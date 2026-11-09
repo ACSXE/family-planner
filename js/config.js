@@ -36,6 +36,10 @@ const FP_CONFIG = {
     }
   ],
 
+  // Cierre de sesión por inactividad: minutos sin usar la aplicación y segundos de aviso previo
+  // (el aviso dura como mucho la mitad del tiempo). 1 minuto para probar; el valor previsto es 15.
+  idle: { minutes: 1, warningSeconds: 60 },
+
   // Hora a la que se posiciona la vista diaria al abrir un día
   scrollToHour: 8
 };

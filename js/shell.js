@@ -56,6 +56,13 @@
     }
   }, true);
 
+  // ---------- Cierre de sesión por inactividad ----------
+  FP.idle.start({
+    minutes: FP_CONFIG.idle.minutes,
+    warningSeconds: FP_CONFIG.idle.warningSeconds,
+    onLogout: (reason) => location.replace(reason === 'inactividad' ? `${FP.pages.login}?inactividad` : FP.pages.login)
+  });
+
   $('logout').addEventListener('click', async () => {
     await FP.session.end();
     location.replace(FP.pages.login);

@@ -40,6 +40,7 @@ js/
   core/time.js             Time and date helpers shared by the screens
   core/multiselect.js      Multi-select dropdown with checkboxes (styles in base.css)
   core/router.js           Loads each screen's HTML, CSS and JS when it is opened
+  core/idle.js             Signs the user out after a period of inactivity (warning dialog first)
   login.js                 Login page logic
   shell.js                 Side navigation, user menu and toasts
   views/planner.js         Calendario screen logic
@@ -112,6 +113,10 @@ Then open `http://localhost:8000/login.html`.
 ## Deploy
 
 GitHub Pages serves the `main` branch as is (no build step): every push to `main` updates https://acsxe.github.io/family-planner/. `.nojekyll` tells GitHub Pages to publish the files without processing them.
+
+## Session timeout
+
+After `idle.minutes` without using the app (clicks, taps, keys, mouse, scrolling), the session is closed and the login page shows "Tu sesión se ha cerrado por inactividad". Before that, a "¿Sigues ahí?" dialog counts down the last `idle.warningSeconds` (at most half of the time) with "Seguir conectado" and "Cerrar sesión". Time is measured against the clock, so a sleeping tab or a locked phone is signed out as soon as it comes back. Both values are in `js/config.js`.
 
 ## Activity detail (Calendario, right column)
 

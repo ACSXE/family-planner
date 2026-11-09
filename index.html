@@ -56,6 +56,21 @@
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <!-- Aviso de cierre de sesión por inactividad (js/core/idle.js) -->
+  <div class="modal" id="idle-dialog" hidden>
+    <div class="modal__box" role="alertdialog" aria-modal="true" aria-labelledby="idle-title" aria-describedby="idle-text">
+      <span class="modal__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
+      <h2 class="modal__title" id="idle-title">¿Sigues ahí?</h2>
+      <p class="modal__text" id="idle-text">Por seguridad, tu sesión se cerrará por inactividad en <strong id="idle-countdown">1:00</strong>.</p>
+      <div class="modal__actions">
+        <button class="btn btn--ghost" id="idle-logout" type="button">Cerrar sesión</button>
+        <button class="btn btn--primary" id="idle-stay" type="button">Seguir conectado</button>
+      </div>
+    </div>
+  </div>
   </div>
 
   <script src="js/vendor/supabase-js-2.118.0.js"></script>
@@ -68,6 +83,7 @@
   <script src="js/core/time.js"></script>
   <script src="js/core/multiselect.js"></script>
   <script src="js/core/router.js"></script>
+  <script src="js/core/idle.js"></script>
   <script src="js/shell.js"></script>
 </body>
 </html>
