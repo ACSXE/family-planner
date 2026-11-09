@@ -27,9 +27,11 @@ FP.idle = (() => {
     let ended = false;
 
     const warning = () => !dialog.hidden;
+    // Cuenta atrás con su unidad: "45 segundos", "1 segundo"; si pasa de un minuto, "1:30 min"
     const format = (ms) => {
       const s = Math.max(0, Math.ceil(ms / 1000));
-      return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+      if (s > 60) return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')} min`;
+      return `${s} ${s === 1 ? 'segundo' : 'segundos'}`;
     };
 
     function activity() {
