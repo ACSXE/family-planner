@@ -61,7 +61,7 @@
 .day.is-weekend { color: var(--weekend); }
 .day.is-today { border: 2px solid var(--primary); color: var(--primary); }
 .day.is-selected { background: var(--primary); border-color: var(--primary); color: #fff; }
-/* Puntos de actividades: hasta 4 por día (6px; caben 4 incluso en la casilla más estrecha) */
+/* Puntos: uno por persona con actividades ese día (6px; caben los 4 incluso en la casilla más estrecha) */
 .day__dots { display: flex; gap: 2px; height: 6px; }
 .day__dots i { width: 6px; height: 6px; border-radius: 50%; }
 /* Más de 4 actividades: número con el total en la esquina */
@@ -170,3 +170,9 @@
   .detail { padding: 16px 12px 32px; }
   .btn--danger { margin-left: 0; }
 }
+
+/* Varios asistentes: el fondo se reparte en bandas con el color de cada uno (sin barra lateral).
+   Las variables las calcula js/views/planner.js. El texto queda alineado con el de las demás. */
+.event--multi { border: 1px solid var(--border-strong); padding-left: 11px; background: var(--split); }
+.event--multi:hover { background: var(--split-hover); }
+.event--multi.is-selected { box-shadow: 0 0 0 2px var(--text-muted); }

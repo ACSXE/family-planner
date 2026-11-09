@@ -127,9 +127,11 @@ FP.views.planner = (() => {
           if (date === state.date) cls.push('is-selected');
           if (evs.length) cls.push('has-events');
 
-          const dots = evs.length
+          // Un punto por cada persona con alguna actividad ese día (en el orden de la familia)
+          const people = MEMBERS.filter((m) => evs.some((e) => e.attendees.includes(m.id)));
+          const dots = people.length
             ? h('span', { class: 'day__dots', 'aria-hidden': 'true' },
-                evs.slice(0, 4).map((e) => h('i', { style: `background:${(memberById[e.attendees[0]] || {}).color || '#64748b'}` })))
+                people.map((m) => h('i', { style: `background:${m.color}` })))
             : null;
           const more = evs.length > 4 ? h('span', { class: 'day__count', 'aria-hidden': 'true' }, String(evs.length)) : null;
 
@@ -215,15 +217,25 @@ FP.views.planner = (() => {
       }
       for (const it of layoutOverlaps(eventsOn(state.date))) {
         const e = it.e;
-        const color = (memberById[e.attendees[0]] || {}).color || '#64748b';
+        // Colores de los asistentes. Con uno: la actividad lleva su color. Con varios: el fondo
+        // se reparte en bandas, una por asistente (ver .event--multi en css/views/planner.css)
+        const colors = e.attendees.map((id) => memberById[id]?.color).filter(Boolean);
+        if (!colors.length) colors.push('#64748b');
+        const color = colors[0];
+        const n = colors.length;
+        const band = (i) => `${(i * 100 / n).toFixed(2)}% ${((i + 1) * 100 / n).toFixed(2)}%`;
+        const multi = n > 1
+          ? `;--split:linear-gradient(to right, ${colors.map((c, i) => `color-mix(in srgb, ${c} 14%, #fff) ${band(i)}`).join(', ')})` +
+            `;--split-hover:linear-gradient(to right, ${colors.map((c, i) => `color-mix(in srgb, ${c} 24%, #fff) ${band(i)}`).join(', ')})`
+          : '';
         const top = (it.s / 60) * HOUR_PX;
         const height = Math.max(((it.en - it.s) / 60) * HOUR_PX - 2, 20);
         area.append(h('button', {
           type: 'button',
-          class: 'event' + (state.draft?.id === e.id ? ' is-selected' : '') + (height < 40 ? ' event--short' : ''),
+          class: 'event' + (n > 1 ? ' event--multi' : '') + (state.draft?.id === e.id ? ' is-selected' : '') + (height < 40 ? ' event--short' : ''),
           'data-id': e.id,
           title: `${e.name} · ${e.start} – ${e.end}`,
-          style: `--c:${color};top:${top}px;height:${height}px;left:calc((100% - var(--free)) * ${it.col / it.ncols} + 2px);width:calc((100% - var(--free)) / ${it.ncols} - 4px)`
+          style: `--c:${color}${multi};top:${top}px;height:${height}px;left:calc((100% - var(--free)) * ${it.col / it.ncols} + 2px);width:calc((100% - var(--free)) / ${it.ncols} - 4px)`
         },
           h('span', { class: 'event__name' }, e.name),
           h('span', { class: 'event__time' }, `${e.start} – ${e.end}`)
