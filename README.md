@@ -51,6 +51,9 @@ supabase/
   migrations/              Database changes, run in order in the Supabase SQL Editor
     001_initial_schema.sql   First version: activities and profiles (profiles is replaced by users in 002)
     002_family_members.sql   Family members with numeric member_id (keeps existing activities)
+    003_weekly_digest.sql    Weekly e-mail: send log and the data for each e-mail
+  functions/weekly-digest/ Edge function that sends the weekly e-mail through Resend
+  cron/weekly_digest_cron.sql  Calls the edge function every hour (pg_cron)
 tools/
   build_artifact.py        Builds the copy published as a Claude artifact (see below)
 ```
@@ -113,6 +116,21 @@ Then open `http://localhost:8000/login.html`.
 ## Deploy
 
 GitHub Pages serves the `main` branch as is (no build step): every push to `main` updates https://acsxe.github.io/family-planner/. `.nojekyll` tells GitHub Pages to publish the files without processing them.
+
+## Weekly e-mail
+
+Every Sunday from 9:00 (in each user's `user_settings.timezone`), users with `weekly_digest` on receive an e-mail with the activities of the coming week (Monday to Sunday), so they have time to organise themselves, in two lists: the ones they attend and the ones they accompany. Weeks without activities send nothing. It is sent with [Resend](https://resend.com) from `family_planner@notifications.acsex.es` (domain verified in Resend, DNS in DonDominio).
+
+- `due_weekly_digests()` (migration 003) returns the e-mails that are due and their activities; `digest_log` records each one (sent, skipped or error) so none is sent twice, and a failed one is retried the next hour.
+- The edge function `weekly-digest` builds the e-mail (HTML and plain text) and sends it. It only runs with the `x-cron-secret` header. For tests, its body accepts `{"member_id": 1, "week_of": "2026-11-16"}` (send that person's e-mail for the week of that date now, not logged) and `{"dry_run": true}` (return the e-mail instead of sending it).
+- `supabase/cron/weekly_digest_cron.sql` calls the function every hour on Saturdays and Sundays (UTC).
+
+Setup, once:
+1. Run `supabase/migrations/003_weekly_digest.sql` in the SQL Editor.
+2. **Edge Functions → Deploy a new function → Via editor**, name `weekly-digest`, paste `supabase/functions/weekly-digest/index.ts` and deploy. In its settings, turn off **Verify JWT** (the function checks `x-cron-secret` instead).
+3. **Edge Functions → Secrets**: add `RESEND_API_KEY` (Resend key with sending access) and `CRON_SECRET` (a long random password).
+4. Test it from the function's **Test** panel: header `x-cron-secret`, body `{"member_id": 1, "week_of": "2026-11-16"}`.
+5. Store the same password in the Vault (`select vault.create_secret('…', 'weekly_digest_cron_secret');`) and run `supabase/cron/weekly_digest_cron.sql`.
 
 ## Session timeout
 
