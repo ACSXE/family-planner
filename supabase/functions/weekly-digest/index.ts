@@ -89,34 +89,51 @@ const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&
 const C = { shell: '#2c4562', text: '#1d2a3a', muted: '#5b6b80', border: '#dfe4ec', bg: '#f3f5f8', primary: '#0a6ed1' };
 // Con comillas simples: va dentro de atributos style="…" del HTML
 const FONT = "system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif";
+// Tipografía con propiedades sueltas: Outlook ignora el atajo "font:"
+const font = (size: number, weight = 400, lineHeight = 1.4) =>
+  `font-family:${FONT};font-size:${size}px;font-weight:${weight};line-height:${lineHeight}`;
+// Saltos de línea de la descripción como <br>: Outlook ignora "white-space"
+const lines = (s: string) => esc(s).replace(/\r?\n/g, '<br>');
 
-const dots = (people: Person[]) => people.map((p) =>
-  `<span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${p.color};margin-right:3px;vertical-align:middle"></span>`).join('');
+// Puntos de color de los asistentes: el carácter ● coloreado se ve en todos los programas de correo
+const dots = (people: Person[]) =>
+  `<span style="font-size:12px;letter-spacing:1px;color:${C.muted}">${people.map((p) => `<span style="color:${p.color}">&#9679;</span>`).join('')}</span>`;
+
+// Personas con su punto de color: "● Sergio y ● Pablo"
+const peopleHtml = (people: Person[]) => {
+  const p = people.map((x) => `<span style="color:${x.color}">&#9679;</span>&nbsp;${esc(x.name)}`);
+  return p.length > 1 ? `${p.slice(0, -1).join(', ')} y ${p[p.length - 1]}` : p[0] ?? '';
+};
 
 // Una sección ("Asistes" / "Acompañas") con sus actividades agrupadas por día
 function sectionHtml(title: string, items: Activity[], role: 'attending' | 'accompanying', me: number) {
   if (!items.length) return '';
-  let html = `<tr><td style="padding:20px 24px 4px;font:700 16px/1.3 ${FONT};color:${C.text}">${title}</td></tr>`;
+  let html = `<tr><td style="padding:20px 24px 4px;${font(16, 700, 1.3)};color:${C.text}">${title}</td></tr>`;
   let day = '';
   for (const a of items) {
     if (a.date !== day) {
       day = a.date;
-      html += `<tr><td style="padding:12px 24px 4px;font:700 13px/1.3 ${FONT};color:${C.muted};text-transform:uppercase;letter-spacing:.03em">${dayLabel(a.date)}</td></tr>`;
+      html += `<tr><td style="padding:12px 24px 4px;${font(13, 700, 1.3)};color:${C.muted};text-transform:uppercase;letter-spacing:.03em">${dayLabel(a.date)}</td></tr>`;
     }
-    // Nunca se nombra a quien recibe el correo
-    const detail = role === 'attending'
+    // Como asistente: la actividad y, debajo en gris, con quién vas ("Con Laura · Acompaña Alberto").
+    // Como acompañante: "● Sergio - título de la actividad", con las personas a las que acompañas.
+    // Nunca se nombra a quien recibe el correo.
+    const accompanied = others(a.attendees, me);
+    const goingWith = role === 'attending'
       ? [others(a.attendees, me).length ? `Con ${esc(names(others(a.attendees, me)))}` : '',
          others(a.companions, me).length ? `Acompaña ${esc(names(others(a.companions, me)))}` : ''].filter(Boolean).join(' · ')
-      : [others(a.attendees, me).length ? `Acompañas a ${esc(names(others(a.attendees, me)))}` : '',
-         others(a.companions, me).length ? `con ${esc(names(others(a.companions, me)))}` : ''].filter(Boolean).join(' ');
+      : '';
+    const heading = role === 'accompanying' && accompanied.length
+      ? `${peopleHtml(accompanied)} - ${esc(a.name)}`
+      : `${dots(a.attendees)} ${esc(a.name)}`;
     html += `<tr><td style="padding:4px 24px">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid ${C.border};border-radius:8px">
         <tr>
-          <td width="96" valign="top" style="padding:10px 0 10px 12px;font:600 13px/1.4 ${FONT};color:${C.text};white-space:nowrap">${a.start} – ${a.end}</td>
-          <td valign="top" style="padding:10px 12px;font:13px/1.4 ${FONT};color:${C.text}">
-            <div style="font-weight:700">${dots(a.attendees)} ${esc(a.name)}</div>
-            ${detail ? `<div style="color:${C.muted};margin-top:2px">${detail}</div>` : ''}
-            ${a.description ? `<div style="color:${C.muted};margin-top:4px;white-space:pre-line">${esc(a.description)}</div>` : ''}
+          <td width="96" valign="top" style="padding:10px 0 10px 12px;${font(13, 600)};color:${C.text};white-space:nowrap">${a.start}&nbsp;–&nbsp;${a.end}</td>
+          <td valign="top" style="padding:10px 12px;${font(13)};color:${C.text}">
+            <div style="${font(13, 700)}">${heading}</div>
+            ${goingWith ? `<div style="${font(13)};color:${C.muted};margin-top:2px">${goingWith}</div>` : ''}
+            ${a.description ? `<div style="${font(13)};color:${C.muted};margin-top:4px">${lines(a.description)}</div>` : ''}
           </td>
         </tr>
       </table></td></tr>`;
@@ -127,12 +144,13 @@ function sectionHtml(title: string, items: Activity[], role: 'attending' | 'acco
 function textSection(title: string, items: Activity[], role: 'attending' | 'accompanying', me: number) {
   if (!items.length) return '';
   return `\n${title.toUpperCase()}\n` + items.map((a) => {
-    const who = role === 'attending'
+    const accompanied = others(a.attendees, me);
+    const heading = role === 'accompanying' && accompanied.length ? `${names(accompanied)} - ${a.name}` : a.name;
+    const goingWith = role === 'attending'
       ? [others(a.attendees, me).length ? `con ${names(others(a.attendees, me))}` : '',
          others(a.companions, me).length ? `acompaña ${names(others(a.companions, me))}` : ''].filter(Boolean).join(', ')
-      : [others(a.attendees, me).length ? `acompañas a ${names(others(a.attendees, me))}` : '',
-         others(a.companions, me).length ? `con ${names(others(a.companions, me))}` : ''].filter(Boolean).join(' ');
-    return `- ${dayLabel(a.date)}, ${a.start}–${a.end}: ${a.name}${who ? ` (${who})` : ''}`;
+      : '';
+    return `- ${dayLabel(a.date)}, ${a.start}–${a.end}: ${heading}${goingWith ? ` (${goingWith})` : ''}`;
   }).join('\n') + '\n';
 }
 
@@ -144,19 +162,28 @@ export function renderDigest(d: Digest, appUrl = APP_URL) {
     d.attending.length ? `${d.attending.length} ${d.attending.length === 1 ? 'actividad' : 'actividades'} como asistente` : '',
     d.accompanying.length ? `${d.accompanying.length} como acompañante` : ''
   ].filter(Boolean).join(' y ');
-  const html = `<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(subject)}</title></head>
+  const html = `<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<!-- Apple Mail: no convertir fechas, horas ni direcciones en enlaces -->
+<meta name="format-detection" content="telephone=no,date=no,address=no,email=no">
+<style>a[x-apple-data-detectors]{color:inherit!important;text-decoration:none!important;font:inherit!important}</style>
+<title>${esc(subject)}</title></head>
 <body style="margin:0;padding:0;background:${C.bg}">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${C.bg}"><tr><td align="center" style="padding:24px 12px">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;background:#fff;border:1px solid ${C.border};border-radius:12px;overflow:hidden">
-    <tr><td style="background:${C.shell};padding:14px 24px;font:700 17px/1.3 ${FONT};color:#fff">Family Planner</td></tr>
-    <tr><td style="padding:24px 24px 0;font:700 20px/1.3 ${FONT};color:${C.text}">Hola, ${esc(d.name)}</td></tr>
-    <tr><td style="padding:6px 24px 0;font:14px/1.5 ${FONT};color:${C.muted}">La semana que viene, ${esc(week)}, tienes ${summary}.</td></tr>
+    <tr><td bgcolor="${C.shell}" style="background:${C.shell};padding:14px 24px;${font(17, 700, 1.3)};color:#ffffff">Family Planner</td></tr>
+    <tr><td style="padding:24px 24px 0;${font(20, 700, 1.3)};color:${C.text}">Hola, ${esc(d.name)}</td></tr>
+    <tr><td style="padding:6px 24px 0;${font(14, 400, 1.5)};color:${C.muted}">La semana que viene, ${esc(week)}, tienes ${summary}.</td></tr>
     ${sectionHtml('Actividades en las que figuras como asistente', d.attending, 'attending', d.member_id)}
     ${sectionHtml('Actividades en las que figuras como acompañante', d.accompanying, 'accompanying', d.member_id)}
     <tr><td style="padding:24px 24px 8px">
-      <a href="${appUrl}" style="display:inline-block;background:${C.primary};color:#fff;text-decoration:none;font:600 14px/40px ${FONT};padding:0 18px;border-radius:6px">Abrir Family Planner</a>
+      <!-- Botón hecho con una tabla: así Outlook respeta su tamaño y su color -->
+      <table role="presentation" cellpadding="0" cellspacing="0"><tr>
+        <td bgcolor="${C.primary}" style="background:${C.primary};border-radius:6px;padding:11px 18px">
+          <a href="${appUrl}" style="${font(14, 600, 1.3)};color:#ffffff;text-decoration:none">Abrir Family Planner</a>
+        </td>
+      </tr></table>
     </td></tr>
-    <tr><td style="padding:16px 24px 20px;border-top:1px solid ${C.border};font:12px/1.5 ${FONT};color:${C.muted}">
+    <tr><td style="padding:16px 24px 20px;border-top:1px solid ${C.border};${font(12, 400, 1.5)};color:${C.muted}">
       Recibes este correo cada domingo porque tienes activado el aviso semanal de Family Planner.
     </td></tr>
   </table>
