@@ -34,7 +34,7 @@ type Activity = {
 };
 type Digest = {
   user_id: string; member_id: number; email: string; name: string; full_name: string;
-  language: string; locale: string; timezone: string;
+  language: string; date_format: string; number_format: string; time_format: string; timezone: string;
   week_start: string; week_end: string; attending: Activity[]; accompanying: Activity[];
 };
 

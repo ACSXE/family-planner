@@ -52,6 +52,7 @@ supabase/
     001_initial_schema.sql   First version: activities and profiles (profiles is replaced by users in 002)
     002_family_members.sql   Family members with numeric member_id (keeps existing activities)
     003_weekly_digest.sql    Weekly e-mail: send log and the data for each e-mail
+    004_user_formats.sql     Date, number and time formats per user (replaces locale)
   functions/weekly-digest/ Edge function that sends the weekly e-mail through Resend
   cron/weekly_digest_cron.sql  Calls the edge function every hour (pg_cron)
 tools/
@@ -96,7 +97,7 @@ Logic or styles used by more than one screen go to `js/core/` and `css/base.css`
 |---|---|---|
 | `family_members` | `member_id` | Everyone in the family: name, full name, colour, `can_accompany`, `needs_companion` |
 | `users` | `member_id` | Family members who are users of the app (not the children): `user_id`, the only link to Supabase Auth |
-| `user_settings` | `user_id` | Each user's own settings: weekly e-mail on/off, `language` (ISO 639-1, `es`), `locale` (`es-ES`, dates and numbers), time zone. Created automatically for every user |
+| `user_settings` | `user_id` | Each user's own settings: weekly e-mail on/off, `language` (ISO 639-1, `es`), `date_format` (`DD/MM/YYYY`), `number_format` (`1.234,56`), `time_format` (`24h`), time zone. Created automatically for every user |
 | `activities` | `activity_id` | Name, description, date, times and `created_by` (`member_id`) |
 | `activity_attendees` | `activity_id` + `member_id` | One row per attendee |
 | `activity_companions` | `activity_id` + `member_id` | One row per companion |
