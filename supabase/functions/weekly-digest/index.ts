@@ -113,7 +113,7 @@ function sectionHtml(title: string, items: Activity[], role: 'attending' | 'acco
   for (const a of items) {
     if (a.date !== day) {
       day = a.date;
-      html += `<tr><td style="padding:12px 24px 4px;${font(13, 700, 1.3)};color:${C.muted};text-transform:uppercase;letter-spacing:.03em">${dayLabel(a.date)}</td></tr>`;
+      html += `<tr><td style="padding:12px 24px 4px;${font(14, 700, 1.3)};color:${C.muted}">${dayLabel(a.date)}</td></tr>`;
     }
     // Como asistente: la actividad y, debajo en gris, con quién vas ("Con Laura · Acompaña Alberto").
     // Como acompañante: "● Sergio - título de la actividad", con las personas a las que acompañas.
@@ -173,8 +173,8 @@ export function renderDigest(d: Digest, appUrl = APP_URL) {
     <tr><td bgcolor="${C.shell}" style="background:${C.shell};padding:14px 24px;${font(17, 700, 1.3)};color:#ffffff">Family Planner</td></tr>
     <tr><td style="padding:24px 24px 0;${font(20, 700, 1.3)};color:${C.text}">Hola ${esc(d.name)},</td></tr>
     <tr><td style="padding:6px 24px 0;${font(14, 400, 1.5)};color:${C.muted}">La semana que viene, ${esc(week)}, tienes ${summary}.</td></tr>
-    ${sectionHtml('Actividades como asistente', d.attending, 'attending', d.member_id)}
-    ${sectionHtml('Actividades como acompañante', d.accompanying, 'accompanying', d.member_id)}
+    ${sectionHtml('Tus actividades como asistente', d.attending, 'attending', d.member_id)}
+    ${sectionHtml('Tus actividades como acompañante', d.accompanying, 'accompanying', d.member_id)}
     <tr><td style="padding:24px 24px 8px">
       <!-- Botón hecho con una tabla: así Outlook respeta su tamaño y su color -->
       <table role="presentation" cellpadding="0" cellspacing="0"><tr>
@@ -190,8 +190,8 @@ export function renderDigest(d: Digest, appUrl = APP_URL) {
 </td></tr></table>
 </body></html>`;
   const text = `Hola ${d.name},\n\nLa semana que viene, ${week}, tienes ${summary}.\n` +
-    textSection('Actividades como asistente', d.attending, 'attending', d.member_id) +
-    textSection('Actividades como acompañante', d.accompanying, 'accompanying', d.member_id) +
+    textSection('Tus actividades como asistente', d.attending, 'attending', d.member_id) +
+    textSection('Tus actividades como acompañante', d.accompanying, 'accompanying', d.member_id) +
     `\nAbrir Family Planner: ${appUrl}\n`;
   return { subject, html, text, total };
 }
