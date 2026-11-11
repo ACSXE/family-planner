@@ -95,6 +95,15 @@ button { cursor: pointer; }
   background: var(--surface);
 }
 .field textarea { resize: vertical; min-height: 90px; }
+/* Autocompletado del navegador (usuario guardado, etc.): mismo fondo blanco que el resto de campos */
+.field input:-webkit-autofill, .field input:autofill {
+  -webkit-box-shadow: 0 0 0 1000px var(--surface) inset; box-shadow: 0 0 0 1000px var(--surface) inset;
+  -webkit-text-fill-color: var(--text); caret-color: var(--text);
+}
+.field input:-webkit-autofill:focus, .field input:autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px var(--surface) inset, 0 0 0 3px rgba(10,110,209,.18);
+  box-shadow: 0 0 0 1000px var(--surface) inset, 0 0 0 3px rgba(10,110,209,.18);
+}
 .field input:focus, .field textarea:focus, .field select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(10,110,209,.18); }
 .field [aria-invalid="true"] { border-color: var(--danger); }
 .field-row { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 12px; }

@@ -8,7 +8,7 @@
  *
  * Formato de una actividad en la aplicación (los miembros son member_id numéricos):
  *   { id, name, description, date: 'YYYY-MM-DD', start: 'HH:MM', end: 'HH:MM',
- *     attendees: [1, 4], companions: [2], createdBy: 1 }
+ *     attendees: [1, 4], companions: [2], createdBy: 1, createdAt: '2026-11-09T18:20:00+00:00' }
  *
  *   await FP.storage.list()            → todas las actividades, por fecha y hora
  *   await FP.storage.create(activity)  → la actividad creada
@@ -20,7 +20,7 @@
 window.FP = window.FP || {};
 
 FP.storage = (() => {
-  const COLUMNS = 'activity_id, name, description, date, start_time, end_time, created_by, ' +
+  const COLUMNS = 'activity_id, name, description, date, start_time, end_time, created_by, created_at, ' +
     'activity_attendees(member_id), activity_companions(member_id)';
 
   const ids = (rows) => (rows || []).map((r) => r.member_id).sort((a, b) => a - b);
@@ -34,7 +34,8 @@ FP.storage = (() => {
     end: r.end_time.slice(0, 5),
     attendees: ids(r.activity_attendees),
     companions: ids(r.activity_companions),
-    createdBy: r.created_by
+    createdBy: r.created_by,
+    createdAt: r.created_at
   });
 
   // Errores de save_activity(): las reglas de la base de datos traen su propio mensaje

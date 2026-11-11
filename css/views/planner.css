@@ -132,9 +132,12 @@
 .chip:has(input:focus-visible) { outline: 2px solid var(--primary); outline-offset: 2px; }
 /* Aviso "Creada por…" y formulario en solo lectura */
 .detail__owner {
+  display: flex; flex-direction: column; gap: 2px;
   margin: 0 0 16px; padding: 10px 12px; border-radius: var(--radius-sm);
   background: var(--primary-soft); color: var(--text); font-size: var(--field-font-size);
 }
+.detail__owner[hidden] { display: none; }
+.detail__owner strong { font-weight: 600; }
 .detail.is-readonly .field input:not([type=checkbox]), .detail.is-readonly .field textarea, .detail.is-readonly .field select {
   background: var(--surface-2); color: var(--text); opacity: 1; -webkit-text-fill-color: var(--text);
 }

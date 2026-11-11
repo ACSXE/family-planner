@@ -248,8 +248,10 @@ FP.views.planner = (() => {
       $('timeline').replaceChildren(labels, area);
 
       if (scroll) {
+        // Con actividades: a la franja de media hora en la que empieza la primera.
+        // Sin actividades: a la hora de FP_CONFIG.scrollToHour
         const first = eventsOn(state.date)[0];
-        const hour = first ? Math.min(toMin(first.start) / 60, FP_CONFIG.scrollToHour) : FP_CONFIG.scrollToHour;
+        const hour = first ? Math.floor(toMin(first.start) / SLOT_MIN) * SLOT_MIN / 60 : FP_CONFIG.scrollToHour;
         $('day-body').scrollTop = Math.max(0, hour * HOUR_PX - 12);
       }
     }
@@ -349,7 +351,11 @@ FP.views.planner = (() => {
       owner.hidden = mode !== 'readonly';
       if (mode === 'readonly') {
         const name = FP.session.nameOf(state.draft.createdBy) || 'otra persona';
-        owner.textContent = `Creada por ${name}. Solo quien la creó puede modificarla o eliminarla.`;
+        const created = state.draft.createdAt ? FP.time.formatDateOf(state.draft.createdAt) : '';
+        owner.replaceChildren(
+          h('span', null, h('strong', null, 'Creada por: '), name),
+          created ? h('span', null, h('strong', null, 'Creada el: '), created) : ''
+        );
       }
       if (editable) snapshot = JSON.stringify(readForm());
       hideUnsaved();
