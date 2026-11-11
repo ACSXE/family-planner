@@ -171,10 +171,10 @@ export function renderDigest(d: Digest, appUrl = APP_URL) {
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${C.bg}"><tr><td align="center" style="padding:24px 12px">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;background:#fff;border:1px solid ${C.border};border-radius:12px;overflow:hidden">
     <tr><td bgcolor="${C.shell}" style="background:${C.shell};padding:14px 24px;${font(17, 700, 1.3)};color:#ffffff">Family Planner</td></tr>
-    <tr><td style="padding:24px 24px 0;${font(20, 700, 1.3)};color:${C.text}">Hola, ${esc(d.name)}</td></tr>
+    <tr><td style="padding:24px 24px 0;${font(20, 700, 1.3)};color:${C.text}">Hola ${esc(d.name)},</td></tr>
     <tr><td style="padding:6px 24px 0;${font(14, 400, 1.5)};color:${C.muted}">La semana que viene, ${esc(week)}, tienes ${summary}.</td></tr>
-    ${sectionHtml('Actividades en las que figuras como asistente', d.attending, 'attending', d.member_id)}
-    ${sectionHtml('Actividades en las que figuras como acompañante', d.accompanying, 'accompanying', d.member_id)}
+    ${sectionHtml('Actividades como asistente', d.attending, 'attending', d.member_id)}
+    ${sectionHtml('Actividades como acompañante', d.accompanying, 'accompanying', d.member_id)}
     <tr><td style="padding:24px 24px 8px">
       <!-- Botón hecho con una tabla: así Outlook respeta su tamaño y su color -->
       <table role="presentation" cellpadding="0" cellspacing="0"><tr>
@@ -184,14 +184,14 @@ export function renderDigest(d: Digest, appUrl = APP_URL) {
       </tr></table>
     </td></tr>
     <tr><td style="padding:16px 24px 20px;border-top:1px solid ${C.border};${font(12, 400, 1.5)};color:${C.muted}">
-      Recibes este correo cada domingo porque tienes activado el aviso semanal de Family Planner.
+      Recibes este correo cada domingo a las 9:00 horas porque tienes activado el aviso semanal de Family Planner.
     </td></tr>
   </table>
 </td></tr></table>
 </body></html>`;
-  const text = `Hola, ${d.name}\n\nLa semana que viene, ${week}, tienes ${summary}.\n` +
-    textSection('Actividades en las que figuras como asistente', d.attending, 'attending', d.member_id) +
-    textSection('Actividades en las que figuras como acompañante', d.accompanying, 'accompanying', d.member_id) +
+  const text = `Hola ${d.name},\n\nLa semana que viene, ${week}, tienes ${summary}.\n` +
+    textSection('Actividades como asistente', d.attending, 'attending', d.member_id) +
+    textSection('Actividades como acompañante', d.accompanying, 'accompanying', d.member_id) +
     `\nAbrir Family Planner: ${appUrl}\n`;
   return { subject, html, text, total };
 }
