@@ -104,14 +104,21 @@
 }
 .modal[hidden] { display: none; }
 .modal__box {
-  width: 100%; max-width: 420px; padding: 24px; text-align: center;
+  width: 100%; max-width: 420px; overflow: hidden; text-align: center;
   background: var(--surface); border-radius: var(--radius); box-shadow: 0 16px 40px rgba(16, 32, 56, .25);
 }
+/* Barra superior con el logo y el nombre, como la cabecera de la aplicación */
+.modal__bar {
+  display: flex; align-items: center; gap: 10px; padding: 12px 16px;
+  background: var(--shell); color: var(--shell-text); font-size: 15px; font-weight: 600; text-align: left;
+}
+.modal__bar svg { width: 20px; height: 20px; flex: none; }
+.modal__body { padding: 20px 24px 24px; }
 .modal__box:focus { outline: none; }
 .modal__head { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-bottom: 8px; }
 .modal__icon {
   flex: none; display: grid; place-items: center; width: 48px; height: 48px;
-  border-radius: 50%; background: #fdf3e1; color: #b7791f;
+  border-radius: 50%; background: var(--primary-soft); color: var(--primary);
 }
 .modal__icon svg { width: 26px; height: 26px; }
 .modal__title { margin: 0; font-size: 18px; }
