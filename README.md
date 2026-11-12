@@ -53,6 +53,7 @@ supabase/
     002_family_members.sql   Family members with numeric member_id (keeps existing activities)
     003_weekly_digest.sql    Weekly e-mail: send log and the data for each e-mail
     004_user_formats.sql     Date, number and time formats per user (replaces locale)
+    005_members_only_read.sql Only app users (rows in users) can read members and activities
   functions/weekly-digest/ Edge function that sends the weekly e-mail through Resend
   cron/weekly_digest_cron.sql  Calls the edge function every hour (pg_cron)
 tools/
@@ -87,7 +88,7 @@ Logic or styles used by more than one screen go to `js/core/` and `css/base.css`
 1. Create a Supabase project and put its URL and **publishable** key in `supabase` in `js/config.js`. The publishable key is meant to be public; never put the `service_role` key in this repository.
 2. In **Authentication → Users**, create the family's users (email and password, "Auto Confirm User" ticked).
 3. In **Authentication → Sign In / Providers**, turn off **Allow new users to sign up**, so nobody else can create an account.
-4. Run the files in `supabase/migrations/` in the **SQL Editor**, in order and once each. The user emails and names, and the family members, are in those files: edit them for another family.
+4. Run the files in `supabase/migrations/` in the **SQL Editor**, in order and once each. The family members and names are in those files. The user e-mails are not stored in this public repository: before running 001 and 002, replace `CORREO_DE_ALBERTO` and `CORREO_DE_LAURA` with each account's e-mail.
 
 ### Data model
 

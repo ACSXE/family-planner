@@ -34,12 +34,14 @@ begin;
 create temp table tmp_member_codes (code text primary key, member_id smallint not null) on commit drop;
 insert into tmp_member_codes values ('alberto', 1), ('laura', 2), ('sergio', 3), ('pablo', 4);
 
+-- Antes de ejecutarlo, sustituye CORREO_DE_ALBERTO y CORREO_DE_LAURA por el correo
+-- de cada cuenta (no se guardan en el repositorio, que es público).
 create temp table tmp_profiles on commit drop as
 select p.id as user_id,
        p.full_name,
        case u.email
-         when 'alberto_carrasco_sanchez@hotmail.com' then 1
-         when 'laura_clc@hotmail.com'                then 2
+         when 'CORREO_DE_ALBERTO' then 1
+         when 'CORREO_DE_LAURA'   then 2
        end::smallint as member_id
 from public.profiles p
 join auth.users u on u.id = p.id;

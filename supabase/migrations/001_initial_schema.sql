@@ -91,12 +91,14 @@ create trigger activities_touch_updated_at
 
 -- ---------- Nombres de los usuarios ----------
 -- Ejecutar DESPUÉS de crear los dos usuarios en Authentication → Users.
+-- Antes de ejecutarlo, sustituye CORREO_DE_ALBERTO y CORREO_DE_LAURA por el correo
+-- de cada cuenta (no se guardan en el repositorio, que es público).
 insert into public.profiles (id, full_name)
 select id,
        case email
-         when 'alberto_carrasco_sanchez@hotmail.com' then 'Alberto Carrasco'
-         when 'laura_clc@hotmail.com'                then 'Laura Liz'
+         when 'CORREO_DE_ALBERTO' then 'Alberto Carrasco'
+         when 'CORREO_DE_LAURA'   then 'Laura Liz'
        end
 from auth.users
-where email in ('alberto_carrasco_sanchez@hotmail.com', 'laura_clc@hotmail.com')
+where email in ('CORREO_DE_ALBERTO', 'CORREO_DE_LAURA')
 on conflict (id) do update set full_name = excluded.full_name;
