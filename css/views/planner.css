@@ -174,8 +174,9 @@
   .btn--danger { margin-left: 0; }
 }
 
-/* Varios asistentes: el fondo se reparte en bandas con el color de cada uno (sin barra lateral).
-   Las variables las calcula js/views/planner.js. El texto queda alineado con el de las demás. */
-.event--multi { border: 1px solid var(--border-strong); padding-left: 11px; background: var(--split); }
+/* Varios asistentes: el fondo se reparte en bandas con el color de cada uno y la barra
+   lateral lleva el color del primero (el de la banda de la izquierda), como en las de un asistente.
+   Las variables las calcula js/views/planner.js. */
+.event--multi { border: 1px solid var(--border-strong); border-left: 4px solid var(--c); background: var(--split); }
 .event--multi:hover { background: var(--split-hover); }
 .event--multi.is-selected { box-shadow: 0 0 0 2px var(--text-muted); }
