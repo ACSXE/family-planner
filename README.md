@@ -54,6 +54,7 @@ supabase/
     003_weekly_digest.sql    Weekly e-mail: send log and the data for each e-mail
     004_user_formats.sql     Date, number and time formats per user (replaces locale)
     005_members_only_read.sql Only app users (rows in users) can read members and activities
+    006_advisor_fixes.sql    Security Advisor fixes: rls_auto_enable() not callable, pg_net out of public
   functions/weekly-digest/ Edge function that sends the weekly e-mail through Resend
   cron/weekly_digest_cron.sql  Calls the edge function every hour (pg_cron)
 tools/

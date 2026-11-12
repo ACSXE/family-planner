@@ -12,7 +12,7 @@
 -- ============================================================
 
 -- Extensiones necesarias (también se pueden activar en Database → Extensions)
-create extension if not exists pg_net;
+create extension if not exists pg_net with schema extensions;   -- fuera del esquema público (ver 006)
 create extension if not exists pg_cron;
 
 -- La contraseña del cron se guarda en el Vault de Supabase, no en este fichero.
