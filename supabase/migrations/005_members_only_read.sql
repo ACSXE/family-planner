@@ -8,6 +8,9 @@
 -- (cualquier cuenta de Supabase Auth). Desde aquí hace falta, además, estar dado
 -- de alta en la tabla users: una cuenta de Auth sin fila en users no ve nada.
 -- Para Alberto y Laura no cambia nada.
+--
+-- En el proyecto de Supabase de la familia estas reglas ya están aplicadas, con estos
+-- mismos nombres: no hace falta ejecutarlo allí. Sirve para montar el proyecto desde cero.
 -- ============================================================
 
 begin;
@@ -26,16 +29,16 @@ begin
 end $$;
 
 -- Y se crean las nuevas: solo lee quien es usuario de la aplicación
-create policy "Miembros visibles para los usuarios" on public.family_members
+create policy "Miembros ven miembros" on public.family_members
   for select to authenticated using ((select public.current_member_id()) is not null);
 
-create policy "Los usuarios ven todas las actividades" on public.activities
+create policy "Miembros ven actividades" on public.activities
   for select to authenticated using ((select public.current_member_id()) is not null);
 
-create policy "Asistentes visibles para los usuarios" on public.activity_attendees
+create policy "Miembros ven asistentes" on public.activity_attendees
   for select to authenticated using ((select public.current_member_id()) is not null);
 
-create policy "Acompañantes visibles para los usuarios" on public.activity_companions
+create policy "Miembros ven acompañantes" on public.activity_companions
   for select to authenticated using ((select public.current_member_id()) is not null);
 
 commit;
