@@ -163,8 +163,8 @@ FP.views.planner = (() => {
     function selectDate(date, { keepDetail = false } = {}) {
       state.date = date;
       state.year = parseIso(date).getFullYear();
+      renderCalendar();   // primero se marca el día: su mes es el que la columna 1 mantiene a la vista
       if (!keepDetail) { state.mode = null; state.draft = null; state.slot = null; setDepth(2); }
-      renderCalendar();
       renderDay(true);
       const sel = $('months').querySelector('.day.is-selected');
       if (sel) sel.scrollIntoView({ block: 'nearest' });
@@ -507,7 +507,54 @@ FP.views.planner = (() => {
       }
       applyLayout();
     }
+    // ---------- Columna 1: que no se pierda de vista el mes que se estaba mirando ----------
+    // Cuando cambia el ancho de la columna 1 (abrir o cerrar columnas, las flechas de los
+    // separadores, el tamaño de la ventana) los meses se recolocan porque caben más o menos
+    // por fila, y al ocultarla y volver a mostrarla el navegador olvida su desplazamiento.
+    // Por eso se anota qué mes se está mirando y a qué altura, y tras cada cambio de ancho
+    // se recoloca el scroll para dejarlo en el mismo sitio y entero. El mes de referencia es,
+    // por este orden: el del día elegido, el mes actual o el primero que se ve, si está a la vista.
+    const calBody = $('col1').querySelector('.col__body');
+    let calAnchor = null;   // { index, offset, width }
+    // force: anotar aunque haya cambiado el ancho (al situar el calendario por código)
+    function rememberCalendarPosition(force = false) {
+      if ($('col1').hidden) return;
+      const width = $('months').clientWidth;
+      if (!force && calAnchor && calAnchor.width !== width) return;   // los meses se están recolocando: no es un scroll del usuario
+      const view = calBody.getBoundingClientRect();
+      const months = [...$('months').children];
+      const visible = (m) => { const r = m.getBoundingClientRect(); return r.bottom > view.top + 1 && r.top < view.bottom - 1; };
+      const selected = $('months').querySelector('.day.is-selected')?.closest('.month');
+      const current = $('months').querySelector('.month.is-current');
+      const month = [selected, current].find((m) => m && visible(m)) || months.find(visible);
+      if (!month) return;
+      calAnchor = { index: months.indexOf(month), offset: month.getBoundingClientRect().top - view.top, width };
+    }
+    function restoreCalendarPosition() {
+      if ($('col1').hidden || !calAnchor) return;
+      const month = $('months').children[calAnchor.index];
+      if (!month) return;
+      // A la misma altura que estaba…
+      const top = () => month.getBoundingClientRect().top - calBody.getBoundingClientRect().top;
+      calBody.scrollTop += top() - calAnchor.offset;
+      // …y lo justo para que se vea entero (si no cabe, desde arriba)
+      const overflowBottom = top() + month.offsetHeight - calBody.clientHeight;
+      if (overflowBottom > 0) calBody.scrollTop += Math.min(overflowBottom, top());
+      if (top() < 0) calBody.scrollTop += top();
+      calAnchor.width = $('months').clientWidth;
+    }
+    calBody.addEventListener('scroll', () => rememberCalendarPosition(), { passive: true });
+    // Solo se recoloca si cambia el ancho o si la columna vuelve a verse tras estar oculta
+    let calWasHidden = false;
+    new ResizeObserver(() => {
+      const width = $('months').clientWidth;
+      if (!width) { calWasHidden = true; return; }
+      if (calAnchor && (calWasHidden || width !== calAnchor.width)) restoreCalendarPosition();
+      calWasHidden = false;
+    }).observe($('months'));
+
     function applyLayout() {
+      rememberCalendarPosition();   // antes de cambiar los anchos
       const max = maxColumns();
       const n = state.depth;
       const variants = LAYOUTS[max][n];
@@ -608,6 +655,7 @@ FP.views.planner = (() => {
     applyLayout();
     const cur = $('months').querySelector('.month.is-current');
     if (cur) cur.scrollIntoView({ block: 'start' });
+    rememberCalendarPosition(true);
   }
 
   return {

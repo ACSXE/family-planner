@@ -17,6 +17,22 @@ const res = []; const ok = (c, m) => res.push(`${c ? 'OK   ' : 'FALLO'} ${m}`);
   }
   await p.click('button.day[data-date="2026-11-19"]'); await p.waitForTimeout(300);
   ok(Math.abs(await p.evaluate(() => document.getElementById('day-body').scrollTop) - (8 * 60 - 12)) <= 1, 'día sin actividades: la vista empieza a las 8:00');
+  // Columna 1: el mes que se está mirando no se pierde al cambiar los anchos de las columnas
+  const monthVisible = (name) => p.evaluate((name) => {
+    const v = document.querySelector('#col1 .col__body').getBoundingClientRect();
+    const m = [...document.querySelectorAll('#months .month')].find((x) => x.textContent.startsWith(name)).getBoundingClientRect();
+    return m.top >= v.top - 1 && m.bottom <= v.bottom + 1;
+  }, name);
+  await p.click('button.day[data-date="2026-11-16"]'); await p.click('.event:has-text("Médico")'); await p.waitForTimeout(300);
+  ok(await monthVisible('Noviembre'), 'con las 3 columnas abiertas, noviembre (día elegido) sigue entero a la vista');
+  for (const sep of ['#sep-a', '#sep-b']) { const btn = p.locator(`${sep} .sep__btn:visible`); if (await btn.count()) { await btn.click(); await p.waitForTimeout(250); } }
+  ok(await monthVisible('Noviembre'), 'y también tras cambiar los anchos con las flechas');
+  await p.click('#close-detail'); await p.click('#close-day'); await p.waitForTimeout(250);
+  await p.evaluate(() => [...document.querySelectorAll('#months .month')].find((x) => x.textContent.startsWith('Abril')).scrollIntoView({ block: 'start' })); await p.waitForTimeout(250);
+  await p.click('button.day[data-date="2026-04-14"]'); await p.waitForTimeout(300);
+  ok(await monthVisible('Abril'), 'si se baja a abril y se abre un día de abril, abril sigue a la vista');
+  await p.click('#close-day'); await p.waitForTimeout(250);
+
   // Aviso de una actividad de otra persona
   await p.click('button.day[data-date="2026-11-17"]'); await p.waitForTimeout(300); await p.click('.event:has-text("Dentista")'); await p.waitForTimeout(300);
   const owner = await p.$eval('#detail-owner', (e) => [...e.children].map((c) => c.textContent));

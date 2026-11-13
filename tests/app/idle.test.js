@@ -31,7 +31,9 @@ const res = []; const ok = (c, m) => res.push(`${c ? 'OK   ' : 'FALLO'} ${m}`);
   await p.clock.runFor(31000); await p.click('#idle-stay'); await p.clock.runFor(1000);
   ok(!(await vis(p)), '"Seguir conectado" cierra el aviso y la sesión sigue');
   // Escape = seguir conectado, sin cerrar columnas del calendario
-  await p.click('button.day[data-date="2026-11-17"]'); await p.clock.runFor(31000);
+  await p.click('button.day[data-date="2026-11-17"]');
+  await p.waitForTimeout(300);   // que termine de recolocarse el calendario (desplazarlo cuenta como actividad)
+  await p.clock.runFor(31000);
   await p.keyboard.press('Escape'); await p.clock.runFor(500);
   ok(!(await vis(p)) && !(await p.isHidden('#col2')), 'Escape = seguir conectado, y no cierra la columna del día');
   // Caducidad
