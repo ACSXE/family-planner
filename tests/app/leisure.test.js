@@ -49,7 +49,11 @@ const runFn = (date) => execFileSync('node', ['--experimental-strip-types', '--n
   const facts = await libros.locator('.plan__facts dt').allTextContents();
   ok(facts.join() === 'Hora,Lugar,Dirección,Precio' && (await libros.locator('dd').first().textContent()) === '12:00', `datos de la fila: ${facts.join(', ')} (sin fecha ni accesibilidad)`);
   const [l, u] = await Promise.all([link.boundingBox(), libros.locator('.plan__use').boundingBox()]);
-  ok(l.y < u.y, '"+ información" encima de "Usar este plan"');
+  const row = await libros.boundingBox();
+  ok(u.y < l.y && u.y - row.y < 30, '"Usar este plan" arriba a la derecha y "+ información" debajo');
+  const cut = await p.locator('.plan__facts dd[title]').count();
+  ok(await p.locator('.plan__facts dd').evaluateAll((els) => els.every((e) => e.getClientRects().length === 1 && e.offsetHeight < 22)), 'título y datos en una sola línea');
+  ok(await p.locator('.plan__facts dd, .plan__title').evaluateAll((els) => els.every((e) => e.scrollWidth <= e.clientWidth + 1 ? !e.title : e.title === e.textContent)), `textos recortados con el texto completo al pasar el ratón (${cut} datos recortados)`);
 
   // Usar este plan
   await p.click('.plan:has-text("CREA TUS PROPIOS LIBROS") .plan__use'); await p.waitForTimeout(300);
@@ -79,7 +83,7 @@ const runFn = (date) => execFileSync('node', ['--experimental-strip-types', '--n
   await p2.click('button.day[data-date="2026-11-21"]'); await p2.waitForTimeout(300); await p2.click('.slot[data-min="600"]'); await p2.waitForTimeout(300);
   await p2.click('#btn-leisure'); await p2.waitForSelector('#leisure-list .plan');
   ok((await p2.textContent('#leisure-filter-kids')) === 'Niños (5)' && (await p2.textContent('#leisure-filter-adults')) === 'Adultos (4)' && calls === 0, 'local: mismos planes que la función (Niños 5, Adultos 4) y sin llamar a Supabase');
-  ok((await p2.textContent('#leisure-foot')).endsWith('copia del 01/11/2026)'), 'local: el pie indica la fecha de la copia');
+  ok((await p2.textContent('#leisure-foot')) === 'Fuente: Agenda de eventos culturales del Ayuntamiento de Madrid (hasta el 22/11/2026)', `local: el pie indica hasta cuándo hay planes ("${await p2.textContent('#leisure-foot')}")`);
   await p2.keyboard.press('Escape'); await p2.fill('#f-date', '2027-06-05'); await p2.click('#btn-leisure'); await p2.waitForSelector('#leisure-status:not([hidden]):not(.is-loading)');
   ok((await p2.textContent('#leisure-status-text')) === 'No hay planes publicados para este día.' && files === 1, 'local: fecha sin planes avisa, y el fichero se descarga una sola vez');
   await ctx2.close();

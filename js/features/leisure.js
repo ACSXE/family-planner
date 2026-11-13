@@ -63,8 +63,9 @@ FP.leisure = (() => {
           localData = null;
           throw new Error('No se han podido consultar los planes. Inténtalo de nuevo más tarde.');
         }
-        const [y, m, d] = localData.downloaded.split('-');
-        $('leisure-foot').textContent = `Fuente: agenda de eventos culturales del Ayuntamiento de Madrid (datos abiertos, copia del ${d}/${m}/${y})`;
+        // Pie: hasta qué día hay planes en la copia
+        const last = Object.keys(localData.dates).sort().at(-1);
+        if (last) $('leisure-foot').textContent = `Fuente: Agenda de eventos culturales del Ayuntamiento de Madrid (hasta el ${last.split('-').reverse().join('/')})`;
       }
       const events = localData.dates[iso] || [];
       cache.set(iso, events);
@@ -100,8 +101,8 @@ FP.leisure = (() => {
         fact('Dirección', p.address),
         fact('Precio', p.price)),
       h('div', { class: 'plan__actions' },
-        p.url ? h('a', { class: 'plan__link', href: p.url, target: '_blank', rel: 'noopener noreferrer' }, '+ información') : null,
-        h('button', { class: 'btn btn--primary plan__use', type: 'button' }, 'Usar este plan')));
+        h('button', { class: 'btn btn--primary plan__use', type: 'button' }, 'Usar este plan'),
+        p.url ? h('a', { class: 'plan__link', href: p.url, target: '_blank', rel: 'noopener noreferrer' }, '+ información') : null));
 
     const more = li.querySelector('.plan__more');
     more?.addEventListener('click', () => {
@@ -145,6 +146,10 @@ FP.leisure = (() => {
     list.querySelectorAll('.plan').forEach((li) => {
       const desc = li.querySelector('.plan__desc');
       if (desc && desc.scrollHeight > desc.clientHeight + 1) li.querySelector('.plan__more').hidden = false;
+    });
+    // Título y datos recortados a una línea: el texto completo, al pasar el ratón
+    list.querySelectorAll('.plan__title, .plan__facts dd').forEach((el) => {
+      if (el.scrollWidth > el.clientWidth + 1) el.title = el.textContent;
     });
   }
 
