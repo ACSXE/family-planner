@@ -1,13 +1,24 @@
 <!doctype html>
-<html lang="es">
+<html lang="es" data-page="login">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Family Planner</title>
+  <!-- Antes que nada: con sesión guardada se muestra la pantalla de carga, no el formulario -->
+  <script src="js/config.js"></script>
+  <script src="js/core/guard.js"></script>
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/login.css">
 </head>
 <body class="login-page">
+  <!-- Pantalla de carga: se ve mientras <html> tiene la clase is-loading -->
+  <div class="app-loader" role="status" aria-live="polite">
+    <div class="app-loader__mark" aria-hidden="true">
+      <span class="app-loader__spinner"></span>
+      <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 10h18M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="15.5" r="2" fill="currentColor"/></svg>
+    </div>
+    <span class="app-loader__text">Cargando…</span>
+  </div>
   <main class="login">
     <form class="login__card" id="login-form" novalidate>
       <div class="login__brand">
@@ -47,7 +58,6 @@
   </main>
 
   <script src="js/vendor/supabase-js-2.118.0.js"></script>
-  <script src="js/config.js"></script>
   <script src="js/core/supabase.js"></script>
   <script src="js/core/session.js"></script>
   <script src="js/login.js"></script>

@@ -33,6 +33,7 @@ css/
 js/
   config.js                Supabase project, screens and the list of reports
   core/dom.js              Small DOM helpers
+  core/guard.js            Loaded first in both pages: page paths (FP.pages) and an instant check of the stored session, so index.html goes to the login (and the login to the app) before anything is painted
   core/supabase.js         Supabase client shared by the whole app (FP.db)
   core/session.js          Sign in, session check, user names and sign out (Supabase Auth)
   core/storage.js          Activities in Supabase: list, create/update (save_activity), remove
@@ -134,6 +135,10 @@ Setup, once:
 3. **Edge Functions → Secrets**: add `RESEND_API_KEY` (Resend key with sending access) and `CRON_SECRET` (a long random password).
 4. Test it from the function's **Test** panel: header `x-cron-secret`, body `{"member_id": 1, "week_of": "2026-11-16"}`.
 5. Store the same password in the Vault (`select vault.create_secret('…', 'weekly_digest_cron_secret');`) and run `supabase/cron/weekly_digest_cron.sql`.
+
+## Loading screen
+
+While `<html>` has the class `is-loading`, a loading screen (logo with a spinning ring and "Cargando…", styles in `css/base.css`) covers the page. `index.html` starts with it and `js/shell.js` removes it when the first screen has its data (`FP.router.start()` waits for the screen's `show()`). `login.html` shows it only when a session is already stored, while it moves on to the app.
 
 ## Session timeout
 

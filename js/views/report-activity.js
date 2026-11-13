@@ -218,13 +218,13 @@ FP.views['report-activity'] = (() => {
       if (open) { attendeeSelect.refresh(); companionSelect.refresh(); }
     });
 
-    refresh = () => { attendeeSelect.refresh(); companionSelect.refresh(); load(); };
+    refresh = () => { attendeeSelect.refresh(); companionSelect.refresh(); return load(); };
   }
 
   return {
     mount,
     // Al volver a la pantalla se recalculan los resultados (puede haber actividades nuevas)
-    show() { if (refresh) refresh(); },
+    show() { return refresh?.(); },
     hide() {}
   };
 })();

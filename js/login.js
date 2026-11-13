@@ -10,6 +10,7 @@
     location.replace(FP.pages.home);
     return;
   }
+  document.documentElement.classList.remove('is-loading');   // ver js/core/guard.js
 
   const form = document.getElementById('login-form');
   const userInput = document.getElementById('username');

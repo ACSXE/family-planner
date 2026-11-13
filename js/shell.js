@@ -15,6 +15,7 @@
     await FP.family.load();
   } catch (err) {
     document.getElementById('workspace').textContent = err.message;
+    document.documentElement.classList.remove('is-loading');
     return;
   }
 
@@ -88,5 +89,10 @@
   }
 
   // ---------- Pantallas ----------
-  FP.router.start($('workspace'), FP_CONFIG.views.map((v) => v.id), markActive);
+  // La pantalla de carga (index.html) se quita cuando la primera pantalla tiene sus datos
+  try {
+    await FP.router.start($('workspace'), FP_CONFIG.views.map((v) => v.id), markActive);
+  } finally {
+    document.documentElement.classList.remove('is-loading');
+  }
 })();

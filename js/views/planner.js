@@ -614,7 +614,7 @@ FP.views.planner = (() => {
     mount,
     show() {
       if (applyLayoutRef) applyLayoutRef();
-      if (reloadRef) reloadRef();
+      return reloadRef?.();   // promesa: el router sabe cuándo están los datos
     },
     hide() {}
   };

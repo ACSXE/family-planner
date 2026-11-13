@@ -9,6 +9,8 @@
  * La pantalla se elige con el hash de la dirección (#planner, #reports…).
  * La primera vez que se abre, se descargan sus ficheros y se llama a mount(root);
  * después solo se oculta y se muestra, así conserva su estado al volver a ella.
+ * start() devuelve una promesa que termina cuando la primera pantalla está lista
+ * (si su show() devuelve una promesa, por ejemplo al cargar datos, se espera a ella).
  */
 window.FP = window.FP || {};
 FP.views = FP.views || {};
@@ -99,12 +101,12 @@ FP.router = (() => {
           entry.mounted = true;
           entry.view.mount?.(entry.root);
         }
-        entry.view.show?.();
         current = entry;
+        await entry.view.show?.();   // las pantallas que cargan datos devuelven una promesa
       };
 
       window.addEventListener('hashchange', go);
-      go();
+      return go();   // termina cuando la primera pantalla está lista
     }
   };
 })();

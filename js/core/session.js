@@ -1,6 +1,5 @@
 /*
  * Sesión del usuario con Supabase Auth.
- *   FP.pages                        → rutas de las páginas
  *   await FP.session.signIn(e, p)   → { ok: true } o { ok: false, reason: 'credentials' | 'network' }
  *   await FP.session.current()      → { id, memberId, email, name } o null  (id = usuario de Supabase)
  *   await FP.session.require()      → el usuario, o redirige al login si no hay sesión
@@ -8,15 +7,11 @@
  *   FP.session.nameOf(memberId)     → nombre completo de un miembro ("Laura Liz", de FP.family)
  *   await FP.session.end()          → cierra la sesión
  *
+ * Las rutas de las páginas (FP.pages) están en js/core/guard.js.
  * El member_id del usuario sale de la tabla "users" y su nombre completo de
  * "family_members" (supabase/migrations/002_family_members.sql).
  */
 window.FP = window.FP || {};
-
-FP.pages = {
-  login: 'login.html',
-  home: 'index.html'
-};
 
 FP.session = (() => {
   return {

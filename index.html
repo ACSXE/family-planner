@@ -1,13 +1,24 @@
 <!doctype html>
-<html lang="es">
+<html lang="es" data-page="app" class="is-loading">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Family Planner</title>
+  <!-- Antes que nada: sin sesión guardada se va al login sin llegar a pintar la aplicación -->
+  <script src="js/config.js"></script>
+  <script src="js/core/guard.js"></script>
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/shell.css">
 </head>
 <body>
+  <!-- Pantalla de carga: se ve mientras <html> tiene la clase is-loading -->
+  <div class="app-loader" role="status" aria-live="polite">
+    <div class="app-loader__mark" aria-hidden="true">
+      <span class="app-loader__spinner"></span>
+      <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 10h18M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="15.5" r="2" fill="currentColor"/></svg>
+    </div>
+    <span class="app-loader__text">Cargando…</span>
+  </div>
   <!--
     Armazón de la aplicación: barra superior, menú de usuario y menú lateral.
     Cada pantalla vive en views/<id>.html con su CSS (css/views/<id>.css) y su
@@ -83,7 +94,6 @@
   </div>
 
   <script src="js/vendor/supabase-js-2.118.0.js"></script>
-  <script src="js/config.js"></script>
   <script src="js/core/supabase.js"></script>
   <script src="js/core/dom.js"></script>
   <script src="js/core/session.js"></script>
