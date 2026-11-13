@@ -1,4 +1,4 @@
-// Ocio y Tiempo Libre: botón solo al crear, ventana con los planes de la agenda (muestra real), filtros,
+// Ocio y Tiempo Libre: botón solo al crear, ventana con los planes de la agenda (muestra real), filtro Niños/Adultos,
 // "Usar este plan" y aviso si la agenda no responde. La función se ejecuta de verdad (tests/function/leisure.mjs).
 // Lo lanza tests/run.sh.
 const { chromium } = require('playwright'); const { install } = require('./fake-supabase.js');
@@ -30,19 +30,17 @@ const runFn = (date) => execFileSync('node', ['--experimental-strip-types', '--n
   ok(asked.at(-1) === '2026-11-21', `pide los planes de la fecha del formulario (${asked.at(-1)})`);
   ok((await p.textContent('#leisure-date')) === 'sábado, 21 de noviembre de 2026', 'cabecera con la fecha larga');
   const count = async () => p.locator('#leisure-list .plan').count();
-  ok((await count()) === 8 && (await p.textContent('#leisure-count')) === 'Eventos (8)', 'de partida, "Todos" sin los de varios días: 8 planes');
-  await p.click('#leisure-filter-kids');
-  ok((await count()) === 5 && (await p.getAttribute('#leisure-filter-kids', 'aria-pressed')) === 'true', '"Niños": 5 planes');
+  ok((await count()) === 5 && (await p.getAttribute('#leisure-filter-kids', 'aria-pressed')) === 'true', 'de partida, "Niños": 5 planes (sin los de varios días)');
+  ok((await p.textContent('#leisure-filter-kids')) === 'Niños (5)' && (await p.textContent('#leisure-filter-adults')) === 'Adultos (4)' && await p.locator('#leisure-filter-all, #leisure-long').count() === 0, 'solo dos filtros: Niños (5) y Adultos (4)');
   await p.click('#leisure-filter-adults');
-  ok((await count()) === 4, '"Adultos": 4 planes');
-  await p.click('#leisure-filter-all'); await p.check('#leisure-long');
-  ok((await count()) === 14 && (await p.textContent('#leisure-filter-all')) === 'Todos (14)', 'incluyendo los de varios días: 14');
+  ok((await count()) === 4 && (await p.textContent('#leisure-count')) === 'Eventos (4)', '"Adultos": 4 planes');
+  ok(await p.locator('.plan:has-text("Entrega de premios") dd:has-text("Por determinar")').count() === 1, 'evento sin hora: "Por determinar"');
+  await p.click('#leisure-filter-kids');
   const libros = p.locator('.plan:has-text("CREA TUS PROPIOS LIBROS")');
   const link = libros.locator('.plan__link');
   ok((await link.getAttribute('href')).startsWith('https://www.madrid.es/') && (await link.getAttribute('rel')).includes('noopener'), '"+ información" abre madrid.es en otra pestaña');
   const facts = await libros.locator('.plan__facts dt').allTextContents();
   ok(facts.join() === 'Hora,Lugar,Dirección,Precio' && (await libros.locator('dd').first().textContent()) === '12:00', `datos de la fila: ${facts.join(', ')} (sin fecha ni accesibilidad)`);
-  ok(await p.locator('.plan:has-text("19ª edición") dd:has-text("Por determinar")').count() === 1, 'evento sin hora: "Por determinar"');
   const [l, u] = await Promise.all([link.boundingBox(), libros.locator('.plan__use').boundingBox()]);
   ok(l.y < u.y, '"+ información" encima de "Usar este plan"');
 

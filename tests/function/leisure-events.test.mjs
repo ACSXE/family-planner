@@ -12,18 +12,18 @@ try {
   // Eventos del sábado 21/11/2026 (muestra real de la agenda)
   const r = await call({ date: '2026-11-21' });
   const ev = r.body.events; const t = (s) => ev.find((e) => e.title.startsWith(s));
-  ok(r.status === 200 && ev.length === 14, `21/11/2026: 14 eventos (${ev.length})`);
-  ok(ev.filter((e) => e.kids).length === 7, `7 para niños o familias (${ev.filter((e) => e.kids).length})`);
-  ok(ev.filter((e) => e.until).length === 6, `6 de varios días, marcados con "until" (${ev.filter((e) => e.until).length})`);
+  ok(r.status === 200 && ev.length === 9, `21/11/2026: 9 eventos de un solo día (${ev.length})`);
+  ok(ev.filter((e) => e.kids).length === 5, `5 para niños o familias (${ev.filter((e) => e.kids).length})`);
+  ok(!t('19ª edición') && !t('Alicia') && !t('Artemisia') && !ev.some((e) => e.title.startsWith('Actividades mensuales')), 'los eventos de varios días (exposiciones, ciclos, festivales) no salen');
+  ok(t('Entrega de premios')?.time === '', 'evento de un día sin hora: hora por determinar');
   const times = ev.map((e) => e.time || '99:99');
   ok(times.every((x, i) => !i || times[i - 1] <= x), 'ordenados por hora, los de "horario en la web" al final');
   ok(!t('Bellotada'), 'un evento del día siguiente no sale');
   ok(!ev.some((e) => e.title.startsWith('Ciclo de conferencias')), 'un evento que solo se celebra los martes no sale un sábado');
-  ok(ev.filter((e) => e.title.startsWith('Actividades mensuales')).length === 1, 'días excluidos y "no abre sábados": solo queda el que abre ese día');
-  ok(t('19ª edición')?.until === '2026-11-22' && t('19ª edición')?.time === '', 'evento de varios días sin hora: "until" y sin hora');
   const libros = t('CREA TUS PROPIOS LIBROS');
   ok(libros && libros.time === '12:00' && libros.end === '' && libros.price === 'Gratuito' && libros.kids, `"Crea tus propios libros": 12:00 (sin hora de fin), gratuito, para niños`);
-  ok(libros?.adults === true && t('Anatola')?.adults === false && t('Aplausos')?.adults === true, 'adultos: público juvenil o general, o sin público indicado; "Infantil" no');
+  ok(libros?.kids === true && t('Anatola')?.kids === true && t('Aplausos')?.kids === false, 'niños: público infantil o familiar (aunque también sea juvenil); el resto, adultos');
+  ok(!('until' in libros) && !('adults' in libros), 'sin datos que la ventana no usa');
   ok(!('accessibility' in libros), 'sin el dato de accesibilidad');
   ok(libros?.type === 'Cuentacuentos, títeres y marionetas' && libros?.kind === 'teatro', `tipo legible e imagen: ${libros?.type} / ${libros?.kind}`);
   ok(/^Calle Concepcion Jeronima 15, 28012 Madrid$/i.test(libros?.address || ''), `dirección: ${libros?.address}`);
@@ -33,6 +33,7 @@ try {
 
   // Funciones sueltas
   ok(mod.happensOn({ dtstart: '2026-11-01 00:00:00.0', dtend: '2026-11-30 23:59:00.0', recurrence: { days: 'SA,SU' }, 'excluded-days': '21/11/2026;' }, '2026-11-21') === false, 'día excluido: no se celebra');
+  ok(mod.happensOn({ dtstart: '2026-11-01 00:00:00.0', dtend: '2026-11-30 23:59:00.0', recurrence: { days: 'TU' } }, '2026-11-21') === false, 'solo los martes: no se celebra un sábado');
   ok(mod.happensOn({ dtstart: '2026-11-01 00:00:00.0', dtend: '2026-11-30 23:59:00.0', recurrence: { days: 'SA,SU' }, 'excluded-days': '1;2;22/11/2026' }, '2026-11-21') === true, 'días excluidos mal escritos: se ignoran los trozos raros');
   ok(mod.toPlan({ '@type': 'https://datos.madrid.es/egob/kos/actividades/ExposicionesTemporales', free: 0, price: '', link: 'javascript:alert(1)' }).type === 'Exposiciones temporales', 'tipo desconocido: se separa en palabras');
   ok(mod.toPlan({ link: 'javascript:alert(1)' }).url === '' && mod.toPlan({ link: 'https://otra.web/x' }).url === '', 'enlaces que no son de madrid.es se descartan');

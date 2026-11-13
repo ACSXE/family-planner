@@ -4,7 +4,8 @@
  * La llama la ventana "Ocio y Tiempo Libre" de la pantalla Calendario (js/features/leisure.js).
  * Descarga la agenda de eventos culturales del Ayuntamiento de Madrid (datos abiertos,
  * https://datos.madrid.es/dataset/206974-0-agenda-eventos-culturales-100), se queda con los
- * eventos que se celebran ese día y devuelve solo los datos que muestra la ventana.
+ * eventos de un solo día que se celebran ese día (los de varios días, como exposiciones o ciclos,
+ * se descartan: no se agendan como actividad) y devuelve solo los datos que muestra la ventana.
  * La agenda se guarda en memoria unas horas para no descargarla en cada petición.
  *
  * Solo responde a usuarios con sesión iniciada (comprueba el token con Supabase Auth).
@@ -12,7 +13,7 @@
  * Opcional: AGENDA_URL para usar otra dirección de la agenda (mismo formato).
  *
  * Petición:  POST { "date": "2026-11-21" }
- * Respuesta: { "date": "2026-11-21", "events": [Plan, …] }   ordenados por hora (los de "todo el día" al final)
+ * Respuesta: { "date": "2026-11-21", "events": [Plan, …] }   ordenados por hora (los de hora por determinar al final)
  */
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? '';
@@ -26,12 +27,10 @@ export type Plan = {
   kind: string;          // familia de la imagen: teatro, musica, taller, exposicion, cine, aire, letras, otros
   type: string;          // tipo legible: "Cuentacuentos, títeres y marionetas"
   audience: string;      // "Infantil · Familias" ('' si no lo indica)
-  kids: boolean;         // dirigido a niños o familias
-  adults: boolean;       // dirigido a adultos (o sin público indicado)
+  kids: boolean;         // dirigido a niños o familias (filtro "Niños"); si no, filtro "Adultos"
   description: string;
   time: string;          // hora de inicio 'HH:MM' ('' si no la indica o es 00:00: por determinar)
   end: string;           // hora de fin 'HH:MM' ('' si no la indica: la agenda casi nunca la trae)
-  until: string;         // 'YYYY-MM-DD' si dura varios días ('' si es de un día)
   place: string;
   address: string;
   price: string;
@@ -136,11 +135,9 @@ export function toPlan(e: any): Plan {
     type: TYPE_LABELS[typeKey] ?? (typeKey ? splitWords(typeKey) : 'Actividad cultural'),
     audience: audiences.map((a) => AUDIENCES[a] ?? a).join(' · '),
     kids: audiences.some((a) => kidsAudience.includes(a)),
-    adults: !audiences.length || audiences.some((a) => !kidsAudience.includes(a)),
     description: clean(e.description),
     time: time === '00:00' ? '' : time,
     end: time && time !== '00:00' && end === start && /^\d{2}:\d{2}$/.test(endTime) && endTime !== '23:59' && endTime > time ? endTime : '',
-    until: end && end !== start ? end : '',
     place: clean(e['event-location'] || e.organization?.['organization-name']),
     address: [street, [area['postal-code'], city].filter(Boolean).join(' ')].filter(Boolean).join(', '),
     price: e.free === 1 || e.free === '1' ? 'Gratuito' : clean(e.price) || 'Consultar en la web',
@@ -148,8 +145,12 @@ export function toPlan(e: any): Plan {
   };
 }
 
+// Eventos de un solo día (empiezan y acaban el mismo día)
+// deno-lint-ignore no-explicit-any
+const oneDay = (e: any) => dayOf(e.dtstart) === (dayOf(e.dtend) || dayOf(e.dtstart));
+
 export function plansFor(events: unknown[], date: string): Plan[] {
-  return events.filter((e) => happensOn(e, date)).map(toPlan)
+  return events.filter((e) => oneDay(e) && happensOn(e, date)).map(toPlan)
     .sort((a, b) => (a.time || '99').localeCompare(b.time || '99') || a.title.localeCompare(b.title, 'es'));
 }
 

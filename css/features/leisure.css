@@ -100,10 +100,7 @@
   background: var(--surface-2); color: var(--text-muted); font-size: 12px; text-align: center;
 }
 
-/* Filtros: casilla "varios días" y público "Adultos / Niños / Todos" */
-.leisure__filters { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-.leisure__check { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-muted); cursor: pointer; }
-.leisure__check input { width: 16px; height: 16px; margin: 0; accent-color: var(--action); cursor: pointer; }
+/* Filtro de público: "Niños / Adultos" */
 .leisure__filter { display: inline-flex; padding: 2px; border: 1px solid var(--border-strong); border-radius: 999px; background: var(--surface); }
 .leisure__seg {
   min-height: 28px; padding: 0 12px; border: 0; border-radius: 999px; background: transparent; cursor: pointer;

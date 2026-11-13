@@ -745,6 +745,47 @@
     "organization-name": "Centro de Información y Educación Ambiental de Casa de Campo",
     "accesibility": "1"
    }
+  },
+  {
+   "@id": "https://datos.madrid.es/egob/catalogo/tipo/evento/50471223-entrega-premios-live-v-jaydee-josephine-soundscapes.json",
+   "@type": "https://datos.madrid.es/egob/kos/actividades/ProgramacionDestacadaAgendaCultura",
+   "id": "50471223",
+   "title": "Entrega de premios + Live A/V: JayDee y Josephine’ Soundscapes",
+   "description": "A partir de la conexión entre plástico, celuloide e imagen en movimiento que guían el eje temático de esta nueva edición, RIZOMA propone explorar cómo la cultura y las industrias creativas han contribuido a construir nuestros imaginarios y cómo pueden, a su vez, ayudarnos a repensar nuestra relación con el consumo y con el planeta. Nos entusiasma anunciar la colaboración audiovisual entre el DJ holandés Jaydee y el artista madrileño Josephine’ Soundscapes, que se presentará en la entrega de premios RIZOMA 2026 en Cineteca. El artista neerlandés ofrecerá un set en directo presentando una versión extendida y adaptada para el festival de 'Plastic Dreams', uno de los himnos imprescindibles de la cultura club desde su lanzamiento en 1993. Jaydee es DJ y productor con más de tres décadas de trayectoria. Fue pionero de la radio house en los Países Bajos y cinco veces campeón neerlandés de mezclas, y ha compartido cabina con figuras como Carl Cox, Paul van Dyk o Armin van Buuren. Su actuación musical estará acompañada por visuales creados en directo por el artista visual madrileño Josephine’ Soundscapes. Creador audiovisual y director de arte con más de dos décadas de recorrido en la cultura alternativa madrileña, ha desarrollado proyectos como L’art Dance Club en ARCO, el Festival En Pausa en La Casa Encendida y Electrónica de Escucha en Zapadores. Esta colaboración pone en diálogo directo la escena visual y digital contemporánea de Madrid con la música e historia de 'Plastic Dreams', uno de los hits de baile más sonados en Europa que llegó a alcanzar el éxito internacional posicionándose como #1 en Billboard USA Dance Track. Su actuación en el Festival RIZOMA ofrecerá al público la oportunidad de descubrir o redescubrir 'Plastic Dreams' desde una perspectiva expandida y contemporánea, combinando música electrónica, performance e imagen. RIZOMA toma como punto de partida la icónica canción de Jaydee, 'Plastic Dreams', para vertebrar su nueva edición, trasportándonos a través de un viaje onírico hacia nuevas formas de percibir el mundo. Un título que captura tanto el optimismo seductor como la extraña pervivencia de un material —y de un sueño— que continúan dando forma a nuestro mundo.",
+   "free": 0,
+   "price": "",
+   "dtstart": "2026-11-21 00:00:00.0",
+   "dtend": "2026-11-21 23:59:00.0",
+   "time": "",
+   "excluded-days": "",
+   "uid": "50471223",
+   "link": "http://www.madrid.es/sites/v/index.jsp?vgnextchannel=ca9671ee4a9eb410VgnVCM100000171f5a0aRCRD&vgnextoid=b4de089ceac81a10VgnVCM200000f921e388RCRD",
+   "event-location": "Cineteca Madrid",
+   "references": {
+    "@id": ""
+   },
+   "relation": {
+    "@id": "https://datos.madrid.es/egob/catalogo/tipo/entidadesyorganismos/6963310-cineteca-madrid.json"
+   },
+   "address": {
+    "district": {
+     "@id": "https://datos.madrid.es/egob/kos/Provincia/Madrid/Municipio/Madrid/Distrito/Arganzuela"
+    },
+    "area": {
+     "@id": "https://datos.madrid.es/egob/kos/Provincia/Madrid/Municipio/Madrid/Distrito/Arganzuela/Barrio/Chopera",
+     "locality": "MADRID",
+     "postal-code": "28045",
+     "street-address": "PLAZA LEGAZPI 8"
+    }
+   },
+   "location": {
+    "latitude": 40.39130985242181,
+    "longitude": -3.6958028442054074
+   },
+   "organization": {
+    "organization-name": "Cineteca Madrid",
+    "accesibility": "1"
+   }
   }
  ]
 }

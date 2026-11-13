@@ -7,8 +7,8 @@
  * Los planes salen de la agenda de eventos del Ayuntamiento de Madrid a través de la
  * función de Supabase "leisure-events" (supabase/functions/leisure-events/index.ts).
  * Cada día se pide una sola vez mientras la aplicación está abierta.
- * Filtros: "Adultos", "Niños" (dirigidos a niños o familias) o "Todos" (el de partida); los eventos
- * de varios días (exposiciones, ciclos…) se descartan salvo que se marque "Incluir los de varios días".
+ * Filtro: "Niños" (dirigidos a niños o familias; el de partida si hay alguno) o "Adultos" (el resto).
+ * Solo llegan eventos de un día: los de varios días los descarta la función.
  */
 window.FP = window.FP || {};
 
@@ -41,13 +41,11 @@ FP.leisure = (() => {
     const [y, m, d] = iso.split('-').map(Number);
     return `${DOW[new Date(y, m - 1, d).getDay()]}, ${d} de ${MONTHS[m - 1]} de ${y}`;
   };
-  const shortDate = (iso) => iso.split('-').reverse().join('/');
 
   const cache = new Map();   // fecha → planes
   let request = 0;           // para descartar respuestas de una fecha anterior
   let plans = [];
-  let filter = 'all';
-  let longOnes = false;   // incluir los eventos de varios días
+  let filter = 'kids';
   let lastFocus = null;
   let onUse = null;
 
@@ -79,7 +77,6 @@ FP.leisure = (() => {
         p.description ? h('button', { class: 'plan__more', type: 'button', hidden: true }, 'Ver más') : null),
       h('dl', { class: 'plan__facts' },
         fact('Hora', hour),
-        fact('Hasta', p.until ? shortDate(p.until) : ''),
         fact('Lugar', p.place),
         fact('Dirección', p.address),
         fact('Precio', p.price)),
@@ -107,26 +104,21 @@ FP.leisure = (() => {
     $('leisure-filter').hidden = state !== 'list' && state !== 'empty';
   }
 
-  const FILTERS = { adults: (p) => p.adults, kids: (p) => p.kids, all: () => true };
+  const FILTERS = { adults: (p) => !p.kids, kids: (p) => p.kids };
 
   function render(iso) {
-    const pool = longOnes ? plans : plans.filter((p) => !p.until);
-    const shown = pool.filter(FILTERS[filter]);
+    const shown = plans.filter(FILTERS[filter]);
     $('leisure-count').textContent = `Eventos (${shown.length})`;
-    $('leisure-filter-adults').textContent = `Adultos (${pool.filter(FILTERS.adults).length})`;
-    $('leisure-filter-kids').textContent = `Niños (${pool.filter(FILTERS.kids).length})`;
-    $('leisure-filter-all').textContent = `Todos (${pool.length})`;
+    $('leisure-filter-adults').textContent = `Adultos (${plans.filter(FILTERS.adults).length})`;
+    $('leisure-filter-kids').textContent = `Niños (${plans.filter(FILTERS.kids).length})`;
     for (const value of Object.keys(FILTERS)) {
       $(`leisure-filter-${value}`).setAttribute('aria-pressed', String(filter === value));
     }
-    $('leisure-long').checked = longOnes;
     const list = $('leisure-list');
     list.replaceChildren(...shown.map((p) => row(p, iso)));
     list.scrollTop = 0;
     if (!shown.length) {
-      setState('empty', !plans.length ? 'No hay planes publicados para este día.'
-        : pool.length ? 'No hay planes de este tipo este día. Prueba con «Todos».'
-        : 'Este día solo hay eventos de varios días. Marca «Incluir los de varios días» para verlos.');
+      setState('empty', plans.length ? `No hay planes para ${filter === 'kids' ? 'niños' : 'adultos'} este día.` : 'No hay planes publicados para este día.');
       return;
     }
     setState('list');
@@ -152,15 +144,13 @@ FP.leisure = (() => {
       const result = await load(iso);
       if (ticket !== request || $('leisure-dialog').hidden) return;
       plans = result;
-      filter = 'all';
-      longOnes = false;
+      filter = plans.some(FILTERS.kids) ? 'kids' : 'adults';
       render(iso);
     } catch (err) {
       if (ticket !== request) return;
       setState('error', err.message);
     }
     for (const value of Object.keys(FILTERS)) $(`leisure-filter-${value}`).onclick = () => { filter = value; render(iso); };
-    $('leisure-long').onchange = (e) => { longOnes = e.target.checked; render(iso); };
   }
 
   function close() {
