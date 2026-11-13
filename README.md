@@ -27,6 +27,7 @@ css/
   base.css                 Design tokens, typography, buttons, form fields and errors, colour dot, multi-select, panel header
   login.css                Login page only
   shell.css                Top bar, user menu, side navigation, toasts
+  features/leisure.css     "Ocio y Tiempo Libre" window
   views/planner.css        Calendario screen only
   views/reports.css        Informes screen only
   views/report-activity.css  Informe de actividad only
@@ -44,6 +45,7 @@ js/
   core/idle.js             Signs the user out after a period of inactivity (warning dialog first)
   login.js                 Login page logic
   shell.js                 Side navigation, user menu and toasts
+  features/leisure.js      "Ocio y Tiempo Libre" window: plans for a day from the Madrid agenda
   views/planner.js         Calendario screen logic
   views/reports.js         Informes screen logic (builds the report cards)
   views/report-activity.js Informe de actividad: filters, results and "Mostrar más"
@@ -58,6 +60,7 @@ supabase/
     005_members_only_read.sql Only app users (rows in users) can read members and activities
     006_advisor_fixes.sql    Security Advisor fixes: rls_auto_enable() not callable, pg_net out of public
   functions/weekly-digest/ Edge function that sends the weekly e-mail through Resend
+  functions/leisure-events/ Edge function that returns the Madrid agenda events of a day
   cron/weekly_digest_cron.sql  Calls the edge function every hour (pg_cron)
 ```
 
@@ -135,6 +138,14 @@ Setup, once:
 4. Test it from the function's **Test** panel: header `x-cron-secret`, body `{"member_id": 1, "week_of": "2026-11-16"}`.
 5. Store the same password in the Vault (`select vault.create_secret('…', 'weekly_digest_cron_secret');`) and run `supabase/cron/weekly_digest_cron.sql`.
 
+## Ocio y Tiempo Libre
+
+When creating an activity, the sparkle button next to the close (X) of the right column opens a window with leisure plans for the date in the form, taken from the open-data cultural agenda of the City of Madrid ([dataset 206974](https://datos.madrid.es/dataset/206974-0-agenda-eventos-culturales-100), about three months of events). It starts filtered to plans for children or families ("Para familias"), with "Todos" for the rest. "Usar este plan" copies the title, place, address, price, link and start time (one hour proposed) into the activity, which is then saved as usual.
+
+- The browser never calls Madrid directly: the edge function `leisure-events` downloads the agenda (kept in memory for 3 hours, and the previous copy is used if Madrid does not answer), keeps the events held that day (weekdays and excluded days of long-running events included) and returns only what the window shows. It only answers signed-in users (the public anon key is not enough). Links are kept only if they point to madrid.es.
+- Setup, once: **Edge Functions → Deploy a new function → Via editor**, name `leisure-events`, paste `supabase/functions/leisure-events/index.ts` and deploy, leaving **Verify JWT** on. No secrets needed.
+- To remove the feature: delete `js/features/leisure.js`, `css/features/leisure.css`, their two lines in `index.html`, the button and window in `views/planner.html`, its block in `js/views/planner.js`, and the edge function.
+
 ## Loading screen
 
 While `<html>` has the class `is-loading`, a loading screen (logo with a spinning ring and "Cargando…", styles in `css/base.css`) covers the page. `index.html` starts with it and `js/shell.js` removes it when the first screen has its data (`FP.router.start()` waits for the screen's `show()`). `login.html` shows it only when a session is already stored, while it moves on to the app.
@@ -147,7 +158,7 @@ While `<html>` has the class `is-loading`, a loading screen (logo with a spinnin
 
 - Access rules live in the database (row level security): without a session nothing can be read; only app users read members and activities; only the creator can change or delete an activity, always through `save_activity()`; each user only sees their own settings.
 - Both pages carry a Content Security Policy (`<meta http-equiv="Content-Security-Policy">`): scripts and styles only from the site itself, connections only to the site and the Supabase project. If the Supabase project changes, update its address there as well as in `js/config.js`.
-- User text is always inserted as text, never as HTML. No secrets in the repository: the Resend key and the cron password are Supabase secrets.
+- User text and agenda data are always inserted as text, never as HTML. No secrets in the repository: the Resend key and the cron password are Supabase secrets.
 
 ## Session timeout
 

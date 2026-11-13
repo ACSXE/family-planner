@@ -613,10 +613,15 @@ FP.views.planner = (() => {
     $('btn-leisure').addEventListener('click', () => {
       FP.leisure.open(f.date.value || state.date, {
         onUse(p) {
-          f.name.value = p.title;
-          f.desc.value = `${p.type}. ${p.place} (${p.address}). ${p.description}`;
-          f.start.value = p.start;
-          f.end.value = p.end;
+          f.name.value = p.title.slice(0, 120);
+          f.desc.value = [p.place, p.address, p.price && `Precio: ${p.price}`, p.url].filter(Boolean).join('\n').slice(0, 2000);
+          if (p.time) {   // la agenda solo da la hora de inicio: se propone 1 hora
+            const start = toMin(p.time);
+            f.start.value = fromMin(start);
+            f.end.value = fromMin(Math.min(start + 60, 23 * 60 + 59));
+            state.slot = start;   // la franja marcada en la vista del día sigue a la hora del plan
+            renderDay(false);
+          }
           FP.toast('Plan copiado en la actividad');
         }
       });

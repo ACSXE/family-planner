@@ -32,7 +32,7 @@
 
 /* Barra de la lista: "Eventos (6)" y la fuente */
 .leisure__toolbar {
-  flex: none; display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  flex: none; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
   padding: 10px 28px; background: var(--surface-2); border-bottom: 1px solid var(--border);
   font-size: 13px; color: var(--text-muted);
 }
@@ -61,6 +61,8 @@
 .plan__img--exposicion { --tone: #2f7bc4; --tone-bg: #eaf2fb; --tone-line: #d3e3f4; }
 .plan__img--cine       { --tone: #56677d; --tone-bg: #eef1f5; --tone-line: #dde2ea; }
 .plan__img--aire       { --tone: #5a8f45; --tone-bg: #eef5ea; --tone-line: #dbe9d4; }
+.plan__img--letras     { --tone: #a07a2c; --tone-bg: #f8f3e8; --tone-line: #eee3cc; }
+.plan__img--otros      { --tone: #4f6fa8; --tone-bg: #edf1f8; --tone-line: #dbe2ef; }
 
 .plan__main { min-width: 0; }
 .plan__title { margin: 0 0 6px; font-size: 15px; line-height: 1.3; }
@@ -70,6 +72,7 @@
   font-size: 12px; font-weight: 600; background: var(--primary-soft); color: var(--primary);
 }
 .plan__chip--age  { background: #eef1f5; color: #4a5b70; }
+.plan__more[hidden] { display: none; }
 .plan__desc {
   margin: 0; font-size: 13px; line-height: 1.45; color: var(--text-muted);
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
@@ -97,8 +100,25 @@
   background: var(--surface-2); color: var(--text-muted); font-size: 12px; text-align: center;
 }
 
-.leisure__empty { padding: 40px 24px; text-align: center; color: var(--text-muted); font-size: 14px; }
+/* Filtro "Para familias / Todos" */
+.leisure__filter { display: inline-flex; padding: 2px; border: 1px solid var(--border-strong); border-radius: 999px; background: var(--surface); }
+.leisure__seg {
+  min-height: 28px; padding: 0 12px; border: 0; border-radius: 999px; background: transparent; cursor: pointer;
+  font: inherit; font-size: 13px; color: var(--text-muted);
+}
+.leisure__seg:hover { color: var(--action); }
+.leisure__seg[aria-pressed="true"] { background: var(--action-soft); color: var(--action); font-weight: 600; }
 
+/* Buscando… / sin planes / error */
+.leisure__status {
+  flex: 1 1 auto; min-height: 160px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+  padding: 32px 24px; text-align: center; color: var(--text-muted); font-size: 14px;
+}
+.leisure__status p { margin: 0; }
+.leisure__spinner { display: none; width: 28px; height: 28px; border-radius: 50%; border: 3px solid var(--primary-soft); border-top-color: var(--primary); animation: leisure-spin .8s linear infinite; }
+.leisure__status.is-loading .leisure__spinner { display: block; }
+@keyframes leisure-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .leisure__spinner { animation-duration: 2.4s; } }
 
 /* ---------- Pantallas estrechas ---------- */
 @media (max-width: 640px) {

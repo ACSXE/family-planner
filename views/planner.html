@@ -149,12 +149,20 @@
           <p class="leisure__subtitle">Planes para el <strong id="leisure-date"></strong></p>
         </div>
         <div class="leisure__toolbar">
-          <span class="leisure__count" id="leisure-count"></span>
+          <span class="leisure__count" id="leisure-count">Eventos</span>
+          <div class="leisure__filter" id="leisure-filter" role="group" aria-label="Filtrar planes" hidden>
+            <button class="leisure__seg" id="leisure-filter-family" type="button" aria-pressed="true">Para familias</button>
+            <button class="leisure__seg" id="leisure-filter-all" type="button" aria-pressed="false">Todos</button>
           </div>
-        <ul class="leisure__list" id="leisure-list"></ul>
-        <p class="leisure__empty" id="leisure-empty" hidden>No hay planes publicados para este día.</p>
+        </div>
+        <ul class="leisure__list" id="leisure-list" hidden></ul>
+        <!-- Buscando… / sin planes / error -->
+        <div class="leisure__status" id="leisure-status" role="status" aria-live="polite" hidden>
+          <span class="leisure__spinner" aria-hidden="true"></span>
+          <p id="leisure-status-text"></p>
+        </div>
         <!-- Pie: cierra la lista para que el desplazamiento no termine en el borde -->
-        <div class="leisure__foot">Fuente: agenda de eventos del Ayuntamiento de Madrid</div>
+        <div class="leisure__foot">Fuente: agenda de eventos culturales del Ayuntamiento de Madrid (datos abiertos)</div>
       </div>
     </div>
   </main>

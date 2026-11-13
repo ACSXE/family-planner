@@ -8,7 +8,7 @@
 # (con una imitación mínima de Supabase: roles, auth.users y auth.uid()), sirve la
 # web en local y ejecuta:
 #   · tests/db/*.test.sql       reglas de acceso, usuarios y ajustes, aviso semanal, formatos
-#   · tests/function/*.test.mjs la edge function del aviso semanal (Resend simulado)
+#   · tests/function/*.test.mjs las edge functions: aviso semanal (Resend simulado) y planes de ocio (agenda de Madrid de muestra)
 #   · tests/app/*.test.js       la aplicación en Chromium contra esa base de datos
 # Al terminar borra todo lo temporal. Sale con código 1 si alguna comprobación falla.
 #
@@ -83,17 +83,19 @@ fresh_db extra || exit 1
 out=$("${PSQL[@]}" -f "$TESTS/db/weekly_digest.test.sql" 2>&1 | grep -oE '(OK   |FALLO).*|ERROR.*' | sed 's/^ERROR/FALLO ERROR/')
 report "db/weekly_digest" "$out"
 
-echo "== Edge function del aviso semanal"
+echo "== Edge functions (aviso semanal y planes de ocio)"
 fresh_db || exit 1
 out=$(timeout 180 node --experimental-strip-types --no-warnings "$TESTS/function/weekly-digest.test.mjs" 2>&1 || echo "PARADA: la prueba no ha terminado bien")
 report "function/weekly-digest" "$out"
+out=$(timeout 120 node --experimental-strip-types --no-warnings "$TESTS/function/leisure-events.test.mjs" 2>&1 || echo "PARADA: la prueba no ha terminado bien")
+report "function/leisure-events" "$out"
 
 echo "== Aplicación (Chromium)"
 python3 -m http.server 8199 --bind 127.0.0.1 --directory "$ROOT" >/dev/null 2>&1 &
 SERVER_PID=$!
 sleep 1
 export BASE_URL="http://127.0.0.1:8199/"
-for t in flow planner boot idle csp; do
+for t in flow planner boot idle csp leisure; do
   fresh_db || exit 1
   out=$(cd "$TESTS/app" && timeout 300 node "$t.test.js" 2>&1 || echo "PARADA: la prueba no ha terminado bien")
   report "app/$t" "$out"

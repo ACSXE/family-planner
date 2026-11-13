@@ -1,0 +1,750 @@
+{
+ "@context": {
+  "c": "http://www.w3.org/2002/12/cal#",
+  "dcterms": "http://purl.org/dc/terms/",
+  "geo": "http://www.w3.org/2003/01/geo/wgs84_pos#",
+  "loc": "http://purl.org/ctic/infraestructuras/localizacion#",
+  "org": "http://purl.org/ctic/infraestructuras/organizacion#",
+  "vcard": "http://www.w3.org/2006/vcard/ns#",
+  "schema": "https://schema.org/",
+  "title": "vcard:fn",
+  "id": "dcterms:identifier",
+  "relation": "dcterms:relation",
+  "references": "dcterms:references",
+  "address": "vcard:adr",
+  "area": "loc:barrio",
+  "district": "loc:distrito",
+  "locality": "vcard:locality",
+  "postal-code": "vcard:postal-code",
+  "street-address": "vcard:street-address",
+  "location": "vcard:geo",
+  "latitude": "geo:lat",
+  "longitude": "geo:long",
+  "organization": "vcard:org",
+  "organization-desc": "dcterms:description",
+  "accesibility": "org:accesibilidad",
+  "services": "org:servicios",
+  "schedule": "org:horario",
+  "organization-name": "vcard:organization-name",
+  "description": "c:summary",
+  "link": "c:url",
+  "uid": "c:uid",
+  "dtstart": "c:dtstart",
+  "dtend": "c:dtend",
+  "time": "c:time",
+  "excluded-days": "c:exdate",
+  "event-location": "c:location",
+  "free": "schema:free",
+  "price": "c:resource",
+  "recurrence": "c:rrule",
+  "days": "c:byday",
+  "frequency": "c:freq",
+  "interval": "c:interval",
+  "audience": "dc:audience"
+ },
+ "@graph": [
+  {
+   "@id": "https://datos.madrid.es/egob/catalogo/tipo/evento/50425902-alicia-pais-maravillas.json",
+   "@type": "https://datos.madrid.es/egob/kos/actividades/CuentacuentosTiteresMarionetas",
+   "id": "50425902",
+   "title": "Alicia en el país de las maravillas",
+   "description": "",
+   "free": 0,
+   "price": "",
+   "dtstart": "2026-11-21 12:30:00.0",
+   "dtend": "2026-11-22 23:59:00.0",
+   "time": "12:30",
+   "excluded-days": "",
+   "recurrence": {
+    "days": "MO,TU,WE,TH,FR,SA,SU",
+    "frequency": "WEEKLY",
+    "interval": 1
+   },
+   "audience": "Familias",
+   "uid": "50425902",
+   "link": "http://www.madrid.es/sites/v/index.jsp?vgnextchannel=ca9671ee4a9eb410VgnVCM100000171f5a0aRCRD&vgnextoid=e125fa46443b0a10VgnVCM200000f921e388RCRD",
+   "event-location": "Teatro de Títeres de El Retiro",
+   "references": {
+    "@id": "http://www.madrid.es/sites/v/index.jsp?vgnextchannel=ca9671ee4a9eb410VgnVCM100000171f5a0aRCRD&vgnextoid=fa25fa46443b0a10VgnVCM200000f921e388RCRD"
+   },
+   "relation": {
+    "@id": "https://datos.madrid.es/egob/catalogo/tipo/entidadesyorganismos/4077-teatro-titeres-retiro.json"
+   },
+   "address": {
+    "district": {
+     "@id": "https://datos.madrid.es/egob/kos/Provincia/Madrid/Municipio/Madrid/Distrito/Retiro"
+    },
+    "area": {
+     "@id": "https://datos.madrid.es/egob/kos/Provincia/Madrid/Municipio/Madrid/Distrito/Retiro/Barrio/LosJeronimos",
+     "locality": "MADRID",
+     "postal-code": "28009",
+     "street-address": "AVENIDA MÉXICO 4"
+    }
+   },
+   "location": {
+    "latitude": 40.41878362561595,
+    "longitude": -3.6866519471003647
+   },
+   "organization": {
+    "organization-name": "Teatro de Títeres de El Retiro",
+    "accesibility": "1"
+   }
+  },
+  {
+   "@id": "https://datos.madrid.es/egob/catalogo/tipo/evento/50451264-anatola-karakola.json",
+   "@type": "https://datos.madrid.es/egob/kos/actividades/CuentacuentosTiteresMarionetas",
+   "id": "50451264",
+   "title": "Anatola Karakola",
+   "description": "Lugar: Mercado municipal Guillermo de Osma",
+   "free": 1,
+   "price": "",
+   "dtstart": "2026-11-21 11:30:00.0",
+   "dtend": "2026-11-21 23:59:00.0",
+   "time": "11:30",
+   "excluded-days": "",
+   "audience": "Niños",
+   "uid": "50451264",
+   "link": "http://www.madrid.es/sites/v/index.jsp?vgnextchannel=ca9671ee4a9eb410VgnVCM100000171f5a0aRCRD&vgnextoid=0d856f8d05341a10VgnVCM200000f921e388RCRD",
+   "event-location": "",
+   "references": {
+    "@id": "http://www.madrid.es/sites/v/index.jsp?vgnextchannel=ca9671ee4a9eb410VgnVCM100000171f5a0aRCRD&vgnextoid=a96512fffcf31a10VgnVCM200000f921e388RCRD"
+   }
+  },
+  {
+   "@id": "https://datos.madrid.es/egob/catalogo/tipo/evento/50393404-circo-chispa-chispita-.json",
+   "@type": "https://datos.madrid.es/egob/kos/actividades/CircoMagia",
+   "id": "50393404",
+   "title": "Circo: 'CHISPA Y CHISPITA'",
+   "description": "Acargo de los payasos Chispa y Chispita  Bailes, canciones, magia y mucha participación del público infantil. Los niños y niñas podrán subir al escenario, bailar y compartir una divertida experiencia en familia.  Edad recomendada: a partir de 5 años.",
+   "free": 1,
+   "price": "",
+   "dtstart": "2026-11-21 12:00:00.0",
+   "dtend": "2026-11-21 23:59:00.0",
+   "time": "12:00",
+   "excluded-days": "",
+   "audience": "Niños,Familias",
+   "uid": "50393404",
+   "link": "http://www.madrid.es/sites/v/index.jsp?vgnextchannel=ca9671ee4a9eb410VgnVCM100000171f5a0aRCRD&vgnextoid=7a6ab3b853850a10VgnVCM200000f921e388RCRD",
+   "event-location": "Centro Cultural La Vaguada (Fuencarral - El Pardo)",
+   "references": {
+    "@id": "http://www.madrid.es/sites/v/index.jsp?vgnextchannel=ca9671ee4a9eb410VgnVCM100000171f5a0aRCRD&vgnextoid=a769475156b4a810VgnVCM2000001f4a900aRCRD"
+   },
+   "relation": {
+    "@id": "https://datos.madrid.es/egob/catalogo/tipo/entidadesyorganismos/1917-centro-cultural-vaguada-fuencarral-pardo-.json"
+   },
+   "address": {
+    "district": {
+     "@id": "https://datos.madrid.es/egob/kos/Provincia/Madrid/Municipio/Madrid/Distrito/Fuencarral-ElPardo"
+    },
+    "area": {
+     "@id": "https://datos.madrid.es/egob/kos/Provincia/Madrid/Municipio/Madrid/Distrito/Fuencarral-ElPardo/Barrio/ElPilar",
+     "locality": "MADRID",
+     "postal-code": "28029",
+     "street-address": "AVENIDA MONFORTE DE LEMOS 38"
+    }
+   },
+   "location": {
+    "latitude": 40.47900813206291,
+    "longitude": -3.709138377702435
+   },
+   "organization": {
+    "organization-name": "Centro Cultural La Vaguada (Fuencarral - El Pardo)",
+    "accesibility": "1"
+   }
+  },
+  {
+   "@id": "https://datos.madrid.es/egob/catalogo/tipo/evento/50471380-conmemoracion-dia-internacional-violencia-genero-cuentacuentos-valerosas-mujeres-aqui-alla.json",
+   "@type": "https://datos.madrid.es/egob/kos/actividades/CuentacuentosTiteresMarionetas",
+   "id": "50471380",
+   "title": "CONMEMORACIÓN DÍA INTERNACIONAL CONTRA LA VIOLENCIA DE GÉNERO. Cuentacuentos: Valerosas. Mujeres de aquí y allá",
+   "description": "A cargo de Andrea Ortúzar.  Mujeres que lucharon por sus ideales y lograron cambiar el mundo con su arte y su convicción, siendo ejemplo de superación y liberación para las futuras generaciones. Sesión narrada con imágenes, láminas de fieltro y arpillera, libros ilustrados y expresión corporal.   Edad recomendada: familiar desde 5 años.",
+   "free": 1,
+   "price": "",
+   "dtstart": "2026-11-21 18:00:00.0",
+   "dtend": "2026-11-21 23:59:00.0",
+   "time": "18:00",
+   "excluded-days": "",
+   "audience": "Niños,Familias",
+   "uid": "50471380",
+   "link": "http://www.madrid.es/sites/v/index.jsp?vgnextchannel=ca9671ee4a9eb410VgnVCM100000171f5a0aRCRD&vgnextoid=07467b595dc81a10VgnVCM100000891ecb1aRCRD",
+   "event-location": "Centro Sociocultural Montecarmelo (Fuencarral - El Pardo)",
+   "references": {
+    "@id": "http://www.madrid.es/sites/v/index.jsp?vgnextchannel=ca9671ee4a9eb410VgnVCM100000171f5a0aRCRD&vgnextoid=14e048187451c810VgnVCM1000001d4a900aRCRD"
+   },
+   "relation": {
+    "@id": "https://datos.madrid.es/egob/catalogo/tipo/entidadesyorganismos/5514552-centro-sociocultural-montecarmelo-fuencarral-pardo-.json"
+   },
+   "address": {
+    "district": {
+     "@id": "https://datos.madrid.es/egob/kos/Provincia/Madrid/Municipio/Madrid/Distrito/Fuencarral-ElPardo"
+    },
+    "area": {
+     "@id": "https://datos.madrid.es/egob/kos/Provincia/Madrid/Municipio/Madrid/Distrito/Fuencarral-ElPardo/Barrio/ElGoloso",
+     "locality": "MADRID",
+     "postal-code": "28049",
+     "street-address": "Carretera M-607 Km 13 L-10 "
+    }
+   },
+   "location": {
+    "latitude": 40.515712291624084,
+    "longitude": -3.6860532895354448
+   },
+   "organization": {
+    "organization-name": "Centro Sociocultural Montecarmelo (Fuencarral - El Pardo)",
+    "accesibility": "1"
+   }
+  },
+  {
+   "@id": "https://datos.madrid.es/egob/catalogo/tipo/evento/50426306-crea-tus-propios-libros.json",
+   "@type": "https://datos.madrid.es/egob/kos/actividades/CuentacuentosTiteresMarionetas",
+   "id": "50426306",
+   "title": "CREA TUS PROPIOS LIBROS",
+   "description": "TALLER DE ENCUADERNACIÓN   ¿Y si Caperucita se encontrara con un unicornio y un dragón? ¿O si el lobo acabara siendo más bueno de lo que creemos y amigo de los pajaritos? En este taller se crearán personajes de cuento mediante siluetas y se animarán con la técnica del stop motion para inventar una historia única. Una experiencia divertida que une literatura, creatividad y cine de animación. Imparte: Con causa  De 6 a 12 años.",
+   "free": 1,
+   "price": "",
+   "dtstart": "2026-11-21 12:00:00.0",
+   "dtend": "2026-11-21 23:59:00.0",
+   "time": "12:00",
+   "excluded-days": "",
+   "audience": "Jovenes,Niños,Familias",
+   "uid": "50426306",
+   "link": "http://www.madrid.es/sites/v/index.jsp?vgnextchannel=ca9671ee4a9eb410VgnVCM100000171f5a0aRCRD&vgnextoid=c6c2b54d414b0a10VgnVCM100000891ecb1aRCRD",
+   "event-location": "Imprenta Municipal. Artes del libro",
+   "references": {
+    "@id": "http://www.madrid.es/sites/v/index.jsp?vgnextchannel=ca9671ee4a9eb410VgnVCM100000171f5a0aRCRD&vgnextoid=5fc5bc6693193910VgnVCM1000001d4a900aRCRD"
+   },
+   "relation": {
+    "@id": "https://datos.madrid.es/egob/catalogo/tipo/entidadesyorganismos/79870-imprenta-municipal-artes-libro.json"
+   },
+   "address": {
+    "district": {
+     "@id": "https://datos.madrid.es/egob/kos/Provincia/Madrid/Municipio/Madrid/Distrito/Centro"
+    },
+    "area": {
+     "@id": "https://datos.madrid.es/egob/kos/Provincia/Madrid/Municipio/Madrid/Distrito/Centro/Barrio/Embajadores",
+     "locality": "MADRID",
+     "postal-code": "28012",
+     "street-address": "CALLE CONCEPCION JERONIMA 15"
+    }
+   },
+   "location": {
+    "latitude": 40.413896825498995,
+    "longitude": -3.7054692169323364
+   },
+   "organization": {
+    "organization-name": "Imprenta Municipal. Artes del libro",
+    "accesibility": "1,6"
+   }
+  },
+  {
+   "@id": "https://datos.madrid.es/egob/catalogo/tipo/evento/50461182-cuento-taller-color-azabache-.json",
+   "@type": "https://datos.madrid.es/egob/kos/actividades/RecitalesPresentacionesActosLiterarios",
+   "id": "50461182",
+   "title": "Cuento y taller 'Color Azabache'",
+   "description": "",
+   "free": 0,
+   "price": "Inscripción gratuita con inscripción previa. Se inscriben tanto niños como adultos",
+   "dtstart": "2026-11-21 12:00:00.0",
+   "dtend": "2026-11-21 23:59:00.0",
+   "time": "12:00",
+   "excluded-days": "",
+   "audience": "Familias",
+   "uid": "50461182",
+   "link": "http://www.madrid.es/sites/v/index.jsp?vgnextchannel=ca9671ee4a9eb410VgnVCM100000171f5a0aRCRD&vgnextoid=3a4551ab76861a10VgnVCM200000f921e388RCRD",
+   "event-location": "Matadero Madrid",
+   "references": {
+    "@id": "http://www.madrid.es/sites/v/index.jsp?vgnextchannel=ca9671ee4a9eb410VgnVCM100000171f5a0aRCRD&vgnextoid=727551ab76861a10VgnVCM200000f921e388RCRD"
+   },
+   "relation": {
+    "@id": "https://datos.madrid.es/egob/catalogo/tipo/entidadesyorganismos/4684678-matadero-madrid.json"
+   },
+   "address": {
+    "district": {
+     "@id": "https://datos.madrid.es/egob/kos/Provincia/Madrid/Municipio/Madrid/Distrito/Arganzuela"
+    },
+    "area": {
+     "@id": "https://datos.madrid.es/egob/kos/Provincia/Madrid/Municipio/Madrid/Distrito/Arganzuela/Barrio/Chopera",
+     "locality": "MADRID",
+     "postal-code": "28045",
+     "street-address": "PLAZA LEGAZPI 8"
+    }
+   },
+   "location": {
+    "latitude": 40.39130985242181,
+    "longitude": -3.6958028442054074
+   },
+   "organization": {
+    "organization-name": "Matadero Madrid",
+    "accesibility": "1"
+   }
+  },
+  {
+   "@id": "https://datos.madrid.es/egob/catalogo/tipo/evento/50409003-19-edicion-mi-primer-festival-cine.json",
+   "@type": "https://datos.madrid.es/egob/kos/actividades/ProgramacionDestacadaAgendaCultura",
+   "id": "50409003",
+   "title": "19ª edición Mi Primer Festival de Cine",
+   "description": "",
+   "free": 0,
+   "price": "",
+   "dtstart": "2026-11-07 00:00:00.0",
+   "dtend": "2026-11-22 23:59:00.0",
+   "time": "",
+   "excluded-days": "",
+   "recurrence": {
+    "days": "MO,TU,WE,TH,FR,SA,SU",
+    "frequency": "WEEKLY",
+    "interval": 1
+   },
+   "audience": "Niños,Familias",
+   "uid": "50409003",
+   "link": "http://www.madrid.es/sites/v/index.jsp?vgnextchannel=ca9671ee4a9eb410VgnVCM100000171f5a0aRCRD&vgnextoid=a32c600f78a80a10VgnVCM100000891ecb1aRCRD",
+   "event-location": "Centro de Cultura Contemporánea CondeDuque",
+   "references": {
+    "@id": ""
+   },
+   "relation": {
+    "@id": "https://datos.madrid.es/egob/catalogo/tipo/entidadesyorganismos/1916-centro-cultura-contemporanea-condeduque.json"
+   },
+   "address": {
+    "district": {
+     "@id": "https://datos.madrid.es/egob/kos/Provincia/Madrid/Municipio/Madrid/Distrito/Centro"
+    },
+    "area": {
+     "@id": "https://datos.madrid.es/egob/kos/Provincia/Madrid/Municipio/Madrid/Distrito/Centro/Barrio/Universidad",
+     "locality": "MADRID",
+     "postal-code": "28015",
+     "street-address": "CALLE CONDE DUQUE 9"
+    }
+   },
+   "location": {
+    "latitude": 40.42739911262292,
+    "longitude": -3.710589286287491
+   },
+   "organization": {
+    "organization-name": "Centro de Cultura Contemporánea CondeDuque",
+    "accesibility": "1"
+   }
+  },
+  {
+   "@id": "https://datos.madrid.es/egob/catalogo/tipo/evento/50476736-aplausos-teresa.json",
+   "@type": "https://datos.madrid.es/egob/kos/actividades/TeatroPerformance",
+   "id": "50476736",
+   "title": "Aplausos a Teresa",
+   "description": "A partir de 14 años.   Compañía Entre comillas teatro.  Teresa mantiene viva su pasión por la danza y comparte con July un recorrido por sus recuerdos. Una obra emotiva sobre la memoria, el apoyo mutuo y la importancia de seguir desarrollando la propia vocación.",
+   "free": 1,
+   "price": "",
+   "dtstart": "2026-11-21 19:00:00.0",
+   "dtend": "2026-11-21 23:59:00.0",
+   "time": "19:00",
+   "excluded-days": "",
+   "uid": "50476736",
+   "link": "http://www.madrid.es/sites/v/index.jsp?vgnextchannel=ca9671ee4a9eb410VgnVCM100000171f5a0aRCRD&vgnextoid=1fd7e671ff5a1a10VgnVCM100000891ecb1aRCRD",
+   "event-location": "Centro Cultural Carril del Conde (Hortaleza)",
+   "references": {
+    "@id": "http://www.madrid.es/sites/v/index.jsp?vgnextchannel=ca9671ee4a9eb410VgnVCM100000171f5a0aRCRD&vgnextoid=4dc76ed8d8a75610VgnVCM2000001f4a900aRCRD"
+   },
+   "relation": {
+    "@id": "https://datos.madrid.es/egob/catalogo/tipo/entidadesyorganismos/118317-centro-cultural-carril-conde-hortaleza-.json"
+   },
+   "address": {
+    "district": {
+     "@id": "https://datos.madrid.es/egob/kos/Provincia/Madrid/Municipio/Madrid/Distrito/Hortaleza"
+    },
+    "area": {
+     "@id": "https://datos.madrid.es/egob/kos/Provincia/Madrid/Municipio/Madrid/Distrito/Hortaleza/Barrio/Canillas",
+     "locality": "MADRID",
+     "postal-code": "28043",
+     "street-address": "CALLE CARRIL DEL CONDE 57"
+    }
+   },
+   "location": {
+    "latitude": 40.46089499555313,
+    "longitude": -3.654366821391548
+   },
+   "organization": {
+    "organization-name": "Centro Cultural Carril del Conde (Hortaleza)",
+    "accesibility": "1"
+   }
+  },
+  {
+   "@id": "https://datos.madrid.es/egob/catalogo/tipo/evento/50146209-aqui-nunca-pasa-nada.json",
+   "@type": "https://datos.madrid.es/egob/kos/actividades/TeatroPerformance",
+   "id": "50146209",
+   "title": "Aquí nunca pasa nada",
+   "description": "Teatro en conmemoración del 25N.    Compañía: Teatro sin papeles.  Intérpretes: Olga Compte y Susana Álvarez.   Dirección: Moisés Mato.  Edad recomendada: público adulto.   Reparto de entradas desde una hora antes en el centro cultural. Máximo dos entradas por persona hasta completar aforo",
+   "free": 1,
+   "price": "",
+   "dtstart": "2026-11-21 18:30:00.0",
+   "dtend": "2026-11-21 23:59:00.0",
+   "time": "18:30",
+   "excluded-days": "",
+   "uid": "50146209",
+   "link": "http://www.madrid.es/sites/v/index.jsp?vgnextchannel=ca9671ee4a9eb410VgnVCM100000171f5a0aRCRD&vgnextoid=d2f4832f37fba910VgnVCM200000f921e388RCRD",
+   "event-location": "Centro Cultural Casa de Vacas (Retiro)",
+   "references": {
+    "@id": "http://www.madrid.es/sites/v/index.jsp?vgnextchannel=ca9671ee4a9eb410VgnVCM100000171f5a0aRCRD&vgnextoid=eba1c5a51e2c9910VgnVCM100000891ecb1aRCRD"
+   },
+   "relation": {
+    "@id": "https://datos.madrid.es/egob/catalogo/tipo/entidadesyorganismos/1945-centro-cultural-casa-vacas-retiro-.json"
+   },
+   "address": {
+    "district": {
+     "@id": "https://datos.madrid.es/egob/kos/Provincia/Madrid/Municipio/Madrid/Distrito/Retiro"
+    },
+    "area": {
+     "@id": "https://datos.madrid.es/egob/kos/Provincia/Madrid/Municipio/Madrid/Distrito/Retiro/Barrio/LosJeronimos",
+     "locality": "MADRID",
+     "postal-code": "28009",
+     "street-address": "PASEO COLOMBIA 1"
+    }
+   },
+   "location": {
+    "latitude": 40.41906571939961,
+    "longitude": -3.684053112760816
+   },
+   "organization": {
+    "organization-name": "Centro Cultural Casa de Vacas (Retiro)",
+    "accesibility": "1"
+   }
+  },
+  {
+   "@id": "https://datos.madrid.es/egob/catalogo/tipo/evento/12411724-artemisia-magia-luna.json",
+   "@type": "https://datos.madrid.es/egob/kos/actividades/Exposiciones",
+   "id": "12411724",
+   "title": "Artemisia. La magia de la luna",
+   "description": "",
+   "free": 1,
+   "price": "",
+   "dtstart": "2024-07-16 18:00:00.0",
+   "dtend": "2026-12-27 23:59:00.0",
+   "time": "18:00",
+   "excluded-days": "",
+   "recurrence": {
+    "days": "MO,TU,WE,TH,FR,SA,SU",
+    "frequency": "WEEKLY",
+    "interval": 1
+   },
+   "uid": "12411724",
+   "link": "http://www.madrid.es/sites/v/index.jsp?vgnextchannel=ca9671ee4a9eb410VgnVCM100000171f5a0aRCRD&vgnextoid=91dbd257d6d70910VgnVCM1000001d4a900aRCRD",
+   "event-location": "Planetario de Madrid",
+   "references": {
+    "@id": "http://www.madrid.es/sites/v/index.jsp?vgnextchannel=ca9671ee4a9eb410VgnVCM100000171f5a0aRCRD&vgnextoid=e6c9d257d6d70910VgnVCM1000001d4a900aRCRD"
+   },
+   "relation": {
+    "@id": "https://datos.madrid.es/egob/catalogo/tipo/entidadesyorganismos/2213-planetario-madrid.json"
+   },
+   "address": {
+    "district": {
+     "@id": "https://datos.madrid.es/egob/kos/Provincia/Madrid/Municipio/Madrid/Distrito/Arganzuela"
+    },
+    "area": {
+     "@id": "https://datos.madrid.es/egob/kos/Provincia/Madrid/Municipio/Madrid/Distrito/Arganzuela/Barrio/Legazpi",
+     "locality": "MADRID",
+     "postal-code": "28045",
+     "street-address": "AVENIDA PLANETARIO 16"
+    }
+   },
+   "location": {
+    "latitude": 40.392279999540044,
+    "longitude": -3.684956957448299
+   },
+   "organization": {
+    "organization-name": "Planetario de Madrid",
+    "accesibility": "1,6"
+   }
+  },
+  {
+   "@id": "https://datos.madrid.es/egob/catalogo/tipo/evento/12693863-audicion-alumnos-violin-guitarra-piano-centro-musical-grappelli-escuela-internacional-musica-maestro.json",
+   "@type": "https://datos.madrid.es/egob/kos/actividades/Musica",
+   "id": "12693863",
+   "title": "Audición de los alumnos de violín, guitarra y piano del Centro Musical Grappelli y Escuela Internacional Música Maestro",
+   "description": "Audición de los alumnos de violín, guitarra y piano del Centro Musical Grappelli y Escuela Internacional Música Maestro.",
+   "free": 1,
+   "price": "",
+   "dtstart": "2026-11-21 12:00:00.0",
+   "dtend": "2026-11-21 23:59:00.0",
+   "time": "12:00",
+   "excluded-days": "",
+   "uid": "12693863",
+   "link": "http://www.madrid.es/sites/v/index.jsp?vgnextchannel=ca9671ee4a9eb410VgnVCM100000171f5a0aRCRD&vgnextoid=f376d53414e15910VgnVCM1000001d4a900aRCRD",
+   "event-location": "Centro Cultural Sara Montiel (Latina)",
+   "references": {
+    "@id": "http://www.madrid.es/sites/v/index.jsp?vgnextchannel=ca9671ee4a9eb410VgnVCM100000171f5a0aRCRD&vgnextoid=fd49b87374893510VgnVCM2000001f4a900aRCRD"
+   },
+   "relation": {
+    "@id": "https://datos.madrid.es/egob/catalogo/tipo/entidadesyorganismos/115404-centro-cultural-sara-montiel-latina-.json"
+   },
+   "address": {
+    "district": {
+     "@id": "https://datos.madrid.es/egob/kos/Provincia/Madrid/Municipio/Madrid/Distrito/Latina"
+    },
+    "area": {
+     "@id": "https://datos.madrid.es/egob/kos/Provincia/Madrid/Municipio/Madrid/Distrito/Latina/Barrio/Campamento",
+     "locality": "MADRID",
+     "postal-code": "28024",
+     "street-address": "CARRETERA BOADILLA DEL MONTE 40"
+    }
+   },
+   "location": {
+    "latitude": 40.39950355569066,
+    "longitude": -3.775020201264123
+   },
+   "organization": {
+    "organization-name": "Centro Cultural Sara Montiel (Latina)",
+    "accesibility": "1"
+   }
+  },
+  {
+   "@id": "https://datos.madrid.es/egob/catalogo/tipo/evento/50366129-25-anos-museo-san-isidro-origenes-madrid.json",
+   "@type": "https://datos.madrid.es/egob/kos/actividades/Exposiciones",
+   "id": "50366129",
+   "title": "25 años del Museo de San Isidro. Los Orígenes de Madrid",
+   "description": "",
+   "free": 1,
+   "price": "",
+   "dtstart": "2026-07-21 00:00:00.0",
+   "dtend": "2027-01-31 23:59:00.0",
+   "time": "",
+   "excluded-days": "24/12/2026;25/12/2026;31/12/2026;1/1/2027;",
+   "recurrence": {
+    "days": "TU,WE,TH,FR,SA,SU",
+    "frequency": "WEEKLY",
+    "interval": 1
+   },
+   "uid": "50366129",
+   "link": "http://www.madrid.es/sites/v/index.jsp?vgnextchannel=ca9671ee4a9eb410VgnVCM100000171f5a0aRCRD&vgnextoid=92684dde03f7f910VgnVCM200000f921e388RCRD",
+   "event-location": "Museo de San Isidro. Los Orígenes de Madrid",
+   "references": {
+    "@id": "http://www.madrid.es/sites/v/index.jsp?vgnextchannel=ca9671ee4a9eb410VgnVCM100000171f5a0aRCRD&vgnextoid=39b35c3f9fe7f910VgnVCM200000f921e388RCRD"
+   },
+   "relation": {
+    "@id": "https://datos.madrid.es/egob/catalogo/tipo/entidadesyorganismos/2112-museo-san-isidro-origenes-madrid.json"
+   },
+   "address": {
+    "district": {
+     "@id": "https://datos.madrid.es/egob/kos/Provincia/Madrid/Municipio/Madrid/Distrito/Centro"
+    },
+    "area": {
+     "@id": "https://datos.madrid.es/egob/kos/Provincia/Madrid/Municipio/Madrid/Distrito/Centro/Barrio/Palacio",
+     "locality": "MADRID",
+     "postal-code": "28005",
+     "street-address": "PLAZA SAN ANDRES 2"
+    }
+   },
+   "location": {
+    "latitude": 40.41207900253883,
+    "longitude": -3.7108161027466378
+   },
+   "organization": {
+    "organization-name": "Museo de San Isidro. Los Orígenes de Madrid",
+    "accesibility": "2,6"
+   }
+  },
+  {
+   "@id": "https://datos.madrid.es/egob/catalogo/tipo/evento/12762533-360-agua-360.json",
+   "@type": "https://datos.madrid.es/egob/kos/actividades/Exposiciones",
+   "id": "12762533",
+   "title": "360 agua 360",
+   "description": "Exposición de fotografía. Esta propuesta expositiva quiere sensibilizar sobre el papel del agua en nuestras vidas. Autor: David Martín Martín.",
+   "free": 1,
+   "price": "",
+   "dtstart": "2026-11-03 00:00:00.0",
+   "dtend": "2026-11-30 23:59:00.0",
+   "time": "",
+   "excluded-days": "",
+   "recurrence": {
+    "days": "MO,TU,WE,TH,FR,SA",
+    "frequency": "WEEKLY",
+    "interval": 1
+   },
+   "uid": "12762533",
+   "link": "http://www.madrid.es/sites/v/index.jsp?vgnextchannel=ca9671ee4a9eb410VgnVCM100000171f5a0aRCRD&vgnextoid=8decdcc0cf976910VgnVCM2000001f4a900aRCRD",
+   "event-location": "Centro Cultural Fernando de los Ríos (Latina)",
+   "references": {
+    "@id": "http://www.madrid.es/sites/v/index.jsp?vgnextchannel=ca9671ee4a9eb410VgnVCM100000171f5a0aRCRD&vgnextoid=36e6d0843f893510VgnVCM2000001f4a900aRCRD"
+   },
+   "relation": {
+    "@id": "https://datos.madrid.es/egob/catalogo/tipo/entidadesyorganismos/1954-centro-cultural-fernando-rios-latina-.json"
+   },
+   "address": {
+    "district": {
+     "@id": "https://datos.madrid.es/egob/kos/Provincia/Madrid/Municipio/Madrid/Distrito/Latina"
+    },
+    "area": {
+     "@id": "https://datos.madrid.es/egob/kos/Provincia/Madrid/Municipio/Madrid/Distrito/Latina/Barrio/Aluche",
+     "locality": "MADRID",
+     "postal-code": "28047",
+     "street-address": "CALLE CAMARENA 10"
+    }
+   },
+   "location": {
+    "latitude": 40.395739032378984,
+    "longitude": -3.7566163518635967
+   },
+   "organization": {
+    "organization-name": "Centro Cultural Fernando de los Ríos (Latina)",
+    "accesibility": "1,6"
+   }
+  },
+  {
+   "@id": "https://datos.madrid.es/egob/catalogo/tipo/evento/12130154-actividades-mensuales-centros-mayores-distrito-centro.json",
+   "id": "12130154",
+   "title": "Actividades mensuales de los centros de mayores del distrito Centro",
+   "description": "",
+   "free": 0,
+   "price": "",
+   "dtstart": "2025-11-01 00:00:00.0",
+   "dtend": "2032-04-30 23:59:00.0",
+   "time": "",
+   "excluded-days": "6/11/2026;8/11/2026;10/11/2026;20/11/2026;27/11/2026;22/11/2026;",
+   "recurrence": {
+    "days": "MO,TU,WE,TH,FR,SA",
+    "frequency": "WEEKLY",
+    "interval": 1
+   },
+   "audience": "Mayores",
+   "uid": "12130154",
+   "link": "http://www.madrid.es/sites/v/index.jsp?vgnextchannel=ca9671ee4a9eb410VgnVCM100000171f5a0aRCRD&vgnextoid=b8d69bd86cd1b810VgnVCM2000001f4a900aRCRD",
+   "event-location": "",
+   "references": {
+    "@id": "http://www.madrid.es/sites/v/index.jsp?vgnextchannel=ca9671ee4a9eb410VgnVCM100000171f5a0aRCRD&vgnextoid=038a389dcf828810VgnVCM1000001d4a900aRCRD"
+   }
+  },
+  {
+   "@id": "https://datos.madrid.es/egob/catalogo/tipo/evento/50324384-actividades-mensuales-centros-mayores-distrito-fuencarral-pardo.json",
+   "id": "50324384",
+   "title": "Actividades mensuales de los centros de mayores del distrito Fuencarral - El Pardo",
+   "description": "",
+   "free": 0,
+   "price": "",
+   "dtstart": "2026-10-01 00:00:00.0",
+   "dtend": "2026-11-30 23:59:00.0",
+   "time": "",
+   "excluded-days": "31/10/2026;1/11/2026;6/11/2026;7/11/2026;8/11/2026;13/11/2026;14/11/2026;15/11/2026;20/11/2026;21/11/2026;22/11/2026;27/11/2026;28/11/2026;29/11/2026;",
+   "recurrence": {
+    "days": "MO,TU,WE,TH,FR,SA",
+    "frequency": "WEEKLY",
+    "interval": 1
+   },
+   "audience": "Mayores",
+   "uid": "50324384",
+   "link": "http://www.madrid.es/sites/v/index.jsp?vgnextchannel=ca9671ee4a9eb410VgnVCM100000171f5a0aRCRD&vgnextoid=34ef9fbdf427e910VgnVCM200000f921e388RCRD",
+   "event-location": "",
+   "references": {
+    "@id": "http://www.madrid.es/sites/v/index.jsp?vgnextchannel=ca9671ee4a9eb410VgnVCM100000171f5a0aRCRD&vgnextoid=01b382e14dd1b810VgnVCM1000001d4a900aRCRD"
+   }
+  },
+  {
+   "@id": "https://datos.madrid.es/egob/catalogo/tipo/evento/12263426-actividades-mensuales-centros-mayores-distrito-vicalvaro.json",
+   "id": "12263426",
+   "title": "Actividades mensuales de los centros de mayores del distrito Vicálvaro",
+   "description": "",
+   "free": 0,
+   "price": "",
+   "dtstart": "2026-01-01 00:00:00.0",
+   "dtend": "2031-04-26 23:59:00.0",
+   "time": "",
+   "excluded-days": "4/11/2026;9/11/2026;10/11/2026;16/11/2026;30/11/2026;",
+   "recurrence": {
+    "days": "MO,TU,WE,TH,FR,SU",
+    "frequency": "WEEKLY",
+    "interval": 1
+   },
+   "audience": "Mayores",
+   "uid": "12263426",
+   "link": "http://www.madrid.es/sites/v/index.jsp?vgnextchannel=ca9671ee4a9eb410VgnVCM100000171f5a0aRCRD&vgnextoid=1454a9913813d810VgnVCM1000001d4a900aRCRD",
+   "event-location": "",
+   "references": {
+    "@id": "http://www.madrid.es/sites/v/index.jsp?vgnextchannel=ca9671ee4a9eb410VgnVCM100000171f5a0aRCRD&vgnextoid=08bbcb25a62db810VgnVCM1000001d4a900aRCRD"
+   }
+  },
+  {
+   "@id": "https://datos.madrid.es/egob/catalogo/tipo/evento/50442488-ciclo-conferencias-hablarte-arte-naturaleza-tiempos-ia.json",
+   "@type": "https://datos.madrid.es/egob/kos/actividades/ConferenciasColoquios",
+   "id": "50442488",
+   "title": "Ciclo de conferencias: HablArte. Arte y naturaleza en tiempos de la IA",
+   "description": "Con el título «Arte y Naturaleza en el tiempo de la IA», la Asociación Madrileña de Críticos de Arte abordará, durante el otoño de 2026 y a lo largo de 2027, una nueva edición de su ya tradicional ciclo de conferencias HablArte.  Sobre el ciclo:   En esta ocasión, el ciclo centra su atención en el impacto que la revolución tecnológica de la Inteligencia Artificial, está teniendo en el ámbito artístico. El arte generado mediante IA, cada vez más presente y pujante, forma ya parte de nuestra cultura visual. Su creciente expansión plantea nuevas preguntas y hace necesarias espacios de reflexión y debate.  Las diferentes ponencias reunirán a críticos, investigadores y artistas que, desde sus respectivos ámbitos, explorarán esta relación entre IA, arte y naturaleza. El ciclo analizará la creciente presencia de estas tecnologías en el proceso creativo, tanto como herramientas para abocetar, investigar... como en su capacidad para impulsar nuevas formas de experimentación artística.   Calendario otoño 2026:    29 SEPT. AMALIA GARCÍA RUBÍ - Lda. Historia de Arte UAM - AMCA:   Origen y transformación digital en el Arte Contemporáneo      6 OCT. SALIM MALLA - Artista, Dr. en BBAA por UCM e Ingeniero topógrafo UPV-EHU. Docente en el área de Dibujo de la facultad de BBAA de la USAL:   Del territorio a la pantalla. Derivas contemporáneas del dibujo desde los entornos físicos hacia los digitales      27 OCT. IGNACIO ASENJO - Dr. BBAA por UCM, docente en Dpto. de Escultura UCM y Catedrático de Artes Plásticas y Diseño de la ESDM:  Arte, naturaleza y el tiempo de la Inteligencia Artificial: Una reflexión estética sobre la transformación de la experiencia contemporánea      10 NOV. ANTONIO VIGO - Dr. BBAA por UCM, docente en BBAA URJC y Artista:  Sincronía matérica en la era post-digital: reivindicación del valor ontológico en la manipulación directa sobre la obra artística      17 NOV. JORGE VARAS - Dr. BBAA por UCM, escultor y docente en BBAA UCM:  Pensar la escultura, en el tiempo de la IA      15 DIC. MESA ABIERTA    Todas las conferencias se celebran a las 18:00, en el salón de actos del Museo de Historia de Madrid, calle Fuencarral, 78.  Entrada libre hasta completar aforo   Más información en:  https://amca-criticosartemadrid.org/ciclo-de-conferencias-2026/ Encontrarás el formulario de inscripción para no perderte ninguna de las citas del ciclo.   Todas las conferencias se retrasmiten en streaming en el canal de youtube de AMCA",
+   "free": 1,
+   "price": "",
+   "dtstart": "2026-09-29 18:00:00.0",
+   "dtend": "2026-12-15 23:59:00.0",
+   "time": "18:00",
+   "excluded-days": "1/10/2026;5/10/2026;11;1;2;222;9/10/2026;2/10/2026;10/10/2026;12;30/10/2026;29/10/2026;22/10/2026;15/10/2026;16/10/2026;3/10/2026;23/10/2026;11/10/2026;4/10/2026;24/10/2026;31/10/2026;25/10/2026;7/10/2026;21/10/2026;20/10/2026;13/10/2026;12/10/2026;19/10/2026;26/10/2026;8/10/2026;14/10/2026;28/10/2026;17/10/2026;18/10/2026;2/11/2026;3/11/2026;4/11/2026;1/11/2026;5/11/2026;6/11/2026;7/11/2026;8/11/2026;9/11/2026;11/11/2026;12/11/2026;13/11/2026;14/11/2026;15/11/2026;16/11/2026;18/11/2026;19/11/2026;20/11/2026;21/11/2026;22/11/2026;23/11/2026;24/11/2026;25/11/2026;26/11/2026;27/11/2026;28/11/2026;29/11/2026;30/11/2026;1/12/2026;2/12/2026;3/12/2026;4/12/2026;5/12/2026;6/12/2026;7/12/2026;8/12/2026;9/12/2026;10/12/2026;11/12/2026;12/12/2026;13/12/2026;14/12/2026;",
+   "recurrence": {
+    "days": "TU",
+    "frequency": "WEEKLY",
+    "interval": 1
+   },
+   "uid": "50442488",
+   "link": "http://www.madrid.es/sites/v/index.jsp?vgnextchannel=ca9671ee4a9eb410VgnVCM100000171f5a0aRCRD&vgnextoid=9dfd8eb2bcb01a10VgnVCM200000f921e388RCRD",
+   "event-location": "Museo de Historia de Madrid",
+   "references": {
+    "@id": "http://www.madrid.es/sites/v/index.jsp?vgnextchannel=ca9671ee4a9eb410VgnVCM100000171f5a0aRCRD&vgnextoid=6c271b66808c9910VgnVCM100000891ecb1aRCRD"
+   },
+   "relation": {
+    "@id": "https://datos.madrid.es/egob/catalogo/tipo/entidadesyorganismos/2054-museo-historia-madrid.json"
+   },
+   "address": {
+    "district": {
+     "@id": "https://datos.madrid.es/egob/kos/Provincia/Madrid/Municipio/Madrid/Distrito/Centro"
+    },
+    "area": {
+     "@id": "https://datos.madrid.es/egob/kos/Provincia/Madrid/Municipio/Madrid/Distrito/Centro/Barrio/Justicia",
+     "locality": "MADRID",
+     "postal-code": "28004",
+     "street-address": "CALLE FUENCARRAL 78"
+    }
+   },
+   "location": {
+    "latitude": 40.42577054821346,
+    "longitude": -3.700845660719608
+   },
+   "organization": {
+    "organization-name": "Museo de Historia de Madrid",
+    "accesibility": "1,6"
+   }
+  },
+  {
+   "@id": "https://datos.madrid.es/egob/catalogo/tipo/evento/50437605-bellotada-familiar.json",
+   "@type": "https://datos.madrid.es/egob/kos/actividades/ExcursionesItinerariosVisitas",
+   "id": "50437605",
+   "title": "Bellotada familiar",
+   "description": "",
+   "free": 1,
+   "price": "",
+   "dtstart": "2026-11-22 10:00:00.0",
+   "dtend": "2026-11-22 23:59:00.0",
+   "time": "10:00",
+   "excluded-days": "",
+   "audience": "Familias",
+   "uid": "50437605",
+   "link": "http://www.madrid.es/sites/v/index.jsp?vgnextchannel=ca9671ee4a9eb410VgnVCM100000171f5a0aRCRD&vgnextoid=4ffd12a16c1f0a10VgnVCM200000f921e388RCRD",
+   "event-location": "Centro de Información y Educación Ambiental de Casa de Campo",
+   "references": {
+    "@id": "http://www.madrid.es/sites/v/index.jsp?vgnextchannel=ca9671ee4a9eb410VgnVCM100000171f5a0aRCRD&vgnextoid=8321271d2ff12910VgnVCM2000001f4a900aRCRD"
+   },
+   "relation": {
+    "@id": "https://datos.madrid.es/egob/catalogo/tipo/entidadesyorganismos/62197-centro-informacion-educacion-ambiental-casa-campo.json"
+   },
+   "address": {
+    "district": {
+     "@id": "https://datos.madrid.es/egob/kos/Provincia/Madrid/Municipio/Madrid/Distrito/Moncloa-Aravaca"
+    },
+    "area": {
+     "@id": "https://datos.madrid.es/egob/kos/Provincia/Madrid/Municipio/Madrid/Distrito/Moncloa-Aravaca/Barrio/CasaCampo",
+     "locality": "MADRID",
+     "postal-code": "28011",
+     "street-address": "PARQUE CASA DE CAMPO (JUNTO AL EMBARCADERO DEL LAGO) "
+    }
+   },
+   "location": {
+    "latitude": 40.41789950036311,
+    "longitude": -3.7309390858931137
+   },
+   "organization": {
+    "organization-name": "Centro de Información y Educación Ambiental de Casa de Campo",
+    "accesibility": "1"
+   }
+  }
+ ]
+}
