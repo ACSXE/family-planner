@@ -142,6 +142,7 @@ FP.leisure = (() => {
       return;
     }
     setState('list');
+    list.scrollTop = 0;   // con la lista ya visible: siempre empieza arriba del todo
     // "Ver más" solo en las descripciones que no caben en dos líneas
     list.querySelectorAll('.plan').forEach((li) => {
       const desc = li.querySelector('.plan__desc');

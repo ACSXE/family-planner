@@ -614,7 +614,11 @@ FP.views.planner = (() => {
       FP.leisure.open(f.date.value || state.date, {
         onUse(p) {
           f.name.value = p.title.slice(0, 120);
-          f.desc.value = [p.place, p.address, p.price && `Precio: ${p.price}`, p.url].filter(Boolean).join('\n').slice(0, 2000);
+          // Descripción: el texto del evento y, debajo, el lugar y la dirección (máximo 2000 caracteres)
+          const where = [p.place && `Lugar:\n${p.place}`, p.address && `Dirección:\n${p.address}`].filter(Boolean).join('\n');
+          const room = 2000 - where.length - 1;
+          const text = p.description.length > room ? `${p.description.slice(0, room - 1)}…` : p.description;
+          f.desc.value = [text, where].filter(Boolean).join('\n');
           if (p.time) {   // sin hora de fin en la agenda, se propone 1 hora
             const start = toMin(p.time);
             f.start.value = fromMin(start);

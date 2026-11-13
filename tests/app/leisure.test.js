@@ -59,11 +59,16 @@ const runFn = (date) => execFileSync('node', ['--experimental-strip-types', '--n
   await p.click('.plan:has-text("CREA TUS PROPIOS LIBROS") .plan__use'); await p.waitForTimeout(300);
   ok(await p.isHidden('#leisure-dialog'), 'Usar este plan cierra la ventana');
   const form = await p.evaluate(() => ['f-name', 'f-desc', 'f-start', 'f-end'].map((id) => document.getElementById(id).value));
-  ok(form[0] === 'CREA TUS PROPIOS LIBROS' && form[2] === '12:00' && form[3] === '13:00' && form[1].includes('Precio: Gratuito'), `rellena la actividad: ${form[0]} ${form[2]}–${form[3]}`);
+  ok(form[0] === 'CREA TUS PROPIOS LIBROS' && form[2] === '12:00' && form[3] === '13:00', `rellena la actividad: ${form[0]} ${form[2]}–${form[3]}`);
+  const lines = form[1].split('\n');
+  ok(lines[0].startsWith('TALLER DE ENCUADERNACIÓN') && lines.slice(-4).join('|') === 'Lugar:|Imprenta Municipal. Artes del libro|Dirección:|Calle Concepcion Jeronima 15, 28012 Madrid', `descripción: texto del evento, "Lugar:" y "Dirección:" debajo (${JSON.stringify(lines.slice(-4))})`);
 
-  // Misma fecha: no se vuelve a pedir; Escape cierra
+  // Misma fecha: no se vuelve a pedir y la lista vuelve a empezar arriba; Escape cierra
   const n = asked.length; await p.click('#btn-leisure'); await p.waitForSelector('#leisure-list .plan');
   ok(asked.length === n, 'la misma fecha no se vuelve a pedir');
+  await p.locator('#leisure-list').evaluate((l) => { l.scrollTop = l.scrollHeight; });
+  await p.keyboard.press('Escape'); await p.click('#btn-leisure'); await p.waitForSelector('#leisure-list .plan');
+  ok(await p.locator('#leisure-list').evaluate((l) => l.scrollTop) === 0, 'al volver a abrir la ventana, la lista empieza arriba del todo');
   await p.keyboard.press('Escape'); ok(await p.isHidden('#leisure-dialog'), 'Escape cierra la ventana');
 
   // Si la agenda no responde
