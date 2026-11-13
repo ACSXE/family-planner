@@ -346,6 +346,7 @@ FP.views.planner = (() => {
       $('btn-edit').hidden = mode !== 'view';
       $('detail-actions').hidden = mode === 'readonly';
       $('btn-delete').hidden = !(mode === 'view' || mode === 'edit');
+      $('btn-leisure').hidden = mode !== 'new';
       resetDelete();
       const owner = $('detail-owner');
       owner.hidden = mode !== 'readonly';
@@ -606,6 +607,20 @@ FP.views.planner = (() => {
     $('back-detail').addEventListener('click', () => guard(closeDetail));
     $('close-day').addEventListener('click', () => { state.slot = null; setDepth(1); });
     $('close-detail').addEventListener('click', () => guard(closeDetail));
+
+    // Ocio y Tiempo Libre: planes para la fecha del formulario; "Usar este plan" rellena la actividad
+    FP.leisure.mount();
+    $('btn-leisure').addEventListener('click', () => {
+      FP.leisure.open(f.date.value || state.date, {
+        onUse(p) {
+          f.name.value = p.title;
+          f.desc.value = `${p.type}. ${p.place} (${p.address}). ${p.description}`;
+          f.start.value = p.start;
+          f.end.value = p.end;
+          FP.toast('Plan copiado en la actividad');
+        }
+      });
+    });
 
     let resizeRaf = 0;
     window.addEventListener('resize', () => {

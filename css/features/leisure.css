@@ -1,0 +1,106 @@
+/* ==========================================================
+   Ocio y Tiempo Libre — botón con IA en "Nueva actividad"
+   y ventana con los planes del día (js/features/leisure.js).
+   Reutiliza el aviso .modal de css/shell.css.
+   ========================================================== */
+
+/* ---------- Botón junto a "Cerrar" (sólo al crear una actividad) ---------- */
+.icon-btn.leisure-btn { color: #6d4ae0; }
+.icon-btn.leisure-btn:hover { background: #f1ecfd; }
+.icon-btn.leisure-btn svg { width: 20px; height: 20px; }
+
+/* ---------- Ventana ---------- */
+.modal__box.leisure {
+  max-width: 820px; max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px);
+  display: flex; flex-direction: column; text-align: left;
+}
+.leisure .modal__bar { justify-content: space-between; }
+.leisure__bar-title { display: flex; align-items: center; gap: 10px; }
+.leisure__close {
+  display: grid; place-items: center; width: 30px; height: 30px; margin: -4px -6px -4px 0; padding: 0;
+  border: 0; border-radius: var(--radius-sm); background: transparent; color: inherit; cursor: pointer;
+}
+.leisure__close:hover { background: rgba(255, 255, 255, .14); }
+.leisure__close svg { width: 18px; height: 18px; }
+
+.leisure__head { flex: none; padding: 20px 24px 14px; text-align: center; border-bottom: 1px solid var(--border); }
+.leisure__head .modal__head { margin-bottom: 4px; }
+.leisure__icon { background: #f1ecfd; color: #6d4ae0; }
+.leisure__subtitle { margin: 0; color: var(--text-muted); font-size: 14px; }
+.leisure__subtitle strong { color: var(--text); }
+
+/* Barra de la lista: "Eventos (6)" y la fuente */
+.leisure__toolbar {
+  flex: none; display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  padding: 10px 24px; background: var(--surface-2); border-bottom: 1px solid var(--border);
+  font-size: 13px; color: var(--text-muted);
+}
+.leisure__count { font-size: 14px; font-weight: 600; color: var(--text); }
+
+/* ---------- Lista (list report) ---------- */
+.leisure__list { flex: 1 1 auto; min-height: 0; overflow-y: auto; margin: 0; padding: 0; list-style: none; }
+.plan {
+  display: grid; grid-template-columns: 76px minmax(0, 1fr) 230px; gap: 6px 16px;
+  padding: 16px 24px; border-bottom: 1px solid var(--border);
+}
+.plan:last-child { border-bottom: 0; }
+.plan:hover { background: var(--surface-2); }
+
+/* Imagen genérica según el tipo de plan */
+.plan__img {
+  grid-row: span 2; width: 76px; height: 76px; border-radius: var(--radius-sm);
+  display: grid; place-items: center; color: #fff;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .18);
+}
+.plan__img svg { width: 34px; height: 34px; }
+.plan__img--teatro     { background: linear-gradient(135deg, #f7a35c, #d9480f); }
+.plan__img--taller     { background: linear-gradient(135deg, #63c7b2, #12877a); }
+.plan__img--musica     { background: linear-gradient(135deg, #8f8cf2, #4c3fd1); }
+.plan__img--exposicion { background: linear-gradient(135deg, #7cb7ee, #1c63b8); }
+.plan__img--cine       { background: linear-gradient(135deg, #5e6f86, #263447); }
+.plan__img--aire       { background: linear-gradient(135deg, #9ad66e, #3d8b22); }
+
+.plan__main { min-width: 0; }
+.plan__title { margin: 0 0 6px; font-size: 15px; line-height: 1.3; }
+.plan__chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.plan__chip {
+  display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px;
+  font-size: 12px; font-weight: 600; background: var(--primary-soft); color: var(--primary);
+}
+.plan__chip--free { background: #e8f6ec; color: #1e7b34; }
+.plan__chip--age  { background: #fff3e6; color: #b45309; }
+.plan__desc {
+  margin: 0; font-size: 13px; line-height: 1.45; color: var(--text-muted);
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.plan.is-open .plan__desc { display: block; }
+.plan__more {
+  margin-top: 2px; padding: 0; border: 0; background: none; cursor: pointer;
+  font: inherit; font-size: 13px; color: var(--action);
+}
+.plan__more:hover { text-decoration: underline; }
+
+/* Datos a la derecha: etiqueta · valor */
+.plan__facts { margin: 0; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 10px; font-size: 13px; align-content: start; }
+.plan__facts dt { color: var(--text-muted); }
+.plan__facts dd { margin: 0; color: var(--text); overflow-wrap: anywhere; }
+
+.plan__actions { grid-column: 2 / -1; display: flex; align-items: center; justify-content: flex-end; gap: 12px; flex-wrap: wrap; }
+.plan__link { font-size: 13px; color: var(--action); text-decoration: none; }
+.plan__link:hover { text-decoration: underline; }
+.plan__actions .btn { min-height: 32px; padding: 0 12px; font-size: 13px; }
+
+.leisure__empty { padding: 40px 24px; text-align: center; color: var(--text-muted); font-size: 14px; }
+
+.leisure__foot { flex: none; padding: 14px 24px; border-top: 1px solid var(--border); text-align: center; }
+
+/* ---------- Pantallas estrechas ---------- */
+@media (max-width: 640px) {
+  .modal:has(.leisure) { padding: 8px; }
+  .leisure__head, .leisure__toolbar, .leisure__foot { padding-left: 16px; padding-right: 16px; }
+  .plan { grid-template-columns: 56px minmax(0, 1fr); padding: 14px 16px; column-gap: 12px; }
+  .plan__img { width: 56px; height: 56px; grid-row: auto; }
+  .plan__img svg { width: 26px; height: 26px; }
+  .plan__facts { grid-column: 1 / -1; }
+  .plan__actions { grid-column: 1 / -1; }
+}
