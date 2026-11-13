@@ -141,12 +141,14 @@
         </div>
         <div class="leisure__head">
           <div class="modal__head">
-            <span class="modal__icon leisure__icon" aria-hidden="true">
+            <span class="modal__icon" aria-hidden="true">
               <svg viewBox="0 0 24 24"><path d="M10 3.5c.5 3.6 2.4 5.5 6 6-3.6.5-5.5 2.4-6 6-.5-3.6-2.4-5.5-6-6 3.6-.5 5.5-2.4 6-6z" fill="currentColor"/><path d="M18 13.5c.3 1.8 1.2 2.7 3 3-1.8.3-2.7 1.2-3 3-.3-1.8-1.2-2.7-3-3 1.8-.3 2.7-1.2 3-3z" fill="currentColor" opacity=".7"/><circle cx="18.5" cy="5" r="1.3" fill="currentColor" opacity=".55"/></svg>
             </span>
-            <h2 class="modal__title" id="leisure-title">Ocio y Tiempo Libre</h2>
+            <div>
+              <h2 class="modal__title" id="leisure-title">Ocio y Tiempo Libre</h2>
+              <p class="leisure__subtitle">Planes para el <strong id="leisure-date"></strong></p>
+            </div>
           </div>
-          <p class="leisure__subtitle">Planes para el <strong id="leisure-date"></strong></p>
         </div>
         <div class="leisure__toolbar">
           <span class="leisure__count" id="leisure-count"></span>
@@ -154,9 +156,6 @@
         </div>
         <ul class="leisure__list" id="leisure-list"></ul>
         <p class="leisure__empty" id="leisure-empty" hidden>No hay planes publicados para este día.</p>
-        <div class="leisure__foot">
-          <button class="btn btn--ghost" id="leisure-done" type="button">Cerrar</button>
-        </div>
       </div>
     </div>
   </main>

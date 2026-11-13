@@ -78,7 +78,6 @@ FP.leisure = (() => {
         h('h3', { class: 'plan__title' }, p.title),
         h('div', { class: 'plan__chips' },
           h('span', { class: 'plan__chip' }, p.type),
-          p.price === 'Gratuito' ? h('span', { class: 'plan__chip plan__chip--free' }, 'Gratuito') : null,
           h('span', { class: 'plan__chip plan__chip--age' }, p.age)),
         h('p', { class: 'plan__desc' }, p.description),
         h('button', { class: 'plan__more', type: 'button' }, 'Ver más')),
@@ -88,8 +87,8 @@ FP.leisure = (() => {
         h('dt', null, 'Dirección'), h('dd', null, p.address),
         h('dt', null, 'Precio'), h('dd', null, p.price)),
       h('div', { class: 'plan__actions' },
-        h('a', { class: 'plan__link', href: p.url, target: '_blank', rel: 'noopener noreferrer' }, '+ información'),
-        h('button', { class: 'btn btn--primary plan__use', type: 'button' }, 'Usar este plan')));
+        h('button', { class: 'btn btn--primary plan__use', type: 'button' }, 'Usar este plan'),
+        h('a', { class: 'plan__link', href: p.url, target: '_blank', rel: 'noopener noreferrer' }, '+ información')));
 
     const more = li.querySelector('.plan__more');
     more.addEventListener('click', () => {
@@ -126,7 +125,6 @@ FP.leisure = (() => {
     const dlg = $('leisure-dialog');
     if (!dlg) return;
     $('leisure-close').addEventListener('click', close);
-    $('leisure-done').addEventListener('click', close);
     dlg.addEventListener('click', (e) => { if (e.target === dlg) close(); });
     dlg.addEventListener('keydown', (e) => { if (e.key === 'Escape') { e.stopPropagation(); close(); } });
   }
