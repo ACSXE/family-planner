@@ -158,7 +158,11 @@
         <ul class="leisure__list" id="leisure-list" hidden></ul>
         <!-- Buscando… / sin planes / error -->
         <div class="leisure__status" id="leisure-status" role="status" aria-live="polite" hidden>
-          <span class="leisure__spinner" aria-hidden="true"></span>
+          <!-- Mismo indicador que la pantalla de carga (css/base.css): el icono de la ventana con el arco girando -->
+          <div class="app-loader__mark leisure__loader" aria-hidden="true">
+            <span class="app-loader__spinner"></span>
+            <svg viewBox="0 0 24 24"><path d="M10 3.5c.5 3.6 2.4 5.5 6 6-3.6.5-5.5 2.4-6 6-.5-3.6-2.4-5.5-6-6 3.6-.5 5.5-2.4 6-6z" fill="currentColor"/><path d="M18 13.5c.3 1.8 1.2 2.7 3 3-1.8.3-2.7 1.2-3 3-.3-1.8-1.2-2.7-3-3 1.8-.3 2.7-1.2 3-3z" fill="currentColor" opacity=".7"/><circle cx="18.5" cy="5" r="1.3" fill="currentColor" opacity=".55"/></svg>
+          </div>
           <p id="leisure-status-text"></p>
         </div>
         <!-- Pie: cierra la lista para que el desplazamiento no termine en el borde -->

@@ -115,10 +115,9 @@
   padding: 32px 24px; text-align: center; color: var(--text-muted); font-size: 14px;
 }
 .leisure__status p { margin: 0; }
-.leisure__spinner { display: none; width: 28px; height: 28px; border-radius: 50%; border: 3px solid var(--primary-soft); border-top-color: var(--primary); animation: leisure-spin .8s linear infinite; }
-.leisure__status.is-loading .leisure__spinner { display: block; }
-@keyframes leisure-spin { to { transform: rotate(360deg); } }
-@media (prefers-reduced-motion: reduce) { .leisure__spinner { animation-duration: 2.4s; } }
+/* Buscando: el indicador de la pantalla de carga (.app-loader__mark, css/base.css) */
+.leisure__loader { display: none; }
+.leisure__status.is-loading .leisure__loader { display: grid; }
 
 /* ---------- Pantallas estrechas ---------- */
 @media (max-width: 640px) {

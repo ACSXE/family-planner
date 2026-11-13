@@ -137,7 +137,7 @@ FP.leisure = (() => {
     $('leisure-date').textContent = longDate(iso);
     $('leisure-count').textContent = 'Eventos';
     $('leisure-list').replaceChildren();
-    setState('loading', 'Buscando planes en la agenda de Madrid…');
+    setState('loading', 'Buscando planes…');
     $('leisure-dialog').hidden = false;
     $('leisure-dialog').querySelector('.modal__box').focus();
     try {
