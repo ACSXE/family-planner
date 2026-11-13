@@ -63,11 +63,6 @@ FP.storage = (() => {
     return fromRow(data);
   }
 
-  // Restos de la versión anterior, que guardaba las actividades en este navegador
-  try {
-    Object.keys(localStorage).filter((k) => k.startsWith('fp.')).forEach((k) => localStorage.removeItem(k));
-  } catch { /* almacenamiento no disponible */ }
-
   return {
     async list() {
       const { data, error } = await FP.db.from('activities').select(COLUMNS)

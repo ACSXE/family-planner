@@ -3,6 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Política de seguridad del contenido: solo scripts, estilos y conexiones de la propia web
+       y del proyecto de Supabase. Si cambia el proyecto, cambia también su dirección aquí y en js/config.js -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' https://hdzeibaonokdcicqmuzw.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'">
   <title>Family Planner</title>
   <!-- Antes que nada: sin sesión guardada se va al login sin llegar a pintar la aplicación -->
   <script src="js/config.js"></script>
@@ -28,7 +31,7 @@
   -->
   <div class="app">
   <!-- Iconos reutilizables -->
-  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <svg class="icon-sprite" width="0" height="0" aria-hidden="true">
     <symbol id="i-left" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-right" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>

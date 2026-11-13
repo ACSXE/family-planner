@@ -83,6 +83,9 @@
   .sidenav__item:hover .sidenav__label { display: inline; }
 }
 
+/* Bloque de iconos reutilizables de index.html: no ocupa sitio */
+.icon-sprite { position: absolute; }
+
 /* ---------- Toast ---------- */
 .toast {
   position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 20px);

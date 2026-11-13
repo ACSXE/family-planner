@@ -1,0 +1,16 @@
+-- Imitación mínima de Supabase (roles, auth.users, auth.uid()) para probar las migraciones en un PostgreSQL normal
+-- Imitación mínima de Supabase para probar en local
+do $$ begin create role anon nologin; create role authenticated nologin; create role service_role nologin bypassrls; exception when duplicate_object then null; end $$;
+create schema auth;
+create table auth.users (id uuid primary key default gen_random_uuid(), email text unique);
+create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $$;
+grant usage on schema auth to anon, authenticated, service_role;
+grant execute on function auth.uid() to anon, authenticated, service_role;
+grant usage on schema public to anon, authenticated, service_role;
+-- Supabase da por defecto todos los permisos de las tablas nuevas a estos roles
+alter default privileges in schema public grant all on tables to anon, authenticated, service_role;
+alter default privileges in schema public grant all on functions to anon, authenticated, service_role;
+alter default privileges in schema public grant all on sequences to anon, authenticated, service_role;
+insert into auth.users (id, email) values
+  ('11111111-1111-1111-1111-111111111111', 'alberto@example.com'),
+  ('22222222-2222-2222-2222-222222222222', 'laura@example.com');

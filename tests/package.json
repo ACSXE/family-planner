@@ -1,0 +1,8 @@
+{
+  "name": "family-planner-tests",
+  "private": true,
+  "description": "Pruebas automáticas de Family Planner (ver tests/README.md)",
+  "devDependencies": {
+    "playwright": "1.63.0"
+  }
+}

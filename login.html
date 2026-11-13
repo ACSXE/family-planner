@@ -3,6 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Política de seguridad del contenido: solo scripts, estilos y conexiones de la propia web
+       y del proyecto de Supabase. Si cambia el proyecto, cambia también su dirección aquí y en js/config.js -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' https://hdzeibaonokdcicqmuzw.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'">
   <title>Family Planner</title>
   <!-- Antes que nada: con sesión guardada se muestra la pantalla de carga, no el formulario -->
   <script src="js/config.js"></script>

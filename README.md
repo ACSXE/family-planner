@@ -48,6 +48,7 @@ js/
   views/reports.js         Informes screen logic (builds the report cards)
   views/report-activity.js Informe de actividad: filters, results and "Mostrar más"
   vendor/                  Third-party libraries (supabase-js 2.118.0, MIT) — see js/vendor/README.md
+tests/                     Automated tests (database, edge function and app): bash tests/run.sh — see tests/README.md
 supabase/
   migrations/              Database changes, run in order in the Supabase SQL Editor
     001_initial_schema.sql   First version: activities and profiles (profiles is replaced by users in 002)
@@ -58,8 +59,6 @@ supabase/
     006_advisor_fixes.sql    Security Advisor fixes: rls_auto_enable() not callable, pg_net out of public
   functions/weekly-digest/ Edge function that sends the weekly e-mail through Resend
   cron/weekly_digest_cron.sql  Calls the edge function every hour (pg_cron)
-tools/
-  build_artifact.py        Builds the copy published as a Claude artifact (see below)
 ```
 
 Screens are loaded inside `index.html` by `js/core/router.js` when they are picked in the side navigation (`#planner`, `#reports`) or opened from a report card (`#report-activity`). A screen is loaded once and then hidden and shown, so it keeps its state when you come back to it.
@@ -140,6 +139,16 @@ Setup, once:
 
 While `<html>` has the class `is-loading`, a loading screen (logo with a spinning ring and "Cargando…", styles in `css/base.css`) covers the page. `index.html` starts with it and `js/shell.js` removes it when the first screen has its data (`FP.router.start()` waits for the screen's `show()`). `login.html` shows it only when a session is already stored, while it moves on to the app.
 
+## Tests
+
+`bash tests/run.sh` creates a temporary PostgreSQL with all the migrations, serves the app locally and runs the database, edge function and browser tests (no connection to Supabase, no e-mails sent). Run it before uploading changes. Requirements and details in `tests/README.md`.
+
+## Security
+
+- Access rules live in the database (row level security): without a session nothing can be read; only app users read members and activities; only the creator can change or delete an activity, always through `save_activity()`; each user only sees their own settings.
+- Both pages carry a Content Security Policy (`<meta http-equiv="Content-Security-Policy">`): scripts and styles only from the site itself, connections only to the site and the Supabase project. If the Supabase project changes, update its address there as well as in `js/config.js`.
+- User text is always inserted as text, never as HTML. No secrets in the repository: the Resend key and the cron password are Supabase secrets.
+
 ## Session timeout
 
 After `idle.minutes` without using the app (clicks, taps, keys, mouse, scrolling), the session is closed and the login page shows "Tu sesión se ha cerrado por inactividad". Before that, a "¿Sigues ahí?" dialog counts down the last `idle.warningSeconds` (at most half of the time) with "Seguir conectado" and "Cerrar sesión". Time is measured against the clock, so a sleeping tab or a locked phone is signed out as soon as it comes back. Both values are in `js/config.js`.
@@ -167,13 +176,3 @@ A List Report: a collapsible filter bar above a results table.
 - **Asistente** and **Acompañante** are multi-selects with checkboxes; values ticked in the same filter combine with OR (Acompañante "Alberto" also finds activities accompanied by "Alberto y Laura"). Ticked values show as tokens in the field, with "+N" when they do not fit.
 - Results show 20 rows at a time; "Mostrar más" adds the next 20.
 - Long values are cut at the last space before 20 characters (Nombre actividad) or 40 (Descripción actividad) and end with "..."; the full text shows on hover.
-
-## Publishing as a Claude artifact
-
-The Claude artifact viewer blocks connections to other servers, so the artifact cannot reach Supabase: the artifact published before the Supabase integration stays as a browser-only demo, and the real app is the GitHub Pages one. The tool below is kept for that demo.
-
-The artifact viewer wraps the entry page in its own document, so `index.html` is published without its `<!doctype>`, `<head>` and `<body>` tags. Generate that copy with:
-
-```bash
-python3 tools/build_artifact.py <output-folder>
-```
