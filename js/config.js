@@ -36,6 +36,12 @@ const FP_CONFIG = {
     }
   ],
 
+  // Ventana "Ocio y Tiempo Libre" (botón de "Nueva actividad" en Calendario): de dónde salen los planes.
+  //   'local'    → fichero data/leisure-events.json, una copia de la agenda de Madrid
+  //                (se regenera con tools/build-leisure-data.mjs; no se actualiza sola)
+  //   'supabase' → edge function leisure-events, con la agenda al día (hay que desplegarla antes)
+  leisure: { source: 'local' },
+
   // Cierre de sesión por inactividad: minutos sin usar la aplicación y segundos de aviso previo
   // (el aviso dura como mucho la mitad del tiempo): a los 9 minutos sin actividad sale el aviso de 60 s.
   idle: { minutes: 10, warningSeconds: 60 },

@@ -147,7 +147,7 @@ export function toPlan(e: any): Plan {
 
 // Eventos de un solo día (empiezan y acaban el mismo día)
 // deno-lint-ignore no-explicit-any
-const oneDay = (e: any) => dayOf(e.dtstart) === (dayOf(e.dtend) || dayOf(e.dtstart));
+export const oneDay = (e: any) => dayOf(e.dtstart) === (dayOf(e.dtend) || dayOf(e.dtstart));
 
 export function plansFor(events: unknown[], date: string): Plan[] {
   return events.filter((e) => oneDay(e) && happensOn(e, date)).map(toPlan)

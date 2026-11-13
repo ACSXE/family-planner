@@ -4,8 +4,9 @@
  *   FP.leisure.open(isoDate, { onUse(plan) })   → abre la ventana con los planes de ese día
  *   FP.leisure.close()
  *
- * Los planes salen de la agenda de eventos del Ayuntamiento de Madrid a través de la
- * función de Supabase "leisure-events" (supabase/functions/leisure-events/index.ts).
+ * Los planes salen de la agenda de eventos del Ayuntamiento de Madrid, según FP_CONFIG.leisure.source:
+ *   'local'    → data/leisure-events.json (copia generada con tools/build-leisure-data.mjs)
+ *   'supabase' → función de Supabase "leisure-events" (supabase/functions/leisure-events/index.ts)
  * Cada día se pide una sola vez mientras la aplicación está abierta.
  * Filtro: "Niños" (dirigidos a niños o familias; el de partida si hay alguno) o "Adultos" (el resto).
  * Solo llegan eventos de un día: los de varios días los descarta la función.
@@ -49,8 +50,26 @@ FP.leisure = (() => {
   let lastFocus = null;
   let onUse = null;
 
+  const LOCAL_FILE = 'data/leisure-events.json';
+  let localData = null;   // el fichero local se descarga una sola vez
+
   async function load(iso) {
     if (cache.has(iso)) return cache.get(iso);
+    if (FP_CONFIG.leisure?.source !== 'supabase') {
+      if (!localData) {
+        const res = await fetch(LOCAL_FILE).catch(() => null);
+        localData = res?.ok ? await res.json().catch(() => null) : null;
+        if (!localData?.dates) {
+          localData = null;
+          throw new Error('No se han podido consultar los planes. Inténtalo de nuevo más tarde.');
+        }
+        const [y, m, d] = localData.downloaded.split('-');
+        $('leisure-foot').textContent = `Fuente: agenda de eventos culturales del Ayuntamiento de Madrid (datos abiertos, copia del ${d}/${m}/${y})`;
+      }
+      const events = localData.dates[iso] || [];
+      cache.set(iso, events);
+      return events;
+    }
     const { data, error } = await FP.db.functions.invoke('leisure-events', { body: { date: iso } });
     if (error || !Array.isArray(data?.events)) {
       console.error(error || data);

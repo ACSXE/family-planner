@@ -1,14 +1,21 @@
 // Ocio y Tiempo Libre: botón solo al crear, ventana con los planes de la agenda (muestra real), filtro Niños/Adultos,
-// "Usar este plan" y aviso si la agenda no responde. La función se ejecuta de verdad (tests/function/leisure.mjs).
+// "Usar este plan" y aviso si la agenda no responde. Con los dos orígenes de FP_CONFIG.leisure.source:
+//   'supabase' → la edge function se ejecuta de verdad (tests/function/leisure.mjs)
+//   'local'    → data/leisure-events.json, generado con tools/build-leisure-data.mjs desde la misma muestra
 // Lo lanza tests/run.sh.
 const { chromium } = require('playwright'); const { install } = require('./fake-supabase.js');
-const { execFileSync } = require('child_process'); const path = require('path');
+const { execFileSync } = require('child_process'); const path = require('path'); const fs = require('fs'); const os = require('os');
+const ROOT = path.join(__dirname, '../..');
 const base = process.env.BASE_URL;
 const res = []; const ok = (c, m) => res.push(`${c ? 'OK   ' : 'FALLO'} ${m}`);
 const runFn = (date) => execFileSync('node', ['--experimental-strip-types', '--no-warnings', path.join(__dirname, '../function/leisure.mjs'), date], { encoding: 'utf8' });
 (async () => {
   const b = await chromium.launch(); const errs = [];
   const ctx = await b.newContext({ viewport: { width: 1440, height: 900 } }); await install(ctx, '11111111-1111-1111-1111-111111111111');
+  // Origen 'supabase'
+  const config = fs.readFileSync(path.join(ROOT, 'js/config.js'), 'utf8');
+  ok(/leisure: \{ source: 'local' \}/.test(config), "configuración publicada: planes del fichero local (source: 'local')");
+  await ctx.route('**/js/config.js', (r) => r.fulfill({ contentType: 'text/javascript', body: config.replace("source: 'local'", "source: 'supabase'") }));
   let fail = false; const asked = [];
   await ctx.route('**/functions/v1/leisure-events', async (route) => {
     const { date } = route.request().postDataJSON(); asked.push(date);
@@ -58,7 +65,34 @@ const runFn = (date) => execFileSync('node', ['--experimental-strip-types', '--n
   // Si la agenda no responde
   fail = true; await p.fill('#f-date', '2026-11-28'); await p.click('#btn-leisure'); await p.waitForSelector('#leisure-status:not([hidden]):not(.is-loading)');
   ok((await p.textContent('#leisure-status-text')).startsWith('No se han podido consultar'), 'sin respuesta: aviso en la ventana');
-  await p.click('#leisure-close');
+  await p.click('#leisure-close'); await ctx.close();
+
+  // Origen 'local': el fichero generado desde la misma muestra (descargada el 01/11/2026)
+  const tmp = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'fp-leisure-')), 'leisure-events.json');
+  execFileSync('node', ['--experimental-strip-types', '--no-warnings', path.join(ROOT, 'tools/build-leisure-data.mjs'), path.join(ROOT, 'tests/function/fixtures/agenda-madrid.json'), tmp, '2026-11-01']);
+  const ctx2 = await b.newContext({ viewport: { width: 1440, height: 900 } }); await install(ctx2, '11111111-1111-1111-1111-111111111111');
+  let files = 0, missing = false;
+  await ctx2.route('**/data/leisure-events.json', (r) => { files++; return missing ? r.fulfill({ status: 404, body: '' }) : r.fulfill({ path: tmp }); });
+  let calls = 0; await ctx2.route('**/functions/v1/**', (r) => { calls++; r.abort(); });
+  const p2 = await ctx2.newPage(); p2.on('pageerror', (e) => errs.push(e.message));
+  await p2.goto(base + 'index.html#planner'); await p2.waitForSelector('#col1 .month'); await p2.waitForTimeout(800);
+  await p2.click('button.day[data-date="2026-11-21"]'); await p2.waitForTimeout(300); await p2.click('.slot[data-min="600"]'); await p2.waitForTimeout(300);
+  await p2.click('#btn-leisure'); await p2.waitForSelector('#leisure-list .plan');
+  ok((await p2.textContent('#leisure-filter-kids')) === 'Niños (5)' && (await p2.textContent('#leisure-filter-adults')) === 'Adultos (4)' && calls === 0, 'local: mismos planes que la función (Niños 5, Adultos 4) y sin llamar a Supabase');
+  ok((await p2.textContent('#leisure-foot')).endsWith('copia del 01/11/2026)'), 'local: el pie indica la fecha de la copia');
+  await p2.keyboard.press('Escape'); await p2.fill('#f-date', '2027-06-05'); await p2.click('#btn-leisure'); await p2.waitForSelector('#leisure-status:not([hidden]):not(.is-loading)');
+  ok((await p2.textContent('#leisure-status-text')) === 'No hay planes publicados para este día.' && files === 1, 'local: fecha sin planes avisa, y el fichero se descarga una sola vez');
+  await ctx2.close();
+  const ctx3 = await b.newContext(); await install(ctx3, '11111111-1111-1111-1111-111111111111'); missing = true;
+  await ctx3.route('**/data/leisure-events.json', (r) => r.fulfill({ status: 404, body: '' }));
+  const p3 = await ctx3.newPage(); p3.on('pageerror', (e) => errs.push(e.message));
+  await p3.goto(base + 'index.html#planner'); await p3.waitForSelector('#col1 .month'); await p3.waitForTimeout(800);
+  await p3.click('button.day[data-date="2026-11-21"]'); await p3.waitForTimeout(300); await p3.click('.slot[data-min="600"]'); await p3.waitForTimeout(300);
+  await p3.click('#btn-leisure'); await p3.waitForSelector('#leisure-status:not([hidden]):not(.is-loading)');
+  ok((await p3.textContent('#leisure-status-text')).startsWith('No se han podido consultar'), 'local: sin fichero, aviso en la ventana');
+  // El fichero publicado está bien formado
+  const real = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/leisure-events.json'), 'utf8'));
+  ok(/^\d{4}-\d{2}-\d{2}$/.test(real.downloaded) && Object.values(real.dates).every((d) => d.every((e) => e.title && 'kids' in e && !('until' in e))), `data/leisure-events.json: copia del ${real.downloaded}, ${Object.keys(real.dates).length} días`);
   ok(errs.length === 0, `errores JS: ${errs.length ? errs.join(' | ') : 'ninguno'}`);
   console.log(res.join('\n')); await b.close();
   process.exitCode = res.some((l) => l.startsWith('FALLO')) ? 1 : 0;
