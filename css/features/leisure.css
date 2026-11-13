@@ -5,8 +5,7 @@
    ========================================================== */
 
 /* ---------- Botón junto a "Cerrar" (sólo al crear una actividad) ---------- */
-.icon-btn.leisure-btn { color: #6d4ae0; }
-.icon-btn.leisure-btn:hover { background: #f1ecfd; }
+/* Mismo azul que el resto de botones de icono (--action, en css/base.css) */
 .icon-btn.leisure-btn svg { width: 20px; height: 20px; }
 
 /* ---------- Ventana ---------- */
