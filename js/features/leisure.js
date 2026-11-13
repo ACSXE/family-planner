@@ -7,7 +7,8 @@
  * Los planes salen de la agenda de eventos del Ayuntamiento de Madrid a través de la
  * función de Supabase "leisure-events" (supabase/functions/leisure-events/index.ts).
  * Cada día se pide una sola vez mientras la aplicación está abierta.
- * Filtro: "Para familias" (dirigidos a niños o familias, el de partida si hay alguno) o "Todos".
+ * Filtros: "Adultos", "Niños" (dirigidos a niños o familias) o "Todos" (el de partida); los eventos
+ * de varios días (exposiciones, ciclos…) se descartan salvo que se marque "Incluir los de varios días".
  */
 window.FP = window.FP || {};
 
@@ -45,7 +46,8 @@ FP.leisure = (() => {
   const cache = new Map();   // fecha → planes
   let request = 0;           // para descartar respuestas de una fecha anterior
   let plans = [];
-  let filter = 'family';
+  let filter = 'all';
+  let longOnes = false;   // incluir los eventos de varios días
   let lastFocus = null;
   let onUse = null;
 
@@ -64,7 +66,8 @@ FP.leisure = (() => {
   const fact = (label, value) => value ? [h('dt', null, label), h('dd', null, value)] : [];
 
   function row(p, iso) {
-    const when = [shortDate(iso), p.time || 'Horario en la web'].join(' · ');
+    // La fecha ya está en la cabecera: aquí solo la hora (inicio y fin si la agenda la trae)
+    const hour = p.time ? (p.end ? `${p.time} – ${p.end}` : p.time) : 'Por determinar';
     const li = h('li', { class: 'plan' },
       h('div', { class: `plan__img plan__img--${ICONS[p.kind] ? p.kind : 'otros'}` }, svg(ICONS[p.kind] || ICONS.otros)),
       h('div', { class: 'plan__main' },
@@ -75,15 +78,14 @@ FP.leisure = (() => {
         p.description ? h('p', { class: 'plan__desc' }, p.description) : null,
         p.description ? h('button', { class: 'plan__more', type: 'button', hidden: true }, 'Ver más') : null),
       h('dl', { class: 'plan__facts' },
-        fact('Fecha', when),
+        fact('Hora', hour),
         fact('Hasta', p.until ? shortDate(p.until) : ''),
         fact('Lugar', p.place),
         fact('Dirección', p.address),
-        fact('Precio', p.price),
-        fact('Accesibilidad', p.accessibility)),
+        fact('Precio', p.price)),
       h('div', { class: 'plan__actions' },
-        h('button', { class: 'btn btn--primary plan__use', type: 'button' }, 'Usar este plan'),
-        p.url ? h('a', { class: 'plan__link', href: p.url, target: '_blank', rel: 'noopener noreferrer' }, '+ información') : null));
+        p.url ? h('a', { class: 'plan__link', href: p.url, target: '_blank', rel: 'noopener noreferrer' }, '+ información') : null,
+        h('button', { class: 'btn btn--primary plan__use', type: 'button' }, 'Usar este plan')));
 
     const more = li.querySelector('.plan__more');
     more?.addEventListener('click', () => {
@@ -105,20 +107,26 @@ FP.leisure = (() => {
     $('leisure-filter').hidden = state !== 'list' && state !== 'empty';
   }
 
+  const FILTERS = { adults: (p) => p.adults, kids: (p) => p.kids, all: () => true };
+
   function render(iso) {
-    const family = plans.filter((p) => p.family);
-    const shown = filter === 'family' ? family : plans;
+    const pool = longOnes ? plans : plans.filter((p) => !p.until);
+    const shown = pool.filter(FILTERS[filter]);
     $('leisure-count').textContent = `Eventos (${shown.length})`;
-    $('leisure-filter-family').textContent = `Para familias (${family.length})`;
-    $('leisure-filter-all').textContent = `Todos (${plans.length})`;
-    for (const [id, value] of [['leisure-filter-family', 'family'], ['leisure-filter-all', 'all']]) {
-      $(id).setAttribute('aria-pressed', String(filter === value));
+    $('leisure-filter-adults').textContent = `Adultos (${pool.filter(FILTERS.adults).length})`;
+    $('leisure-filter-kids').textContent = `Niños (${pool.filter(FILTERS.kids).length})`;
+    $('leisure-filter-all').textContent = `Todos (${pool.length})`;
+    for (const value of Object.keys(FILTERS)) {
+      $(`leisure-filter-${value}`).setAttribute('aria-pressed', String(filter === value));
     }
+    $('leisure-long').checked = longOnes;
     const list = $('leisure-list');
     list.replaceChildren(...shown.map((p) => row(p, iso)));
     list.scrollTop = 0;
     if (!shown.length) {
-      setState('empty', plans.length ? 'No hay planes para familias este día. Prueba con «Todos».' : 'No hay planes publicados para este día.');
+      setState('empty', !plans.length ? 'No hay planes publicados para este día.'
+        : pool.length ? 'No hay planes de este tipo este día. Prueba con «Todos».'
+        : 'Este día solo hay eventos de varios días. Marca «Incluir los de varios días» para verlos.');
       return;
     }
     setState('list');
@@ -144,14 +152,15 @@ FP.leisure = (() => {
       const result = await load(iso);
       if (ticket !== request || $('leisure-dialog').hidden) return;
       plans = result;
-      filter = plans.some((p) => p.family) ? 'family' : 'all';
+      filter = 'all';
+      longOnes = false;
       render(iso);
     } catch (err) {
       if (ticket !== request) return;
       setState('error', err.message);
     }
-    $('leisure-filter-family').onclick = () => { filter = 'family'; render(iso); };
-    $('leisure-filter-all').onclick = () => { filter = 'all'; render(iso); };
+    for (const value of Object.keys(FILTERS)) $(`leisure-filter-${value}`).onclick = () => { filter = value; render(iso); };
+    $('leisure-long').onchange = (e) => { longOnes = e.target.checked; render(iso); };
   }
 
   function close() {

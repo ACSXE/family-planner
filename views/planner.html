@@ -150,9 +150,13 @@
         </div>
         <div class="leisure__toolbar">
           <span class="leisure__count" id="leisure-count">Eventos</span>
-          <div class="leisure__filter" id="leisure-filter" role="group" aria-label="Filtrar planes" hidden>
-            <button class="leisure__seg" id="leisure-filter-family" type="button" aria-pressed="true">Para familias</button>
-            <button class="leisure__seg" id="leisure-filter-all" type="button" aria-pressed="false">Todos</button>
+          <div class="leisure__filters" id="leisure-filter" hidden>
+            <label class="leisure__check"><input type="checkbox" id="leisure-long"> Incluir los de varios días</label>
+            <div class="leisure__filter" role="group" aria-label="Público">
+              <button class="leisure__seg" id="leisure-filter-adults" type="button" aria-pressed="false">Adultos</button>
+              <button class="leisure__seg" id="leisure-filter-kids" type="button" aria-pressed="false">Niños</button>
+              <button class="leisure__seg" id="leisure-filter-all" type="button" aria-pressed="true">Todos</button>
+            </div>
           </div>
         </div>
         <ul class="leisure__list" id="leisure-list" hidden></ul>

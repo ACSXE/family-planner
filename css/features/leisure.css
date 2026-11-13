@@ -89,8 +89,8 @@
 .plan__facts dt { color: var(--text-muted); }
 .plan__facts dd { margin: 0; color: var(--text); overflow-wrap: anywhere; }
 
-/* Acciones en su propia columna, a la derecha */
-.plan__actions { display: flex; flex-direction: column; align-items: stretch; gap: 8px; text-align: center; }
+/* Acciones abajo a la derecha de la fila: "+ información" encima de "Usar este plan" */
+.plan__actions { align-self: end; display: flex; flex-direction: column; align-items: stretch; gap: 8px; text-align: center; }
 .plan__link { font-size: 13px; color: var(--action); text-decoration: none; }
 .plan__link:hover { text-decoration: underline; }
 .plan__actions .btn { min-height: 32px; padding: 0 12px; font-size: 13px; }
@@ -100,7 +100,10 @@
   background: var(--surface-2); color: var(--text-muted); font-size: 12px; text-align: center;
 }
 
-/* Filtro "Para familias / Todos" */
+/* Filtros: casilla "varios días" y público "Adultos / Niños / Todos" */
+.leisure__filters { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.leisure__check { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-muted); cursor: pointer; }
+.leisure__check input { width: 16px; height: 16px; margin: 0; accent-color: var(--action); cursor: pointer; }
 .leisure__filter { display: inline-flex; padding: 2px; border: 1px solid var(--border-strong); border-radius: 999px; background: var(--surface); }
 .leisure__seg {
   min-height: 28px; padding: 0 12px; border: 0; border-radius: 999px; background: transparent; cursor: pointer;
@@ -129,5 +132,5 @@
   .plan__img { width: 56px; height: 56px; grid-row: auto; }
   .plan__img svg { width: 26px; height: 26px; }
   .plan__facts { grid-column: 1 / -1; }
-  .plan__actions { grid-column: 1 / -1; flex-direction: row-reverse; justify-content: flex-start; align-items: center; gap: 16px; }
+  .plan__actions { grid-column: 1 / -1; flex-direction: row; justify-content: flex-end; align-items: center; gap: 16px; }
 }

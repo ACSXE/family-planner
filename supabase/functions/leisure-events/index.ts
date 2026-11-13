@@ -26,14 +26,15 @@ export type Plan = {
   kind: string;          // familia de la imagen: teatro, musica, taller, exposicion, cine, aire, letras, otros
   type: string;          // tipo legible: "Cuentacuentos, títeres y marionetas"
   audience: string;      // "Infantil · Familias" ('' si no lo indica)
-  family: boolean;       // dirigido a niños o familias
+  kids: boolean;         // dirigido a niños o familias
+  adults: boolean;       // dirigido a adultos (o sin público indicado)
   description: string;
-  time: string;          // 'HH:MM' ('' si no tiene hora: horario en la web)
+  time: string;          // hora de inicio 'HH:MM' ('' si no la indica o es 00:00: por determinar)
+  end: string;           // hora de fin 'HH:MM' ('' si no la indica: la agenda casi nunca la trae)
   until: string;         // 'YYYY-MM-DD' si dura varios días ('' si es de un día)
   place: string;
   address: string;
   price: string;
-  accessibility: string; // "Accesible · Bucle magnético" ('' si no hay datos)
   url: string;
 };
 
@@ -88,11 +89,6 @@ const AUDIENCES: Record<string, string> = {
   Mujeres: 'Mujeres', Discapacitados: 'Personas con discapacidad', EstudianteseInvestigadores: 'Estudiantes e investigadores'
 };
 
-const ACCESSIBILITY: Record<string, string> = {
-  '0': 'No accesible', '1': 'Accesible', '2': 'Parcialmente accesible',
-  '4': 'Lengua de signos', '5': 'Señalización podotáctil', '6': 'Bucle magnético'
-};
-
 // ---------- Utilidades ----------
 const WEEKDAYS = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'];
 const clean = (s: unknown) => String(s ?? '').replace(/\s+/g, ' ').trim();
@@ -128,23 +124,26 @@ export function toPlan(e: any): Plan {
   const area = e.address?.area ?? {};
   const street = area['street-address'] ? titleCase(area['street-address']) : '';
   const city = area.locality ? titleCase(area.locality) : '';
-  const access = String(e.organization?.accesibility ?? '').split(',').map((a) => ACCESSIBILITY[a.trim()]).filter(Boolean);
   const url = /^https?:\/\/(www\.)?madrid\.es\//.test(e.link ?? '') ? String(e.link).replace(/^http:/, 'https:') : '';
   const start = dayOf(e.dtstart), end = dayOf(e.dtend);
+  const time = /^\d{1,2}:\d{2}$/.test(clean(e.time)) ? clean(e.time).padStart(5, '0') : '';
+  const endTime = String(e.dtend ?? '').slice(11, 16);   // 23:59 = sin hora de fin
+  const kidsAudience = ['Niños', 'Familias'];
   return {
     id: String(e.id ?? e.uid ?? ''),
     title: clean(e.title),
     kind: KIND_OF[typeKey] ?? 'otros',
     type: TYPE_LABELS[typeKey] ?? (typeKey ? splitWords(typeKey) : 'Actividad cultural'),
     audience: audiences.map((a) => AUDIENCES[a] ?? a).join(' · '),
-    family: audiences.some((a) => a === 'Niños' || a === 'Familias'),
+    kids: audiences.some((a) => kidsAudience.includes(a)),
+    adults: !audiences.length || audiences.some((a) => !kidsAudience.includes(a)),
     description: clean(e.description),
-    time: /^\d{1,2}:\d{2}$/.test(clean(e.time)) ? clean(e.time).padStart(5, '0') : '',
+    time: time === '00:00' ? '' : time,
+    end: time && time !== '00:00' && end === start && /^\d{2}:\d{2}$/.test(endTime) && endTime !== '23:59' && endTime > time ? endTime : '',
     until: end && end !== start ? end : '',
     place: clean(e['event-location'] || e.organization?.['organization-name']),
     address: [street, [area['postal-code'], city].filter(Boolean).join(' ')].filter(Boolean).join(', '),
     price: e.free === 1 || e.free === '1' ? 'Gratuito' : clean(e.price) || 'Consultar en la web',
-    accessibility: access.join(' · '),
     url
   };
 }

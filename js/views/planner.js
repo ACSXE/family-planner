@@ -615,10 +615,10 @@ FP.views.planner = (() => {
         onUse(p) {
           f.name.value = p.title.slice(0, 120);
           f.desc.value = [p.place, p.address, p.price && `Precio: ${p.price}`, p.url].filter(Boolean).join('\n').slice(0, 2000);
-          if (p.time) {   // la agenda solo da la hora de inicio: se propone 1 hora
+          if (p.time) {   // sin hora de fin en la agenda, se propone 1 hora
             const start = toMin(p.time);
             f.start.value = fromMin(start);
-            f.end.value = fromMin(Math.min(start + 60, 23 * 60 + 59));
+            f.end.value = p.end || fromMin(Math.min(start + 60, 23 * 60 + 59));
             state.slot = start;   // la franja marcada en la vista del día sigue a la hora del plan
             renderDay(false);
           }
