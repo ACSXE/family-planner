@@ -63,6 +63,20 @@ const runFn = (date) => execFileSync('node', ['--experimental-strip-types', '--n
   const lines = form[1].split('\n');
   ok(lines[0].startsWith('TALLER DE ENCUADERNACIÓN') && lines.slice(-4).join('|') === 'Lugar:|Imprenta Municipal. Artes del libro|Dirección:|Calle Concepcion Jeronima 15, 28012 Madrid', `descripción: texto del evento, "Lugar:" y "Dirección:" debajo (${JSON.stringify(lines.slice(-4))})`);
 
+  // Se guarda marcada como creada con un plan; Laura la ve con los destellos en "Creada por / Creada el"
+  await p.click('#f-attendees .chip:has-text("Alberto")'); await p.click('#btn-save'); await p.waitForTimeout(600);
+  const saved = JSON.parse(execFileSync('psql', ['-X', '-tA', '-c', "select json_agg(json_build_object('plan', from_plan, 'len', char_length(description))) from public.activities where name = 'CREA TUS PROPIOS LIBROS'"], { encoding: 'utf8' }));
+  ok(saved?.length === 1 && saved[0].plan === true, `guardada con from_plan = true (${JSON.stringify(saved)})`);
+  const ctxL = await b.newContext({ viewport: { width: 1440, height: 900 } }); await install(ctxL, '22222222-2222-2222-2222-222222222222');
+  const pl = await ctxL.newPage(); pl.on('pageerror', (e) => errs.push(e.message));
+  await pl.goto(base + 'index.html#planner'); await pl.waitForSelector('#col1 .month'); await pl.waitForTimeout(800);
+  await pl.click('button.day[data-date="2026-11-21"]'); await pl.waitForTimeout(300); await pl.click('.event:has-text("CREA TUS PROPIOS LIBROS")'); await pl.waitForTimeout(300);
+  ok(await pl.isVisible('#detail-owner .detail__plan') && (await pl.getAttribute('#detail-owner .detail__plan', 'title')) === 'Creada con Ocio y Tiempo Libre', 'Laura: destellos en "Creada por / Creada el"');
+  await pl.click('#close-detail'); await pl.click('button.day[data-date="2026-11-16"]'); await pl.waitForTimeout(300); await pl.click('.event:has-text("Médico")'); await pl.waitForTimeout(300);
+  ok(await pl.locator('#detail-owner .detail__plan').count() === 0, 'una actividad sin plan no lleva destellos');
+  await ctxL.close();
+  await p.click('#close-detail').catch(() => {}); await p.click('button.day[data-date="2026-11-21"]'); await p.waitForTimeout(300); await p.click('.slot[data-min="600"]'); await p.waitForTimeout(300);
+
   // Misma fecha: no se vuelve a pedir y la lista vuelve a empezar arriba; Escape cierra
   const n = asked.length; await p.click('#btn-leisure'); await p.waitForSelector('#leisure-list .plan');
   ok(asked.length === n, 'la misma fecha no se vuelve a pedir');

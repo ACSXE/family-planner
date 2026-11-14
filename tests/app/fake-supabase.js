@@ -18,7 +18,7 @@ function sql(stmt, sub) {
   }
 }
 
-const ACT = `select a.activity_id, a.name, a.description, a.date, a.start_time, a.end_time, a.created_by, a.created_at,
+const ACT = `select a.activity_id, a.name, a.description, a.date, a.start_time, a.end_time, a.created_by, a.created_at, a.from_plan,
   coalesce((select json_agg(json_build_object('member_id', x.member_id)) from public.activity_attendees x where x.activity_id = a.activity_id), '[]') as activity_attendees,
   coalesce((select json_agg(json_build_object('member_id', x.member_id)) from public.activity_companions x where x.activity_id = a.activity_id), '[]') as activity_companions
   from public.activities a`;
@@ -55,7 +55,7 @@ async function install(ctx, userId, log = []) {
       if (single && r.data) r.data = r.data[0];
     } else if (method === 'POST' && path === 'rpc/save_activity') {
       const b = req.postDataJSON();
-      r = sql(`select to_json(public.save_activity(${q(b.p_activity_id)}::uuid, ${q(b.p_name)}, ${q(b.p_description)}, ${q(b.p_date)}::date, ${q(b.p_start_time)}::time, ${q(b.p_end_time)}::time, ${arr(b.p_attendees)}, ${arr(b.p_companions)}))`, userId);
+      r = sql(`select to_json(public.save_activity(${q(b.p_activity_id)}::uuid, ${q(b.p_name)}, ${q(b.p_description)}, ${q(b.p_date)}::date, ${q(b.p_start_time)}::time, ${q(b.p_end_time)}::time, ${arr(b.p_attendees)}, ${arr(b.p_companions)}, ${b.p_from_plan === true}))`, userId);
       log.push({ rpc: b, result: r });
     } else if (method === 'DELETE' && path === 'activities') {
       const id = (p.get('activity_id') || '').replace(/^eq\./, '');

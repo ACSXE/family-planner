@@ -290,7 +290,8 @@ FP.views.planner = (() => {
       start: f.start.value,
       end: f.end.value,
       attendees: [...f.att.querySelectorAll('input:checked')].map((cb) => Number(cb.value)),
-      companions: f.companion.value ? f.companion.value.split(',').map(Number) : []
+      companions: f.companion.value ? f.companion.value.split(',').map(Number) : [],
+      fromPlan: Boolean(state.draft?.fromPlan)
     });
     const isDirty = () => (state.mode === 'new' || state.mode === 'edit') && JSON.stringify(readForm()) !== snapshot;
 
@@ -336,6 +337,13 @@ FP.views.planner = (() => {
       updateCompanionRequired();
     }
 
+    // Icono de destellos (el del botón de Ocio y Tiempo Libre) para las actividades creadas con "Usar este plan"
+    const sparkle = () => {
+      const icon = h('span', { class: 'detail__plan', title: 'Creada con Ocio y Tiempo Libre', role: 'img', 'aria-label': 'Creada con Ocio y Tiempo Libre' });
+      icon.append($('btn-leisure').querySelector('svg').cloneNode(true));
+      return icon;
+    };
+
     function setMode(mode) {
       state.mode = mode;
       const editable = mode === 'new' || mode === 'edit';
@@ -355,7 +363,8 @@ FP.views.planner = (() => {
         const created = state.draft.createdAt ? FP.time.formatDateOf(state.draft.createdAt) : '';
         owner.replaceChildren(
           h('span', null, h('strong', null, 'Creada por: '), name),
-          created ? h('span', null, h('strong', null, 'Creada el: '), created) : ''
+          created ? h('span', null, h('strong', null, 'Creada el: '), created) : '',
+          state.draft.fromPlan ? sparkle() : ''
         );
       }
       if (editable) snapshot = JSON.stringify(readForm());
@@ -614,11 +623,9 @@ FP.views.planner = (() => {
       FP.leisure.open(f.date.value || state.date, {
         onUse(p) {
           f.name.value = p.title.slice(0, 120);
-          // Descripción: el texto del evento y, debajo, el lugar y la dirección (máximo 2000 caracteres)
-          const where = [p.place && `Lugar:\n${p.place}`, p.address && `Dirección:\n${p.address}`].filter(Boolean).join('\n');
-          const room = 2000 - where.length - 1;
-          const text = p.description.length > room ? `${p.description.slice(0, room - 1)}…` : p.description;
-          f.desc.value = [text, where].filter(Boolean).join('\n');
+          state.draft.fromPlan = true;   // se guarda con la actividad: icono de destellos para los demás
+          // Descripción: el texto del evento y, debajo, el lugar y la dirección
+          f.desc.value = [p.description, p.place && `Lugar:\n${p.place}`, p.address && `Dirección:\n${p.address}`].filter(Boolean).join('\n');
           if (p.time) {   // sin hora de fin en la agenda, se propone 1 hora
             const start = toMin(p.time);
             f.start.value = fromMin(start);

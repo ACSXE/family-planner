@@ -61,6 +61,7 @@ fresh_db() {
   done
   # 006: la parte de pg_net solo existe en Supabase; aquí se aplica la de rls_auto_enable()
   sed '/^-- 2\. pg_net/,$d' "$MIG/006_advisor_fixes.sql" | "${PSQL[@]}" >/dev/null || { echo "falla la migración 006"; return 1; }
+  "${PSQL[@]}" -f "$MIG/007_activities_from_plan.sql" >/dev/null || { echo "falla la migración 007"; return 1; }
   if [ "${1:-}" = extra ]; then "${PSQL[@]}" -f "$TESTS/db/seed_extra.sql" >/dev/null || return 1; fi
 }
 
@@ -74,7 +75,7 @@ report() {   # $1 título, $2 salida de la prueba
 }
 
 echo "== Base de datos"
-for t in access_rules users_settings user_formats members_only; do
+for t in access_rules users_settings user_formats members_only from_plan; do
   fresh_db || exit 1
   out=$("${PSQL[@]}" -f "$TESTS/db/$t.test.sql" 2>&1 | grep -oE '(OK   |FALLO).*|ERROR.*' | sed 's/^ERROR/FALLO ERROR/')
   report "db/$t" "$out"

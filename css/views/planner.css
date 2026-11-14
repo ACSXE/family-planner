@@ -136,7 +136,11 @@
   margin: 0 0 16px; padding: 10px 12px; border-radius: var(--radius-sm);
   background: var(--primary-soft); color: var(--text); font-size: var(--field-font-size);
 }
+.detail__owner { position: relative; }
 .detail__owner[hidden] { display: none; }
+/* Creada con "Usar este plan" (Ocio y Tiempo Libre): destellos pequeños arriba a la derecha */
+.detail__plan { position: absolute; top: 8px; right: 10px; display: grid; color: var(--primary); }
+.detail__plan svg { width: 16px; height: 16px; }
 .detail__owner strong { font-weight: 600; }
 .detail.is-readonly .field input:not([type=checkbox]), .detail.is-readonly .field textarea, .detail.is-readonly .field select {
   background: var(--surface-2); color: var(--text); opacity: 1; -webkit-text-fill-color: var(--text);

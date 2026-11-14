@@ -8,7 +8,8 @@
  *
  * Formato de una actividad en la aplicación (los miembros son member_id numéricos):
  *   { id, name, description, date: 'YYYY-MM-DD', start: 'HH:MM', end: 'HH:MM',
- *     attendees: [1, 4], companions: [2], createdBy: 1, createdAt: '2026-11-09T18:20:00+00:00' }
+ *     attendees: [1, 4], companions: [2], createdBy: 1, createdAt: '2026-11-09T18:20:00+00:00', fromPlan: false }
+ *   fromPlan: creada con "Usar este plan" de Ocio y Tiempo Libre (migración 007; solo cuenta al crear)
  *
  *   await FP.storage.list()            → todas las actividades, por fecha y hora
  *   await FP.storage.create(activity)  → la actividad creada
@@ -20,7 +21,7 @@
 window.FP = window.FP || {};
 
 FP.storage = (() => {
-  const COLUMNS = 'activity_id, name, description, date, start_time, end_time, created_by, created_at, ' +
+  const COLUMNS = 'activity_id, name, description, date, start_time, end_time, created_by, created_at, from_plan, ' +
     'activity_attendees(member_id), activity_companions(member_id)';
 
   const ids = (rows) => (rows || []).map((r) => r.member_id).sort((a, b) => a - b);
@@ -35,7 +36,8 @@ FP.storage = (() => {
     attendees: ids(r.activity_attendees),
     companions: ids(r.activity_companions),
     createdBy: r.created_by,
-    createdAt: r.created_at
+    createdAt: r.created_at,
+    fromPlan: Boolean(r.from_plan)
   });
 
   // Errores de save_activity(): las reglas de la base de datos traen su propio mensaje
@@ -55,7 +57,8 @@ FP.storage = (() => {
       p_start_time: a.start,
       p_end_time: a.end,
       p_attendees: a.attendees,
-      p_companions: a.companions
+      p_companions: a.companions,
+      p_from_plan: !a.id && Boolean(a.fromPlan)
     });
     if (error) throw saveError(error);
     const { data, error: readError } = await FP.db.from('activities').select(COLUMNS).eq('activity_id', id).single();
