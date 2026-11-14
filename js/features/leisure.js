@@ -55,7 +55,7 @@ FP.leisure = (() => {
 
   // Pie: hasta qué día hay planes en la agenda
   const setUntil = (iso) => {
-    if (/^\d{4}-\d{2}-\d{2}$/.test(iso || '')) $('leisure-foot').textContent = `Fuente: Agenda de eventos culturales del Ayuntamiento de Madrid (hasta el ${iso.split('-').reverse().join('/')})`;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(iso || '')) $('leisure-foot').textContent = `Fuente: Agenda de eventos culturales del Ayuntamiento de Madrid (actualizada hasta el ${iso.split('-').reverse().join('/')})`;
   };
 
   async function load(iso) {

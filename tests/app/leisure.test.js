@@ -35,7 +35,7 @@ const runFn = (date) => execFileSync('node', ['--experimental-strip-types', '--n
   await p.click('#btn-leisure'); await p.waitForSelector('#leisure-list .plan');
   ok(asked.at(-1) === '2026-11-21', `pide los planes de la fecha del formulario (${asked.at(-1)})`);
   ok((await p.textContent('#leisure-date')) === 'sábado, 21 de noviembre de 2026', 'cabecera con la fecha larga');
-  ok((await p.textContent('#leisure-foot')).endsWith('(hasta el 22/11/2026)'), 'supabase: el pie indica hasta cuándo hay planes');
+  ok((await p.textContent('#leisure-foot')).endsWith('(actualizada hasta el 22/11/2026)'), 'supabase: el pie indica hasta cuándo hay planes');
   const count = async () => p.locator('#leisure-list .plan').count();
   ok((await count()) === 5 && (await p.getAttribute('#leisure-filter-kids', 'aria-pressed')) === 'true', 'de partida, "Niños": 5 planes (sin los de varios días)');
   ok((await p.textContent('#leisure-filter-kids')) === 'Niños (5)' && (await p.textContent('#leisure-filter-adults')) === 'Adultos (4)' && await p.locator('#leisure-filter-all, #leisure-long').count() === 0, 'solo dos filtros: Niños (5) y Adultos (4)');
@@ -103,7 +103,7 @@ const runFn = (date) => execFileSync('node', ['--experimental-strip-types', '--n
   await p2.click('button.day[data-date="2026-11-21"]'); await p2.waitForTimeout(300); await p2.click('.slot[data-min="600"]'); await p2.waitForTimeout(300);
   await p2.click('#btn-leisure'); await p2.waitForSelector('#leisure-list .plan');
   ok((await p2.textContent('#leisure-filter-kids')) === 'Niños (5)' && (await p2.textContent('#leisure-filter-adults')) === 'Adultos (4)' && calls === 0, 'local: mismos planes que la función (Niños 5, Adultos 4) y sin llamar a Supabase');
-  ok((await p2.textContent('#leisure-foot')) === 'Fuente: Agenda de eventos culturales del Ayuntamiento de Madrid (hasta el 22/11/2026)', `local: el pie indica hasta cuándo hay planes ("${await p2.textContent('#leisure-foot')}")`);
+  ok((await p2.textContent('#leisure-foot')) === 'Fuente: Agenda de eventos culturales del Ayuntamiento de Madrid (actualizada hasta el 22/11/2026)', `local: el pie indica hasta cuándo hay planes ("${await p2.textContent('#leisure-foot')}")`);
   await p2.keyboard.press('Escape'); await p2.fill('#f-date', '2027-06-05'); await p2.click('#btn-leisure'); await p2.waitForSelector('#leisure-status:not([hidden]):not(.is-loading)');
   ok((await p2.textContent('#leisure-status-text')) === 'No hay planes publicados para este día.' && files === 1, 'local: fecha sin planes avisa, y el fichero se descarga una sola vez');
   await ctx2.close();
