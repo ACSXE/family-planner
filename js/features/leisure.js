@@ -51,7 +51,11 @@ FP.leisure = (() => {
   let onUse = null;
 
   const LOCAL_FILE = 'data/leisure-events.json';
-  const SLOW_MS = 8000;   // a partir de aquí, aviso de que la agenda tarda
+  // Si tarda: a los 8 s el texto pasa a SLOW_TEXT y luego alterna con SEARCH_TEXT cada 5 s hasta que llegan los planes
+  const SLOW_MS = 8000;
+  const ALTERNATE_MS = 5000;
+  const SEARCH_TEXT = 'Buscando planes…';
+  const SLOW_TEXT = 'La agenda está tardando en cargar un poco más de lo normal…';
   let localData = null;   // el fichero local se descarga una sola vez
 
   // Pie: hasta qué día hay planes en la agenda
@@ -171,15 +175,17 @@ FP.leisure = (() => {
     $('leisure-date').textContent = longDate(iso);
     $('leisure-count').textContent = 'Eventos';
     $('leisure-list').replaceChildren();
-    setState('loading', 'Buscando planes…');
+    setState('loading', SEARCH_TEXT);
     $('leisure-dialog').hidden = false;
     $('leisure-dialog').querySelector('.modal__box').focus();
-    // Si Madrid tarda en entregar la agenda, se avisa de que sigue buscando
-    const slow = setTimeout(() => {
-      if (ticket === request && $('leisure-status').classList.contains('is-loading')) {
-        $('leisure-status-text').textContent = 'Buscando planes… La agenda de Madrid está tardando un poco más de lo normal.';
-      }
-    }, SLOW_MS);
+    // Si la agenda tarda, el texto alterna entre el aviso y "Buscando planes…"
+    let alternate = 0;
+    const toggle = () => {
+      if (ticket !== request || !$('leisure-status').classList.contains('is-loading')) return;
+      const text = $('leisure-status-text');
+      text.textContent = text.textContent === SLOW_TEXT ? SEARCH_TEXT : SLOW_TEXT;
+    };
+    const slow = setTimeout(() => { toggle(); alternate = setInterval(toggle, ALTERNATE_MS); }, SLOW_MS);
     try {
       const result = await load(iso);
       if (ticket !== request || $('leisure-dialog').hidden) return;
@@ -191,6 +197,7 @@ FP.leisure = (() => {
       setState('error', err.message);
     } finally {
       clearTimeout(slow);
+      clearInterval(alternate);
     }
     for (const value of Object.keys(FILTERS)) $(`leisure-filter-${value}`).onclick = () => { filter = value; render(iso); };
   }
