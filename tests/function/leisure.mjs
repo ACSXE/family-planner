@@ -9,7 +9,7 @@ const ENV = { SUPABASE_URL: 'https://local.supabase', ...(globalThis.LEISURE_NO_
 const fixture = fs.readFileSync(new URL('./fixtures/agenda-madrid.json', import.meta.url), 'utf8');
 let handler;
 globalThis.Deno = { env: { get: (k) => ENV[k] }, serve: (h) => { handler = h; } };
-export const stats = { agenda: 0 }; let agendaFail = false;
+export const stats = { agenda: 0 }; let agendaFail = 0;   // descargas que fallarán (Infinity = todas)
 globalThis.fetch = async (url, init = {}) => {
   url = String(url);
   if (url === ENV.SUPABASE_URL + '/auth/v1/user') {
@@ -18,12 +18,13 @@ globalThis.fetch = async (url, init = {}) => {
   }
   if (url === AGENDA) {
     stats.agenda++;
-    return agendaFail ? new Response('caído', { status: 503 }) : new Response(fixture, { headers: { 'Content-Type': 'application/json' } });
+    if (agendaFail > 0) { agendaFail--; return new Response('caído', { status: 503 }); }
+    return new Response(fixture, { headers: { 'Content-Type': 'application/json' } });
   }
   return new Response('sin red en las pruebas', { status: 599 });
 };
 export const mod = await import(fnPath);
-export const setAgendaFail = (v) => { agendaFail = v; };
+export const setAgendaFail = (v) => { agendaFail = v === true ? Infinity : v || 0; };
 export async function call(body, { token = 'token-ok', method = 'POST', apikey = 'sb_publishable_test' } = {}) {
   const headers = { ...(token ? { Authorization: `Bearer ${token}` } : {}), ...(apikey ? { apikey } : {}) };
   const res = await handler(new Request('http://fn', { method, headers, body: method === 'POST' ? JSON.stringify(body) : undefined }));

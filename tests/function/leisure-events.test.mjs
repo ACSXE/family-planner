@@ -9,8 +9,11 @@ try {
   ok(pre.status === 200 && pre.headers.get('access-control-allow-origin') === '*', 'responde a la comprobación CORS del navegador');
   ok((await call({ date: '21/11/2026' })).status === 400 && (await call({})).status === 400, 'fecha mal escrita o sin fecha: 400');
 
-  // Eventos del sábado 21/11/2026 (muestra real de la agenda)
+  // Eventos del sábado 21/11/2026 (muestra real de la agenda). La primera descarga falla: se reintenta
+  console.error = console.warn = () => {};
+  setAgendaFail(1);
   const r = await call({ date: '2026-11-21' });
+  ok(r.status === 200 && stats.agenda === 2, `si la primera descarga de Madrid falla, se reintenta (${stats.agenda} descargas)`);
   const ev = r.body.events; const t = (s) => ev.find((e) => e.title.startsWith(s));
   ok(r.body.until === '2026-11-22', `último día con planes en la agenda: ${r.body.until}`);
   ok(r.status === 200 && ev.length === 9, `21/11/2026: 9 eventos de un solo día (${ev.length})`);

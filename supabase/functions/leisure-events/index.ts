@@ -163,21 +163,36 @@ export function plansFor(events: unknown[], date: string): Plan[] {
 // ---------- Agenda de Madrid (en memoria unas horas) ----------
 let cache: { at: number; events: unknown[] } | null = null;
 
+// Madrid a veces tarda en generar la agenda (unos 2,5 MB): hasta 40 s por intento y un reintento.
+// En total queda por debajo del límite de tiempo de las edge functions (150 s).
+const ATTEMPTS = 2;
+const TIMEOUT_MS = 40000;
+
+async function download(): Promise<unknown[]> {
+  const res = await fetch(AGENDA_URL, { signal: AbortSignal.timeout(TIMEOUT_MS) });
+  if (!res.ok) throw new Error(`Agenda ${res.status}`);
+  // Algunas descripciones traen caracteres de control que JSON no admite
+  const text = (await res.text()).replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, ' ');
+  const events = JSON.parse(text)['@graph'];
+  if (!Array.isArray(events)) throw new Error('Agenda sin @graph');
+  return events;
+}
+
 async function agenda(): Promise<unknown[]> {
   if (cache && Date.now() - cache.at < CACHE_MS) return cache.events;
-  try {
-    const res = await fetch(AGENDA_URL, { signal: AbortSignal.timeout(20000) });
-    if (!res.ok) throw new Error(`Agenda ${res.status}`);
-    // Algunas descripciones traen caracteres de control que JSON no admite
-    const text = (await res.text()).replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, ' ');
-    const events = JSON.parse(text)['@graph'];
-    if (!Array.isArray(events)) throw new Error('Agenda sin @graph');
-    cache = { at: Date.now(), events };
-    return events;
-  } catch (err) {
-    if (cache) return cache.events;   // mejor la copia anterior que nada
-    throw err;
+  let lastError: unknown;
+  for (let attempt = 1; attempt <= ATTEMPTS; attempt++) {
+    try {
+      const events = await download();
+      cache = { at: Date.now(), events };
+      return events;
+    } catch (err) {
+      lastError = err;
+      console.warn(`Agenda de Madrid: intento ${attempt} de ${ATTEMPTS} fallido:`, err);
+    }
   }
+  if (cache) return cache.events;   // mejor la copia anterior que nada
+  throw lastError;
 }
 
 // ---------- Petición ----------

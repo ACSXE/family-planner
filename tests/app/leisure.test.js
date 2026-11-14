@@ -15,9 +15,10 @@ const runFn = (date) => execFileSync('node', ['--experimental-strip-types', '--n
   // Origen 'supabase'
   const config = fs.readFileSync(path.join(ROOT, 'js/config.js'), 'utf8');
   ok(/leisure: \{ source: 'supabase' \}/.test(config), "configuración publicada: planes de la edge function (source: 'supabase')");
-  let fail = false; const asked = [];
+  let fail = false, delay = 0; const asked = [];
   await ctx.route('**/functions/v1/leisure-events', async (route) => {
     const { date } = route.request().postDataJSON(); asked.push(date);
+    if (delay) await new Promise((r) => setTimeout(r, delay));
     if (fail) return route.fulfill({ status: 502, json: { error: 'No se ha podido consultar la agenda de Madrid' } });
     route.fulfill({ status: 200, contentType: 'application/json', body: runFn(date) });
   });
@@ -86,8 +87,25 @@ const runFn = (date) => execFileSync('node', ['--experimental-strip-types', '--n
   await p.keyboard.press('Escape'); ok(await p.isHidden('#leisure-dialog'), 'Escape cierra la ventana');
 
   // Si la agenda no responde
-  fail = true; await p.fill('#f-date', '2026-11-28'); await p.click('#btn-leisure'); await p.waitForSelector('#leisure-status:not([hidden]):not(.is-loading)');
-  ok((await p.textContent('#leisure-status-text')).startsWith('No se han podido consultar'), 'sin respuesta: aviso en la ventana');
+  // Si tarda, se avisa sin dejar de buscar
+  delay = 9500; await p.fill('#f-date', '2026-11-22'); await p.click('#btn-leisure'); await p.waitForTimeout(8600);
+  ok((await p.textContent('#leisure-status-text')).includes('está tardando') && await p.isVisible('#leisure-status .leisure__loader'), 'si tarda más de 8 s: aviso de que la agenda de Madrid está tardando');
+  await p.waitForSelector('#leisure-list .plan'); delay = 0;
+  ok((await p.locator('#leisure-list .plan').count()) > 0, 'y al llegar, los planes');
+  await p.keyboard.press('Escape');
+
+  // Si la función falla, se usa la copia local de respaldo (data/leisure-events.json, la publicada)
+  fail = true; await p.fill('#f-date', '2026-11-28'); await p.click('#btn-leisure'); await p.waitForSelector('#leisure-list .plan');
+  const copy = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/leisure-events.json'), 'utf8'));
+  const copyUntil = Object.keys(copy.dates).sort().at(-1).split('-').reverse().join('/');
+  ok((await p.locator('#leisure-list .plan').count()) === (copy.dates['2026-11-28'] || []).filter((e) => e.kids).length && (await p.textContent('#leisure-foot')).endsWith(`(actualizada hasta el ${copyUntil})`), `la función falla: planes de la copia local y su fecha en el pie (${copyUntil})`);
+  await p.keyboard.press('Escape');
+  // Si fallan la función y la copia: aviso
+  await ctx.route('**/data/leisure-events.json', (r) => r.fulfill({ status: 404, body: '' }));
+  await p.evaluate(() => location.reload()); await p.waitForSelector('#col1 .month'); await p.waitForTimeout(800);
+  await p.click('button.day[data-date="2026-11-21"]'); await p.waitForTimeout(300); await p.click('.slot[data-min="600"]'); await p.waitForTimeout(300);
+  await p.click('#btn-leisure'); await p.waitForSelector('#leisure-status:not([hidden]):not(.is-loading)');
+  ok((await p.textContent('#leisure-status-text')).startsWith('No se han podido consultar'), 'sin función ni copia: aviso en la ventana');
   await p.click('#leisure-close'); await ctx.close();
 
   // Origen 'local': el fichero generado desde la misma muestra (descargada el 01/11/2026)

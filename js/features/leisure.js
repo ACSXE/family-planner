@@ -51,6 +51,7 @@ FP.leisure = (() => {
   let onUse = null;
 
   const LOCAL_FILE = 'data/leisure-events.json';
+  const SLOW_MS = 8000;   // a partir de aquí, aviso de que la agenda tarda
   let localData = null;   // el fichero local se descarga una sola vez
 
   // Pie: hasta qué día hay planes en la agenda
@@ -60,29 +61,32 @@ FP.leisure = (() => {
 
   async function load(iso) {
     if (cache.has(iso)) return cache.get(iso);
-    if (FP_CONFIG.leisure?.source !== 'supabase') {
-      if (!localData) {
-        const res = await fetch(LOCAL_FILE).catch(() => null);
-        localData = res?.ok ? await res.json().catch(() => null) : null;
-        if (!localData?.dates) {
-          localData = null;
-          throw new Error('No se han podido consultar los planes. Inténtalo de nuevo más tarde.');
-        }
-        // Pie: hasta qué día hay planes en la copia
-        setUntil(Object.keys(localData.dates).sort().at(-1));
-      }
-      const events = localData.dates[iso] || [];
-      cache.set(iso, events);
-      return events;
-    }
+    if (FP_CONFIG.leisure?.source !== 'supabase') return loadLocal(iso);
     const { data, error } = await FP.db.functions.invoke('leisure-events', { body: { date: iso } });
     if (error || !Array.isArray(data?.events)) {
-      console.error(error || data);
-      throw new Error('No se han podido consultar los planes. Inténtalo de nuevo más tarde.');
+      // La función no ha podido (p. ej. Madrid no responde): se usa la copia local de respaldo
+      console.warn('Ocio y Tiempo Libre: la función no responde, se usa la copia local', error || data);
+      return loadLocal(iso);
     }
     if (data.until) setUntil(data.until);
     cache.set(iso, data.events);
     return data.events;
+  }
+
+  // Copia local (data/leisure-events.json): origen 'local' o respaldo si la función falla
+  async function loadLocal(iso) {
+    if (!localData) {
+      const res = await fetch(LOCAL_FILE).catch(() => null);
+      localData = res?.ok ? await res.json().catch(() => null) : null;
+      if (!localData?.dates) {
+        localData = null;
+        throw new Error('No se han podido consultar los planes. Inténtalo de nuevo más tarde.');
+      }
+    }
+    setUntil(Object.keys(localData.dates).sort().at(-1));   // pie: hasta qué día hay planes en la copia
+    const events = localData.dates[iso] || [];
+    cache.set(iso, events);
+    return events;
   }
 
   // Fila de datos: se omite si no hay valor
@@ -170,6 +174,12 @@ FP.leisure = (() => {
     setState('loading', 'Buscando planes…');
     $('leisure-dialog').hidden = false;
     $('leisure-dialog').querySelector('.modal__box').focus();
+    // Si Madrid tarda en entregar la agenda, se avisa de que sigue buscando
+    const slow = setTimeout(() => {
+      if (ticket === request && $('leisure-status').classList.contains('is-loading')) {
+        $('leisure-status-text').textContent = 'Buscando planes… La agenda de Madrid está tardando un poco más de lo normal.';
+      }
+    }, SLOW_MS);
     try {
       const result = await load(iso);
       if (ticket !== request || $('leisure-dialog').hidden) return;
@@ -179,6 +189,8 @@ FP.leisure = (() => {
     } catch (err) {
       if (ticket !== request) return;
       setState('error', err.message);
+    } finally {
+      clearTimeout(slow);
     }
     for (const value of Object.keys(FILTERS)) $(`leisure-filter-${value}`).onclick = () => { filter = value; render(iso); };
   }
