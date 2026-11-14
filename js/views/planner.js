@@ -226,7 +226,10 @@ FP.views.planner = (() => {
         const band = (i) => `${(i * 100 / n).toFixed(2)}% ${((i + 1) * 100 / n).toFixed(2)}%`;
         const multi = n > 1
           ? `;--split:linear-gradient(to right, ${colors.map((c, i) => `color-mix(in srgb, ${c} 14%, #fff) ${band(i)}`).join(', ')})` +
-            `;--split-hover:linear-gradient(to right, ${colors.map((c, i) => `color-mix(in srgb, ${c} 24%, #fff) ${band(i)}`).join(', ')})`
+            `;--split-hover:linear-gradient(to right, ${colors.map((c, i) => `color-mix(in srgb, ${c} 24%, #fff) ${band(i)}`).join(', ')})` +
+            // Borde por tramos, del color de cada banda: suave normalmente, intenso al seleccionarla
+            `;--edge:linear-gradient(to right, ${colors.map((c, i) => `color-mix(in srgb, ${c} 35%, #fff) ${band(i)}`).join(', ')})` +
+            `;--edge-strong:linear-gradient(to right, ${colors.map((c, i) => `${c} ${band(i)}`).join(', ')})`
           : '';
         const top = (it.s / 60) * HOUR_PX;
         const height = Math.max(((it.en - it.s) / 60) * HOUR_PX - 2, 20);

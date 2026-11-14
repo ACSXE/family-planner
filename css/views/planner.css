@@ -180,7 +180,29 @@
 
 /* Varios asistentes: el fondo se reparte en bandas con el color de cada uno y la barra
    lateral lleva el color del primero (el de la banda de la izquierda), como en las de un asistente.
+   El borde también va por tramos, cada uno del color de su banda (suave; intenso y más grueso al
+   seleccionarla, como el anillo de las de un asistente). Se dibuja con fondos: capa de arriba,
+   las bandas (dentro del borde); debajo, la barra lateral y el borde por tramos.
    Las variables las calcula js/views/planner.js. */
-.event--multi { border: 1px solid var(--border-strong); border-left: 4px solid var(--c); background: var(--split); }
-.event--multi:hover { background: var(--split-hover); }
-.event--multi.is-selected { box-shadow: 0 0 0 2px var(--text-muted); }
+.event--multi {
+  border: 1px solid transparent; border-left-width: 4px;
+  background:
+    var(--split) padding-box,
+    linear-gradient(var(--c), var(--c)) left / 4px 100% no-repeat border-box,
+    var(--edge) border-box;
+}
+.event--multi:hover {
+  background:
+    var(--split-hover) padding-box,
+    linear-gradient(var(--c), var(--c)) left / 4px 100% no-repeat border-box,
+    var(--edge) border-box;
+}
+.event--multi.is-selected {
+  box-shadow: none; border-width: 2px; border-left-width: 4px;
+  padding-top: 3px; padding-bottom: 3px; padding-right: 7px;   /* el borde crece 1 px: el texto no se mueve */
+  background:
+    var(--split) padding-box,
+    linear-gradient(var(--c), var(--c)) left / 4px 100% no-repeat border-box,
+    var(--edge-strong) border-box;
+}
+.event--multi.is-selected.event--short { padding-top: 0; padding-bottom: 0; }
