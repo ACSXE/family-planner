@@ -55,7 +55,7 @@ FP.leisure = (() => {
   const SLOW_MS = 8000;
   const ALTERNATE_MS = 5000;
   const SEARCH_TEXT = 'Buscando planes…';
-  const SLOW_TEXT = 'La agenda está tardando en cargar un poco más de lo normal…';
+  const SLOW_TEXT = 'La agenda está tardando en cargar un poco mas de lo normal…';
   let localData = null;   // el fichero local se descarga una sola vez
 
   // Pie: hasta qué día hay planes en la agenda

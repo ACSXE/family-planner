@@ -92,7 +92,7 @@ const runFn = (date) => execFileSync('node', ['--experimental-strip-types', '--n
   delay = 14500; await p.fill('#f-date', '2026-11-22'); await p.click('#btn-leisure'); await p.waitForTimeout(500);
   ok((await status()) === 'Buscando planes…', 'al abrir: "Buscando planes…"');
   await p.waitForTimeout(8100);
-  ok((await status()) === 'La agenda está tardando en cargar un poco más de lo normal…' && await p.isVisible('#leisure-status .leisure__loader'), 'a los 8 s: "La agenda está tardando en cargar un poco más de lo normal…"');
+  ok((await status()) === 'La agenda está tardando en cargar un poco mas de lo normal…' && await p.isVisible('#leisure-status .leisure__loader'), 'a los 8 s: "La agenda está tardando en cargar un poco mas de lo normal…"');
   await p.waitForTimeout(5000);
   ok((await status()) === 'Buscando planes…', 'a los 13 s, otra vez "Buscando planes…" (va alternando)');
   await p.waitForSelector('#leisure-list .plan'); delay = 0;
