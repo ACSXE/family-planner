@@ -1,28 +1,30 @@
 /*
- * Family Planner · edge function "leisure-events": planes de ocio para un día.
+ * Family Planner · edge function "leisure-events": guarda la agenda de ocio en la base de datos.
  *
- * La llama la ventana "Ocio y Tiempo Libre" de la pantalla Calendario (js/features/leisure.js).
+ * La llama el cron cada madrugada (supabase/cron/leisure_refresh_cron.sql), no la aplicación.
  * Descarga la agenda de eventos culturales del Ayuntamiento de Madrid (datos abiertos,
  * https://datos.madrid.es/dataset/206974-0-agenda-eventos-culturales-100), se queda con los
- * eventos de un solo día que se celebran ese día (los de varios días, como exposiciones o ciclos,
- * se descartan: no se agendan como actividad) y devuelve solo los datos que muestra la ventana.
- * La agenda se guarda en memoria unas horas para no descargarla en cada petición.
+ * eventos de un solo día (los de varios días, como exposiciones o ciclos, se descartan: no se
+ * agendan como actividad), prepara los planes de cada día desde hoy con los datos que muestra la
+ * ventana "Ocio y Tiempo Libre" y los guarda en la tabla leisure_days (migración 008) de una vez.
+ * Si Madrid no responde (tras los reintentos), la tabla no se toca: sigue la agenda anterior.
+ * La ventana lee la tabla con leisure_day() (js/features/leisure.js).
  *
- * Solo responde a usuarios con sesión iniciada (comprueba el token con Supabase Auth).
- * En Supabase se despliega con "Verify JWT" DESACTIVADO: si no, la comprobación CORS del navegador
- * (OPTIONS, sin token) se rechaza antes de llegar aquí. La sesión la comprueba esta función.
- * No necesita secretos: SUPABASE_URL (y SUPABASE_ANON_KEY, si existe) los pone Supabase automáticamente;
- * si no hay SUPABASE_ANON_KEY se usa la clave pública que envía la aplicación (cabecera apikey).
+ * Solo responde con la cabecera x-cron-secret (el mismo CRON_SECRET que el aviso semanal).
+ * Se despliega con "Verify JWT" desactivado (la protege x-cron-secret).
+ * Secretos: CRON_SECRET (ya existe). SUPABASE_URL y SUPABASE_SERVICE_ROLE_KEY los pone Supabase.
  * Opcional: AGENDA_URL para usar otra dirección de la agenda (mismo formato).
  *
- * Petición:  POST { "date": "2026-11-21" }
- * Respuesta: { "date": "2026-11-21", "until": "2027-02-17", "events": [Plan, …] }   until = último día con planes en la agenda;   ordenados por hora (los de hora por determinar al final)
+ * Petición:  POST {}                          descarga y guarda
+ *            POST { "dry_run": true }         descarga y cuenta, sin guardar (para probar)
+ *            POST { "from": "2026-11-21" }    guarda desde ese día en vez de desde hoy (pruebas)
+ * Respuesta: { "days": 64, "plans": 931, "from": "2026-11-15", "until": "2027-02-17", "saved": true }
  */
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? '';
-const ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
+const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+const CRON_SECRET = Deno.env.get('CRON_SECRET') ?? '';
 const AGENDA_URL = Deno.env.get('AGENDA_URL') ?? 'https://datos.madrid.es/egob/catalogo/206974-0-agenda-eventos-culturales-100.json';
-const CACHE_MS = 3 * 60 * 60 * 1000;   // 3 horas
 
 export type Plan = {
   id: string;
@@ -152,21 +154,27 @@ export function toPlan(e: any): Plan {
 // deno-lint-ignore no-explicit-any
 export const oneDay = (e: any) => dayOf(e.dtstart) === (dayOf(e.dtend) || dayOf(e.dtstart));
 
-// Último día con algún evento de un solo día (para el pie de la ventana)
-export const lastDay = (events: unknown[]) => events.filter(oneDay).map((e) => dayOf((e as { dtstart?: string }).dtstart)).sort().at(-1) ?? '';
-
 export function plansFor(events: unknown[], date: string): Plan[] {
   return events.filter((e) => oneDay(e) && happensOn(e, date)).map(toPlan)
     .sort((a, b) => (a.time || '99').localeCompare(b.time || '99') || a.title.localeCompare(b.title, 'es'));
 }
 
-// ---------- Agenda de Madrid (en memoria unas horas) ----------
-let cache: { at: number; events: unknown[] } | null = null;
+// Planes de cada día con eventos, desde "from" (incluido): { "2026-11-21": [Plan, …], … }
+export function daysFrom(events: unknown[], from: string): Record<string, Plan[]> {
+  const dates = [...new Set(events.filter(oneDay).map((e) => dayOf((e as { dtstart?: string }).dtstart)))]
+    .filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d) && d >= from).sort();
+  return Object.fromEntries(dates.map((d) => [d, plansFor(events, d)]).filter(([, p]) => p.length));
+}
 
-// Madrid a veces tarda en generar la agenda (unos 2,5 MB): hasta 40 s por intento y un reintento.
-// En total queda por debajo del límite de tiempo de las edge functions (150 s).
+// Hoy en Madrid ('YYYY-MM-DD')
+const todayInMadrid = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Madrid' }).format(new Date());
+
+// ---------- Agenda de Madrid ----------
+// Madrid a veces tarda en generar la agenda (unos 2,5 MB). Nadie está esperando, así que hay margen:
+// hasta 60 s por intento y un reintento, por debajo del límite de las edge functions (150 s).
+// Si aun así falla, el cron vuelve a llamar un par de horas después.
 const ATTEMPTS = 2;
-const TIMEOUT_MS = 40000;
+const TIMEOUT_MS = 60000;
 
 async function download(): Promise<unknown[]> {
   const res = await fetch(AGENDA_URL, { signal: AbortSignal.timeout(TIMEOUT_MS) });
@@ -179,56 +187,68 @@ async function download(): Promise<unknown[]> {
 }
 
 async function agenda(): Promise<unknown[]> {
-  if (cache && Date.now() - cache.at < CACHE_MS) return cache.events;
   let lastError: unknown;
   for (let attempt = 1; attempt <= ATTEMPTS; attempt++) {
     try {
-      const events = await download();
-      cache = { at: Date.now(), events };
-      return events;
+      return await download();
     } catch (err) {
       lastError = err;
       console.warn(`Agenda de Madrid: intento ${attempt} de ${ATTEMPTS} fallido:`, err);
     }
   }
-  if (cache) return cache.events;   // mejor la copia anterior que nada
   throw lastError;
 }
 
-// ---------- Petición ----------
-const CORS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS'
-};
-const json = (data: unknown, status = 200) =>
-  new Response(JSON.stringify(data), { status, headers: { ...CORS, 'Content-Type': 'application/json' } });
-
-// El token tiene que ser de un usuario con sesión (la clave pública "anon" no vale)
-async function signedIn(req: Request) {
-  const auth = req.headers.get('Authorization') ?? '';
-  if (!auth.startsWith('Bearer ')) return false;
-  const apikey = ANON_KEY || req.headers.get('apikey') || '';
-  const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, { headers: { Authorization: auth, apikey } });
-  if (!res.ok) return false;
-  const user = await res.json().catch(() => null);
-  return Boolean(user?.id);
+// ---------- Base de datos (API REST de Supabase con la clave de servicio) ----------
+async function replaceDays(days: Record<string, Plan[]>): Promise<number> {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/replace_leisure_days`, {
+    method: 'POST',
+    headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ p_days: days })
+  });
+  const text = await res.text();
+  if (!res.ok) throw new Error(`Supabase replace_leisure_days: ${res.status} ${text}`);
+  return Number(JSON.parse(text));
 }
 
+// ---------- Petición ----------
+const json = (data: unknown, status = 200) =>
+  new Response(JSON.stringify(data, null, 2), { status, headers: { 'Content-Type': 'application/json' } });
+
 Deno.serve(async (req) => {
-  if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS });
   if (req.method !== 'POST') return json({ error: 'Usa POST' }, 405);
-  if (!(await signedIn(req))) return json({ error: 'No autorizado' }, 401);
+  if (!CRON_SECRET || req.headers.get('x-cron-secret') !== CRON_SECRET) return json({ error: 'No autorizado' }, 401);
 
   const body = await req.json().catch(() => ({}));
-  const date = String(body.date ?? '');
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || Number.isNaN(Date.parse(date))) return json({ error: 'Fecha no válida' }, 400);
+  const from = /^\d{4}-\d{2}-\d{2}$/.test(String(body.from ?? '')) ? String(body.from) : todayInMadrid();
+
+  let events: unknown[];
+  try {
+    events = await agenda();
+  } catch (err) {
+    console.error('Agenda de Madrid sin respuesta: la tabla sigue como estaba.', err);
+    return json({ error: 'No se ha podido descargar la agenda de Madrid', saved: false }, 502);
+  }
+
+  const days = daysFrom(events, from);
+  const summary = {
+    days: Object.keys(days).length,
+    plans: Object.values(days).reduce((n, p) => n + p.length, 0),
+    from,
+    until: Object.keys(days).at(-1) ?? null
+  };
+  if (!summary.days) {
+    console.error('La agenda de Madrid no trae planes desde', from, ': la tabla sigue como estaba.');
+    return json({ ...summary, error: 'La agenda de Madrid llega sin planes', saved: false }, 502);
+  }
+  if (body.dry_run === true) return json({ ...summary, saved: false, dry_run: true });
 
   try {
-    const events = await agenda();
-    return json({ date, until: lastDay(events), events: plansFor(events, date) });
+    await replaceDays(days);
   } catch (err) {
     console.error(err);
-    return json({ error: 'No se ha podido consultar la agenda de Madrid' }, 502);
+    return json({ ...summary, error: 'No se ha podido guardar la agenda', saved: false }, 500);
   }
+  console.log(`Agenda de ocio guardada: ${summary.days} días, ${summary.plans} planes (${summary.from} a ${summary.until}).`);
+  return json({ ...summary, saved: true });
 });
