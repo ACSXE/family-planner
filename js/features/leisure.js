@@ -5,11 +5,13 @@
  *   FP.leisure.close()
  *
  * Los planes salen de la agenda de eventos del Ayuntamiento de Madrid, según FP_CONFIG.leisure.source:
+ *   'supabase' → tabla leisure_days (migración 008), que actualiza cada madrugada la edge function
+ *                leisure-events; se lee con leisure_day(). Si falla o está vacía, se usa la copia local.
  *   'local'    → data/leisure-events.json (copia generada con tools/build-leisure-data.mjs)
- *   'supabase' → función de Supabase "leisure-events" (supabase/functions/leisure-events/index.ts)
  * Cada día se pide una sola vez mientras la aplicación está abierta.
  * Filtro: "Niños" (dirigidos a niños o familias; el de partida si hay alguno) o "Adultos" (el resto).
- * Solo llegan eventos de un día: los de varios días los descarta la función.
+ * Solo llegan eventos de un día: los de varios días los descarta la edge function al preparar la agenda.
+ * Pie: cuándo se actualizó la agenda y hasta qué día tiene planes.
  */
 window.FP = window.FP || {};
 
@@ -58,26 +60,33 @@ FP.leisure = (() => {
   const SLOW_TEXT = 'La agenda está tardando en cargar un poco mas de lo normal…';
   let localData = null;   // el fichero local se descarga una sola vez
 
-  // Pie: hasta qué día hay planes en la agenda
-  const setUntil = (iso) => {
-    if (/^\d{4}-\d{2}-\d{2}$/.test(iso || '')) $('leisure-foot').textContent = `Fuente: Agenda de eventos culturales del Ayuntamiento de Madrid (actualizada hasta el ${iso.split('-').reverse().join('/')})`;
+  // Pie: cuándo se actualizó la agenda y hasta qué día tiene planes
+  const ddmmyyyy = (iso) => iso.slice(0, 10).split('-').reverse().join('/');
+  const setFooter = (until, updated) => {
+    // updated: un instante (tabla, se muestra en la fecha local) o una fecha 'YYYY-MM-DD' (copia local)
+    const updatedText = !updated ? '' : updated.length === 10 ? ddmmyyyy(updated) : FP.time.formatDateOf(updated);
+    const parts = [
+      updatedText ? `actualizada el ${updatedText}` : '',
+      /^\d{4}-\d{2}-\d{2}/.test(until || '') ? `con planes hasta el ${ddmmyyyy(until)}` : ''
+    ].filter(Boolean);
+    $('leisure-foot').textContent = 'Fuente: Agenda de eventos culturales del Ayuntamiento de Madrid' + (parts.length ? ` (${parts.join(', ')})` : '');
   };
 
   async function load(iso) {
     if (cache.has(iso)) return cache.get(iso);
     if (FP_CONFIG.leisure?.source !== 'supabase') return loadLocal(iso);
-    const { data, error } = await FP.db.functions.invoke('leisure-events', { body: { date: iso } });
-    if (error || !Array.isArray(data?.events)) {
-      // La función no ha podido (p. ej. Madrid no responde): se usa la copia local de respaldo
-      console.warn('Ocio y Tiempo Libre: la función no responde, se usa la copia local', error || data);
+    const { data, error } = await FP.db.rpc('leisure_day', { p_date: iso });
+    if (error || !Array.isArray(data?.plans) || !data.until) {
+      // Sin respuesta o tabla vacía (aún no se ha actualizado nunca): se usa la copia local de respaldo
+      console.warn('Ocio y Tiempo Libre: la agenda guardada no está disponible, se usa la copia local', error || data);
       return loadLocal(iso);
     }
-    if (data.until) setUntil(data.until);
-    cache.set(iso, data.events);
-    return data.events;
+    setFooter(data.until, data.updated_at);
+    cache.set(iso, data.plans);
+    return data.plans;
   }
 
-  // Copia local (data/leisure-events.json): origen 'local' o respaldo si la función falla
+  // Copia local (data/leisure-events.json): origen 'local' o respaldo si la tabla no está disponible
   async function loadLocal(iso) {
     if (!localData) {
       const res = await fetch(LOCAL_FILE).catch(() => null);
@@ -87,7 +96,7 @@ FP.leisure = (() => {
         throw new Error('No se han podido consultar los planes. Inténtalo de nuevo más tarde.');
       }
     }
-    setUntil(Object.keys(localData.dates).sort().at(-1));   // pie: hasta qué día hay planes en la copia
+    setFooter(Object.keys(localData.dates).sort().at(-1), localData.downloaded);   // pie: fecha de la copia y hasta qué día
     const events = localData.dates[iso] || [];
     cache.set(iso, events);
     return events;

@@ -1,6 +1,6 @@
 // Ocio y Tiempo Libre: botón solo al crear, ventana con los planes de la agenda (muestra real), filtro Niños/Adultos,
 // "Usar este plan" y aviso si la agenda no responde. Con los dos orígenes de FP_CONFIG.leisure.source:
-//   'supabase' → la edge function se ejecuta de verdad (tests/function/leisure.mjs)
+//   'supabase' → tabla leisure_days, llenada antes por la edge function de verdad (tests/function/leisure.mjs)
 //   'local'    → data/leisure-events.json, generado con tools/build-leisure-data.mjs desde la misma muestra
 // Lo lanza tests/run.sh.
 const { chromium } = require('playwright'); const { install } = require('./fake-supabase.js');
@@ -8,19 +8,25 @@ const { execFileSync } = require('child_process'); const path = require('path');
 const ROOT = path.join(__dirname, '../..');
 const base = process.env.BASE_URL;
 const res = []; const ok = (c, m) => res.push(`${c ? 'OK   ' : 'FALLO'} ${m}`);
-const runFn = (date) => execFileSync('node', ['--experimental-strip-types', '--no-warnings', path.join(__dirname, '../function/leisure.mjs'), date], { encoding: 'utf8' });
+// La edge function guarda la agenda de muestra en la base de datos temporal, como haría el cron
+const refresh = (from) => JSON.parse(execFileSync('node', ['--experimental-strip-types', '--no-warnings', path.join(__dirname, '../function/leisure.mjs'), 'refresh', from], { encoding: 'utf8' }));
+// "actualizada el": la fecha de hoy en la zona horaria del navegador (Madrid en la prueba), no la de UTC
+const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Madrid' }).format(new Date()).split('-').reverse().join('/');
 (async () => {
   const b = await chromium.launch(); const errs = [];
-  const ctx = await b.newContext({ viewport: { width: 1440, height: 900 } }); await install(ctx, '11111111-1111-1111-1111-111111111111');
+  const ctx = await b.newContext({ viewport: { width: 1440, height: 900 }, timezoneId: 'Europe/Madrid' }); await install(ctx, '11111111-1111-1111-1111-111111111111');
   // Origen 'supabase'
   const config = fs.readFileSync(path.join(ROOT, 'js/config.js'), 'utf8');
-  ok(/leisure: \{ source: 'supabase' \}/.test(config), "configuración publicada: planes de la edge function (source: 'supabase')");
+  ok(/leisure: \{ source: 'supabase' \}/.test(config), "configuración publicada: planes de la base de datos (source: 'supabase')");
+  const stored = refresh('2026-11-01');
+  ok(stored.saved === true && stored.days === 2, `la edge function guarda la agenda de muestra (${stored.days} días, ${stored.plans} planes)`);
+  // Peticiones a leisure_day(): se cuentan y se pueden retrasar o hacer fallar; si no, las atiende fake-supabase.js
   let fail = false, delay = 0; const asked = [];
-  await ctx.route('**/functions/v1/leisure-events', async (route) => {
-    const { date } = route.request().postDataJSON(); asked.push(date);
+  await ctx.route('**/rest/v1/rpc/leisure_day', async (route) => {
+    asked.push(route.request().postDataJSON().p_date);
     if (delay) await new Promise((r) => setTimeout(r, delay));
-    if (fail) return route.fulfill({ status: 502, json: { error: 'No se ha podido consultar la agenda de Madrid' } });
-    route.fulfill({ status: 200, contentType: 'application/json', body: runFn(date) });
+    if (fail) return route.fulfill({ status: 500, json: { code: 'XX000', message: 'Fallo simulado', details: null, hint: null } });
+    return route.fallback();
   });
   const p = await ctx.newPage(); p.on('pageerror', (e) => errs.push(e.message));
   await p.goto(base + 'index.html#planner'); await p.waitForSelector('#col1 .month'); await p.waitForTimeout(800);
@@ -36,7 +42,7 @@ const runFn = (date) => execFileSync('node', ['--experimental-strip-types', '--n
   await p.click('#btn-leisure'); await p.waitForSelector('#leisure-list .plan');
   ok(asked.at(-1) === '2026-11-21', `pide los planes de la fecha del formulario (${asked.at(-1)})`);
   ok((await p.textContent('#leisure-date')) === 'sábado, 21 de noviembre de 2026', 'cabecera con la fecha larga');
-  ok((await p.textContent('#leisure-foot')).endsWith('(actualizada hasta el 22/11/2026)'), 'supabase: el pie indica hasta cuándo hay planes');
+  ok((await p.textContent('#leisure-foot')) === `Fuente: Agenda de eventos culturales del Ayuntamiento de Madrid (actualizada el ${today}, con planes hasta el 22/11/2026)`, `pie: cuándo se actualizó y hasta cuándo hay planes ("${await p.textContent('#leisure-foot')}")`);
   const count = async () => p.locator('#leisure-list .plan').count();
   ok((await count()) === 5 && (await p.getAttribute('#leisure-filter-kids', 'aria-pressed')) === 'true', 'de partida, "Niños": 5 planes (sin los de varios días)');
   ok((await p.textContent('#leisure-filter-kids')) === 'Niños (5)' && (await p.textContent('#leisure-filter-adults')) === 'Adultos (4)' && await p.locator('#leisure-filter-all, #leisure-long').count() === 0, 'solo dos filtros: Niños (5) y Adultos (4)');
@@ -103,7 +109,14 @@ const runFn = (date) => execFileSync('node', ['--experimental-strip-types', '--n
   fail = true; await p.fill('#f-date', '2026-11-28'); await p.click('#btn-leisure'); await p.waitForSelector('#leisure-list .plan');
   const copy = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/leisure-events.json'), 'utf8'));
   const copyUntil = Object.keys(copy.dates).sort().at(-1).split('-').reverse().join('/');
-  ok((await p.locator('#leisure-list .plan').count()) === (copy.dates['2026-11-28'] || []).filter((e) => e.kids).length && (await p.textContent('#leisure-foot')).endsWith(`(actualizada hasta el ${copyUntil})`), `la función falla: planes de la copia local y su fecha en el pie (${copyUntil})`);
+  const copyFoot = `(actualizada el ${copy.downloaded.split('-').reverse().join('/')}, con planes hasta el ${copyUntil})`;
+  ok((await p.locator('#leisure-list .plan').count()) === (copy.dates['2026-11-28'] || []).filter((e) => e.kids).length && (await p.textContent('#leisure-foot')).endsWith(copyFoot), `la base de datos falla: planes de la copia local y sus fechas en el pie ${copyFoot}`);
+  await p.keyboard.press('Escape');
+  // Tabla vacía (aún no se ha actualizado nunca): también la copia local
+  fail = false; execFileSync('psql', ['-X', '-q', '-c', 'delete from public.leisure_days']);
+  await p.fill('#f-date', '2026-11-29'); await p.click('#btn-leisure'); await p.waitForSelector('#leisure-status:not(.is-loading), #leisure-list:not([hidden])');
+  ok((await p.textContent('#leisure-foot')).endsWith(copyFoot), 'tabla vacía: se usa la copia local');
+  fail = true;
   await p.keyboard.press('Escape');
   // Si fallan la función y la copia: aviso
   await ctx.route('**/data/leisure-events.json', (r) => r.fulfill({ status: 404, body: '' }));
@@ -126,7 +139,7 @@ const runFn = (date) => execFileSync('node', ['--experimental-strip-types', '--n
   await p2.click('button.day[data-date="2026-11-21"]'); await p2.waitForTimeout(300); await p2.click('.slot[data-min="600"]'); await p2.waitForTimeout(300);
   await p2.click('#btn-leisure'); await p2.waitForSelector('#leisure-list .plan');
   ok((await p2.textContent('#leisure-filter-kids')) === 'Niños (5)' && (await p2.textContent('#leisure-filter-adults')) === 'Adultos (4)' && calls === 0, 'local: mismos planes que la función (Niños 5, Adultos 4) y sin llamar a Supabase');
-  ok((await p2.textContent('#leisure-foot')) === 'Fuente: Agenda de eventos culturales del Ayuntamiento de Madrid (actualizada hasta el 22/11/2026)', `local: el pie indica hasta cuándo hay planes ("${await p2.textContent('#leisure-foot')}")`);
+  ok((await p2.textContent('#leisure-foot')) === 'Fuente: Agenda de eventos culturales del Ayuntamiento de Madrid (actualizada el 01/11/2026, con planes hasta el 22/11/2026)', `local: el pie indica la fecha de la copia y hasta cuándo hay planes ("${await p2.textContent('#leisure-foot')}")`);
   await p2.keyboard.press('Escape'); await p2.fill('#f-date', '2027-06-05'); await p2.click('#btn-leisure'); await p2.waitForSelector('#leisure-status:not([hidden]):not(.is-loading)');
   ok((await p2.textContent('#leisure-status-text')) === 'No hay planes publicados para este día.' && files === 1, 'local: fecha sin planes avisa, y el fichero se descarga una sola vez');
   await ctx2.close();

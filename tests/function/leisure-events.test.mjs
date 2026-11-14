@@ -1,22 +1,46 @@
-// Edge function "leisure-events": planes de la agenda de Madrid para un día. Lo lanza tests/run.sh.
-import { call, mod, stats, setAgendaFail } from './leisure.mjs';
+// Edge function "leisure-events": prepara la agenda de Madrid y la guarda en leisure_days (migración 008).
+// La agenda es una muestra real (fixtures/agenda-madrid.json). Lo lanza tests/run.sh.
+import { call, mod, stats, sql, fixture, setAgendaFail, setSaveFail } from './leisure.mjs';
 const res = []; const ok = (c, m) => res.push(`${c ? 'OK   ' : 'FALLO'} ${m}`);
+console.error = console.warn = console.log = () => {};
+const table = () => sql(`select coalesce(json_agg(json_build_object('date', date, 'n', jsonb_array_length(plans), 'at', updated_at) order by date), '[]') from public.leisure_days`);
 try {
-  // Acceso
-  ok((await call({ date: '2026-11-21' }, { token: null })).status === 401, 'sin sesión: 401');
-  ok((await call({ date: '2026-11-21' }, { token: 'anon-key' })).status === 401, 'con la clave pública (anon) en vez de una sesión: 401');
-  const pre = await call(null, { method: 'OPTIONS', token: null });
-  ok(pre.status === 200 && pre.headers.get('access-control-allow-origin') === '*', 'responde a la comprobación CORS del navegador');
-  ok((await call({ date: '21/11/2026' })).status === 400 && (await call({})).status === 400, 'fecha mal escrita o sin fecha: 400');
+  // Acceso: solo el cron (cabecera x-cron-secret)
+  ok((await call({}, { secret: null })).status === 401 && (await call({}, { secret: 'otra' })).status === 401, 'sin la contraseña del cron (o con otra): 401');
+  ok((await call({}, { method: 'GET' })).status === 405, 'GET: 405');
 
-  // Eventos del sábado 21/11/2026 (muestra real de la agenda). La primera descarga falla: se reintenta
-  console.error = console.warn = () => {};
-  setAgendaFail(1);
-  const r = await call({ date: '2026-11-21' });
-  ok(r.status === 200 && stats.agenda === 2, `si la primera descarga de Madrid falla, se reintenta (${stats.agenda} descargas)`);
-  const ev = r.body.events; const t = (s) => ev.find((e) => e.title.startsWith(s));
-  ok(r.body.until === '2026-11-22', `último día con planes en la agenda: ${r.body.until}`);
-  ok(r.status === 200 && ev.length === 9, `21/11/2026: 9 eventos de un solo día (${ev.length})`);
+  // Prueba sin guardar
+  const dry = await call({ dry_run: true, from: '2026-11-21' });
+  ok(dry.status === 200 && dry.body.days === 2 && dry.body.plans === 10 && dry.body.until === '2026-11-22' && dry.body.saved === false, `dry_run: cuenta sin guardar (${JSON.stringify(dry.body)})`);
+  ok(table().length === 0, 'dry_run no toca la tabla');
+
+  // Guardar. La primera descarga falla: se reintenta
+  setAgendaFail(1); const before = stats.agenda;
+  const r = await call({ from: '2026-11-21' });
+  ok(r.status === 200 && r.body.saved === true && stats.agenda - before === 2, `si la primera descarga de Madrid falla, se reintenta y se guarda (${stats.agenda - before} descargas)`);
+  const t1 = table();
+  ok(t1.length === 2 && t1[0].date === '2026-11-21' && t1[0].n === 9 && t1[1].n === 1, `tabla: 21/11 con 9 planes y 22/11 con 1 (${JSON.stringify(t1.map((d) => [d.date, d.n]))})`);
+
+  // Desde otro día: los días anteriores desaparecen
+  await call({ from: '2026-11-22' });
+  ok(table().map((d) => d.date).join() === '2026-11-22', 'al actualizar, los días pasados se borran');
+
+  // Si Madrid no responde en ningún intento, o no trae planes, o falla al guardar: la tabla no cambia
+  const kept = JSON.stringify(table());
+  setAgendaFail(2);
+  const down = await call({ from: '2026-11-21' });
+  ok(down.status === 502 && down.body.saved === false && JSON.stringify(table()) === kept, 'Madrid no responde en los 2 intentos: 502 y la tabla sigue como estaba');
+  const empty = await call({ from: '2027-06-01' });
+  ok(empty.status === 502 && empty.body.saved === false && JSON.stringify(table()) === kept, 'la agenda llega sin planes: 502 y la tabla sigue como estaba');
+  setSaveFail(true);
+  const nosave = await call({ from: '2026-11-21' });
+  ok(nosave.status === 500 && nosave.body.saved === false && JSON.stringify(table()) === kept, 'falla al guardar: 500 y la tabla sigue como estaba');
+  setSaveFail(false);
+
+  // Los planes de un día (misma preparación que guarda la función)
+  const events = JSON.parse(fixture)['@graph'];
+  const ev = mod.daysFrom(events, '2026-11-01')['2026-11-21']; const t = (s) => ev.find((e) => e.title.startsWith(s));
+  ok(ev.length === 9, `21/11/2026: 9 eventos de un solo día (${ev.length})`);
   ok(ev.filter((e) => e.kids).length === 5, `5 para niños o familias (${ev.filter((e) => e.kids).length})`);
   ok(!t('19ª edición') && !t('Alicia') && !t('Artemisia') && !ev.some((e) => e.title.startsWith('Actividades mensuales')), 'los eventos de varios días (exposiciones, ciclos, festivales) no salen');
   ok(t('Entrega de premios')?.time === '', 'evento de un día sin hora: hora por determinar');
@@ -46,11 +70,7 @@ try {
   const withEnd = mod.toPlan({ time: '18:00', dtstart: '2026-11-21 18:00:00.0', dtend: '2026-11-21 19:30:00.0' });
   ok(withEnd.end === '19:30' && mod.toPlan({ time: '18:00', dtstart: '2026-11-21 18:00:00.0', dtend: '2026-11-21 23:59:00.0' }).end === '', 'hora de fin solo si la agenda la trae (23:59 = sin hora de fin)');
 
-  // La agenda se descarga una vez y se reutiliza; si Madrid falla se usa la copia anterior
-  const before = stats.agenda; await call({ date: '2026-11-22' });
-  ok(stats.agenda === before, `segunda consulta sin volver a descargar (${stats.agenda} descarga)`);
-  setAgendaFail(true);
-  ok((await call({ date: '2026-11-21' })).status === 200, 'si Madrid no responde, sigue sirviendo la copia guardada');
 } catch (e) { res.push('PARADA: ' + e.message); }
+console.log = (...a) => process.stdout.write(a.join(' ') + '\n');
 console.log(res.join('\n'));
 process.exitCode = res.some((l) => /^(FALLO|PARADA)/.test(l)) ? 1 : 0;

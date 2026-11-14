@@ -57,6 +57,9 @@ async function install(ctx, userId, log = []) {
       const b = req.postDataJSON();
       r = sql(`select to_json(public.save_activity(${q(b.p_activity_id)}::uuid, ${q(b.p_name)}, ${q(b.p_description)}, ${q(b.p_date)}::date, ${q(b.p_start_time)}::time, ${q(b.p_end_time)}::time, ${arr(b.p_attendees)}, ${arr(b.p_companions)}, ${b.p_from_plan === true}))`, userId);
       log.push({ rpc: b, result: r });
+    } else if (method === 'POST' && path === 'rpc/leisure_day') {
+      const b = req.postDataJSON();
+      r = sql(`select public.leisure_day(${q(b.p_date)}::date)`, userId);
     } else if (method === 'DELETE' && path === 'activities') {
       const id = (p.get('activity_id') || '').replace(/^eq\./, '');
       r = sql(`with d as (delete from public.activities where activity_id = ${q(id)} returning activity_id) select coalesce(json_agg(d), '[]') from d`, userId);
