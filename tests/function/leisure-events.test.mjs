@@ -12,6 +12,7 @@ try {
   // Eventos del sábado 21/11/2026 (muestra real de la agenda)
   const r = await call({ date: '2026-11-21' });
   const ev = r.body.events; const t = (s) => ev.find((e) => e.title.startsWith(s));
+  ok(r.body.until === '2026-11-22', `último día con planes en la agenda: ${r.body.until}`);
   ok(r.status === 200 && ev.length === 9, `21/11/2026: 9 eventos de un solo día (${ev.length})`);
   ok(ev.filter((e) => e.kids).length === 5, `5 para niños o familias (${ev.filter((e) => e.kids).length})`);
   ok(!t('19ª edición') && !t('Alicia') && !t('Artemisia') && !ev.some((e) => e.title.startsWith('Actividades mensuales')), 'los eventos de varios días (exposiciones, ciclos, festivales) no salen');

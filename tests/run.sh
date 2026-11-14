@@ -90,6 +90,8 @@ out=$(timeout 180 node --experimental-strip-types --no-warnings "$TESTS/function
 report "function/weekly-digest" "$out"
 out=$(timeout 120 node --experimental-strip-types --no-warnings "$TESTS/function/leisure-events.test.mjs" 2>&1 || echo "PARADA: la prueba no ha terminado bien")
 report "function/leisure-events" "$out"
+out=$(timeout 120 node --experimental-strip-types --no-warnings "$TESTS/function/leisure-noanon.test.mjs" 2>&1 || echo "PARADA: la prueba no ha terminado bien")
+report "function/leisure-noanon" "$out"
 
 echo "== Aplicación (Chromium)"
 python3 -m http.server 8199 --bind 127.0.0.1 --directory "$ROOT" >/dev/null 2>&1 &

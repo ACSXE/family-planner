@@ -53,6 +53,11 @@ FP.leisure = (() => {
   const LOCAL_FILE = 'data/leisure-events.json';
   let localData = null;   // el fichero local se descarga una sola vez
 
+  // Pie: hasta qué día hay planes en la agenda
+  const setUntil = (iso) => {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(iso || '')) $('leisure-foot').textContent = `Fuente: Agenda de eventos culturales del Ayuntamiento de Madrid (hasta el ${iso.split('-').reverse().join('/')})`;
+  };
+
   async function load(iso) {
     if (cache.has(iso)) return cache.get(iso);
     if (FP_CONFIG.leisure?.source !== 'supabase') {
@@ -64,8 +69,7 @@ FP.leisure = (() => {
           throw new Error('No se han podido consultar los planes. Inténtalo de nuevo más tarde.');
         }
         // Pie: hasta qué día hay planes en la copia
-        const last = Object.keys(localData.dates).sort().at(-1);
-        if (last) $('leisure-foot').textContent = `Fuente: Agenda de eventos culturales del Ayuntamiento de Madrid (hasta el ${last.split('-').reverse().join('/')})`;
+        setUntil(Object.keys(localData.dates).sort().at(-1));
       }
       const events = localData.dates[iso] || [];
       cache.set(iso, events);
@@ -76,6 +80,7 @@ FP.leisure = (() => {
       console.error(error || data);
       throw new Error('No se han podido consultar los planes. Inténtalo de nuevo más tarde.');
     }
+    if (data.until) setUntil(data.until);
     cache.set(iso, data.events);
     return data.events;
   }

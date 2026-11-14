@@ -9,11 +9,12 @@
  * La agenda se guarda en memoria unas horas para no descargarla en cada petición.
  *
  * Solo responde a usuarios con sesión iniciada (comprueba el token con Supabase Auth).
- * No necesita secretos: SUPABASE_URL y SUPABASE_ANON_KEY los pone Supabase automáticamente.
+ * No necesita secretos: SUPABASE_URL (y SUPABASE_ANON_KEY, si existe) los pone Supabase automáticamente;
+ * si no hay SUPABASE_ANON_KEY se usa la clave pública que envía la aplicación (cabecera apikey).
  * Opcional: AGENDA_URL para usar otra dirección de la agenda (mismo formato).
  *
  * Petición:  POST { "date": "2026-11-21" }
- * Respuesta: { "date": "2026-11-21", "events": [Plan, …] }   ordenados por hora (los de hora por determinar al final)
+ * Respuesta: { "date": "2026-11-21", "until": "2027-02-17", "events": [Plan, …] }   until = último día con planes en la agenda;   ordenados por hora (los de hora por determinar al final)
  */
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? '';
@@ -149,6 +150,9 @@ export function toPlan(e: any): Plan {
 // deno-lint-ignore no-explicit-any
 export const oneDay = (e: any) => dayOf(e.dtstart) === (dayOf(e.dtend) || dayOf(e.dtstart));
 
+// Último día con algún evento de un solo día (para el pie de la ventana)
+export const lastDay = (events: unknown[]) => events.filter(oneDay).map((e) => dayOf((e as { dtstart?: string }).dtstart)).sort().at(-1) ?? '';
+
 export function plansFor(events: unknown[], date: string): Plan[] {
   return events.filter((e) => oneDay(e) && happensOn(e, date)).map(toPlan)
     .sort((a, b) => (a.time || '99').localeCompare(b.time || '99') || a.title.localeCompare(b.title, 'es'));
@@ -187,7 +191,8 @@ const json = (data: unknown, status = 200) =>
 async function signedIn(req: Request) {
   const auth = req.headers.get('Authorization') ?? '';
   if (!auth.startsWith('Bearer ')) return false;
-  const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, { headers: { Authorization: auth, apikey: ANON_KEY } });
+  const apikey = ANON_KEY || req.headers.get('apikey') || '';
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, { headers: { Authorization: auth, apikey } });
   if (!res.ok) return false;
   const user = await res.json().catch(() => null);
   return Boolean(user?.id);
@@ -203,7 +208,8 @@ Deno.serve(async (req) => {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || Number.isNaN(Date.parse(date))) return json({ error: 'Fecha no válida' }, 400);
 
   try {
-    return json({ date, events: plansFor(await agenda(), date) });
+    const events = await agenda();
+    return json({ date, until: lastDay(events), events: plansFor(events, date) });
   } catch (err) {
     console.error(err);
     return json({ error: 'No se ha podido consultar la agenda de Madrid' }, 502);

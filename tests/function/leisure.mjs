@@ -4,7 +4,8 @@
 import fs from 'node:fs';
 const fnPath = new URL('../../supabase/functions/leisure-events/index.ts', import.meta.url).href;
 const AGENDA = 'https://datos.madrid.es/egob/catalogo/206974-0-agenda-eventos-culturales-100.json';
-const ENV = { SUPABASE_URL: 'https://local.supabase', SUPABASE_ANON_KEY: 'anon-key' };
+// globalThis.LEISURE_NO_ANON = true antes de importar: Supabase sin SUPABASE_ANON_KEY (proyectos con claves nuevas)
+const ENV = { SUPABASE_URL: 'https://local.supabase', ...(globalThis.LEISURE_NO_ANON ? {} : { SUPABASE_ANON_KEY: 'anon-key' }) };
 const fixture = fs.readFileSync(new URL('./fixtures/agenda-madrid.json', import.meta.url), 'utf8');
 let handler;
 globalThis.Deno = { env: { get: (k) => ENV[k] }, serve: (h) => { handler = h; } };
@@ -12,7 +13,7 @@ export const stats = { agenda: 0 }; let agendaFail = false;
 globalThis.fetch = async (url, init = {}) => {
   url = String(url);
   if (url === ENV.SUPABASE_URL + '/auth/v1/user') {
-    return init.headers.Authorization === 'Bearer token-ok' && init.headers.apikey === 'anon-key'
+    return init.headers.Authorization === 'Bearer token-ok' && ['anon-key', 'sb_publishable_test'].includes(init.headers.apikey)
       ? Response.json({ id: '11111111-1111-1111-1111-111111111111' }) : Response.json({ msg: 'invalid JWT' }, { status: 401 });
   }
   if (url === AGENDA) {
@@ -23,8 +24,8 @@ globalThis.fetch = async (url, init = {}) => {
 };
 export const mod = await import(fnPath);
 export const setAgendaFail = (v) => { agendaFail = v; };
-export async function call(body, { token = 'token-ok', method = 'POST' } = {}) {
-  const headers = token ? { Authorization: `Bearer ${token}` } : {};
+export async function call(body, { token = 'token-ok', method = 'POST', apikey = 'sb_publishable_test' } = {}) {
+  const headers = { ...(token ? { Authorization: `Bearer ${token}` } : {}), ...(apikey ? { apikey } : {}) };
   const res = await handler(new Request('http://fn', { method, headers, body: method === 'POST' ? JSON.stringify(body) : undefined }));
   return { status: res.status, headers: res.headers, body: await res.json().catch(() => null) };
 }

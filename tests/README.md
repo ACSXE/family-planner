@@ -16,6 +16,7 @@ No se conecta a Supabase ni envía correos:
 - `db/supabase_stub.sql` imita lo mínimo de Supabase (roles, `auth.users`, `auth.uid()`).
 - `app/fake-supabase.js` responde a las llamadas de la aplicación consultando el PostgreSQL temporal.
 - `function/harness.mjs` ejecuta la edge function del aviso semanal en Node con Resend simulado.
+- `function/leisure-noanon.test.mjs` prueba `leisure-events` en un proyecto sin `SUPABASE_ANON_KEY` (claves nuevas `sb_publishable_…`).
 - `function/leisure.mjs` ejecuta `leisure-events` en Node con la agenda de `function/fixtures/agenda-madrid.json` (20 eventos reales de la agenda de noviembre de 2026).
 
 Las cuentas de prueba son `alberto@example.com` y `laura@example.com`.

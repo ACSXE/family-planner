@@ -36,6 +36,7 @@ const runFn = (date) => execFileSync('node', ['--experimental-strip-types', '--n
   await p.click('#btn-leisure'); await p.waitForSelector('#leisure-list .plan');
   ok(asked.at(-1) === '2026-11-21', `pide los planes de la fecha del formulario (${asked.at(-1)})`);
   ok((await p.textContent('#leisure-date')) === 'sábado, 21 de noviembre de 2026', 'cabecera con la fecha larga');
+  ok((await p.textContent('#leisure-foot')).endsWith('(hasta el 22/11/2026)'), 'supabase: el pie indica hasta cuándo hay planes');
   const count = async () => p.locator('#leisure-list .plan').count();
   ok((await count()) === 5 && (await p.getAttribute('#leisure-filter-kids', 'aria-pressed')) === 'true', 'de partida, "Niños": 5 planes (sin los de varios días)');
   ok((await p.textContent('#leisure-filter-kids')) === 'Niños (5)' && (await p.textContent('#leisure-filter-adults')) === 'Adultos (4)' && await p.locator('#leisure-filter-all, #leisure-long').count() === 0, 'solo dos filtros: Niños (5) y Adultos (4)');
