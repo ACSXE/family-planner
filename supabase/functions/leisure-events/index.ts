@@ -9,6 +9,8 @@
  * La agenda se guarda en memoria unas horas para no descargarla en cada petición.
  *
  * Solo responde a usuarios con sesión iniciada (comprueba el token con Supabase Auth).
+ * En Supabase se despliega con "Verify JWT" DESACTIVADO: si no, la comprobación CORS del navegador
+ * (OPTIONS, sin token) se rechaza antes de llegar aquí. La sesión la comprueba esta función.
  * No necesita secretos: SUPABASE_URL (y SUPABASE_ANON_KEY, si existe) los pone Supabase automáticamente;
  * si no hay SUPABASE_ANON_KEY se usa la clave pública que envía la aplicación (cabecera apikey).
  * Opcional: AGENDA_URL para usar otra dirección de la agenda (mismo formato).

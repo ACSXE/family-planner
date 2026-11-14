@@ -14,8 +14,7 @@ const runFn = (date) => execFileSync('node', ['--experimental-strip-types', '--n
   const ctx = await b.newContext({ viewport: { width: 1440, height: 900 } }); await install(ctx, '11111111-1111-1111-1111-111111111111');
   // Origen 'supabase'
   const config = fs.readFileSync(path.join(ROOT, 'js/config.js'), 'utf8');
-  ok(/leisure: \{ source: 'local' \}/.test(config), "configuración publicada: planes del fichero local (source: 'local')");
-  await ctx.route('**/js/config.js', (r) => r.fulfill({ contentType: 'text/javascript', body: config.replace("source: 'local'", "source: 'supabase'") }));
+  ok(/leisure: \{ source: 'supabase' \}/.test(config), "configuración publicada: planes de la edge function (source: 'supabase')");
   let fail = false; const asked = [];
   await ctx.route('**/functions/v1/leisure-events', async (route) => {
     const { date } = route.request().postDataJSON(); asked.push(date);
@@ -95,6 +94,7 @@ const runFn = (date) => execFileSync('node', ['--experimental-strip-types', '--n
   const tmp = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'fp-leisure-')), 'leisure-events.json');
   execFileSync('node', ['--experimental-strip-types', '--no-warnings', path.join(ROOT, 'tools/build-leisure-data.mjs'), path.join(ROOT, 'tests/function/fixtures/agenda-madrid.json'), tmp, '2026-11-01']);
   const ctx2 = await b.newContext({ viewport: { width: 1440, height: 900 } }); await install(ctx2, '11111111-1111-1111-1111-111111111111');
+  await ctx2.route('**/js/config.js', (r) => r.fulfill({ contentType: 'text/javascript', body: config.replace("source: 'supabase'", "source: 'local'") }));
   let files = 0, missing = false;
   await ctx2.route('**/data/leisure-events.json', (r) => { files++; return missing ? r.fulfill({ status: 404, body: '' }) : r.fulfill({ path: tmp }); });
   let calls = 0; await ctx2.route('**/functions/v1/**', (r) => { calls++; r.abort(); });
@@ -108,6 +108,7 @@ const runFn = (date) => execFileSync('node', ['--experimental-strip-types', '--n
   ok((await p2.textContent('#leisure-status-text')) === 'No hay planes publicados para este día.' && files === 1, 'local: fecha sin planes avisa, y el fichero se descarga una sola vez');
   await ctx2.close();
   const ctx3 = await b.newContext(); await install(ctx3, '11111111-1111-1111-1111-111111111111'); missing = true;
+  await ctx3.route('**/js/config.js', (r) => r.fulfill({ contentType: 'text/javascript', body: config.replace("source: 'supabase'", "source: 'local'") }));
   await ctx3.route('**/data/leisure-events.json', (r) => r.fulfill({ status: 404, body: '' }));
   const p3 = await ctx3.newPage(); p3.on('pageerror', (e) => errs.push(e.message));
   await p3.goto(base + 'index.html#planner'); await p3.waitForSelector('#col1 .month'); await p3.waitForTimeout(800);

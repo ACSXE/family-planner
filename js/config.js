@@ -40,7 +40,7 @@ const FP_CONFIG = {
   //   'local'    → fichero data/leisure-events.json, una copia de la agenda de Madrid
   //                (se regenera con tools/build-leisure-data.mjs; no se actualiza sola)
   //   'supabase' → edge function leisure-events, con la agenda al día (hay que desplegarla antes)
-  leisure: { source: 'local' },
+  leisure: { source: 'supabase' },
 
   // Cierre de sesión por inactividad: minutos sin usar la aplicación y segundos de aviso previo
   // (el aviso dura como mucho la mitad del tiempo): a los 9 minutos sin actividad sale el aviso de 60 s.
