@@ -6,7 +6,7 @@ insert into auth.users (id, email) values ('99999999-9999-9999-9999-999999999999
 -- Tabla vacía (aún no se ha actualizado nunca)
 set role authenticated;
 select set_config('request.jwt.claim.sub', '11111111-1111-1111-1111-111111111111', false);
-select pg_temp.check(public.leisure_day('2026-11-21') = '{"date": "2026-11-21", "plans": [], "until": null, "updated_at": null}'::jsonb, 'tabla vacía: sin planes y until = null (la ventana usa la copia local)');
+select pg_temp.check(public.leisure_day('2026-11-21') = '{"date": "2026-11-21", "plans": [], "until": null, "updated_at": null}'::jsonb, 'tabla vacía: sin planes y until = null');
 reset role;
 
 -- La edge function (service_role) guarda la agenda de una vez
