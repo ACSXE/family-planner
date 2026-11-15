@@ -67,9 +67,6 @@ button { cursor: pointer; }
 .btn--primary:hover { background: var(--action-hover); }
 .btn--ghost { color: var(--action); border-color: var(--border-strong); background: var(--surface); }
 .btn--ghost:hover { background: var(--action-soft); }
-.btn--danger { color: var(--danger); border-color: #f2c4c4; background: var(--surface); margin-left: auto; }
-.btn--danger:hover { background: var(--danger-soft); }
-.btn--danger.is-armed { background: var(--danger); color: #fff; border-color: var(--danger); }
 .btn--block { width: 100%; }
 .btn:disabled { opacity: .6; cursor: progress; }
 .btn--icon { width: 40px; padding: 0; }

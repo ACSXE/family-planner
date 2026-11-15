@@ -81,7 +81,7 @@ Logic or styles used by more than one screen go to `js/core/` and `css/base.css`
 
 ### Colours and form fields
 
-- Buttons use `--action` (currently the app blue, `--primary`): filled buttons on that background, outline and icon buttons in that colour. Destructive actions (Eliminar) stay red. Changing `--action` in `css/base.css` recolours every button.
+- Buttons use `--action` (currently the app blue, `--primary`): filled buttons on that background, outline and icon buttons in that colour. Destructive actions stay red (the trash icon that deletes an activity). Changing `--action` in `css/base.css` recolours every button.
 - Field labels, field values, dropdowns and table column headers share one size, `--field-font-size` (13px), in the text colour; placeholders stay grey.
 
 ### Adding a report
@@ -146,7 +146,6 @@ Setup, once:
 When creating an activity, the sparkle button next to the close (X) of the right column opens a window with leisure plans for the date in the form, taken from the open-data cultural agenda of the City of Madrid ([dataset 206974](https://datos.madrid.es/dataset/206974-0-agenda-eventos-culturales-100), about three months of events). Only one-day events are shown: those lasting several days (exhibitions, seasons, festivals) are left out, as they are not planned as activities. Each row shows the time (start, and end when the agenda has it; "Por determinar" otherwise), place, address and price. Titles and these fields take one line each, cut with "…" when too long (the full text shows on mouse hover; on phones they wrap instead). Filter: "Niños" (events for children or families, the default when there is any) or "Adultos" (the rest). "Usar este plan" copies the title, the times (one hour proposed when there is no end time) and, as description, the event text followed by "Lugar:" and "Dirección:" (each value on the line below) into the activity, which is then saved as usual. The activity is saved with `from_plan` (migration 007), and anyone else who opens it sees the sparkle icon in the top right corner of its "Creada por / Creada el" box.
 
 - The plans come from the table `leisure_days` (migration 008), read with `leisure_day()` (only app users can read it; nobody can change it from the app). The footer shows when the agenda was last updated and the last day with plans. If the table cannot be read, the window says so; while it has never been filled, it shows "No hay planes publicados para este día".
-- While searching, after 8 s the text alternates every 5 s between "La agenda está tardando en cargar un poco mas de lo normal…" and "Buscando planes…".
 - Every night, `supabase/cron/leisure_refresh_cron.sql` calls the edge function `leisure-events` at 3:00 and 5:00 UTC (the 5:00 call is the retry and only runs if the agenda was not updated that day). The browser never calls Madrid nor the function. The function downloads the agenda (up to 60 s per attempt and one retry, as Madrid is sometimes slow), prepares the plans of each day from today on (one-day events only, only the fields the window shows; links kept only if they point to madrid.es) and replaces `leisure_days` in one go with `replace_leisure_days()`. If Madrid does not answer or something fails, the table is left as it was. It only answers with the `x-cron-secret` header (same `CRON_SECRET` as the weekly e-mail). For a test run without saving, call it with `{"dry_run": true}`.
 - Setup, once:
   1. Run `supabase/migrations/008_leisure_days.sql` in the SQL Editor.
@@ -177,7 +176,7 @@ After `idle.minutes` without using the app (clicks, taps, keys, mouse, scrolling
 
 | State | Fields | Header | Bottom right |
 |---|---|---|---|
-| Creating a new activity | editable | close (X) | Guardar |
+| Creating a new activity | editable | Ocio y Tiempo Libre (sparkles), close (X) | Guardar |
 | Viewing your own activity | locked | trash, close | Editar |
 | Editing your own activity | editable | trash, close | Guardar |
 | Viewing someone else's activity | locked, "Creada por …" notice | close | — |

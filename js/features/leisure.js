@@ -50,11 +50,6 @@ FP.leisure = (() => {
   let lastFocus = null;
   let onUse = null;
 
-  // Si tarda: a los 8 s el texto pasa a SLOW_TEXT y luego alterna con SEARCH_TEXT cada 5 s hasta que llegan los planes
-  const SLOW_MS = 8000;
-  const ALTERNATE_MS = 5000;
-  const SEARCH_TEXT = 'Buscando planes…';
-  const SLOW_TEXT = 'La agenda está tardando en cargar un poco mas de lo normal…';
 
   // Pie: cuándo se actualizó la agenda y hasta qué día tiene planes
   const ddmmyyyy = (iso) => iso.slice(0, 10).split('-').reverse().join('/');
@@ -161,17 +156,9 @@ FP.leisure = (() => {
     $('leisure-date').textContent = longDate(iso);
     $('leisure-count').textContent = 'Eventos';
     $('leisure-list').replaceChildren();
-    setState('loading', SEARCH_TEXT);
+    setState('loading', 'Buscando planes…');
     $('leisure-dialog').hidden = false;
     $('leisure-dialog').querySelector('.modal__box').focus();
-    // Si la agenda tarda, el texto alterna entre el aviso y "Buscando planes…"
-    let alternate = 0;
-    const toggle = () => {
-      if (ticket !== request || !$('leisure-status').classList.contains('is-loading')) return;
-      const text = $('leisure-status-text');
-      text.textContent = text.textContent === SLOW_TEXT ? SEARCH_TEXT : SLOW_TEXT;
-    };
-    const slow = setTimeout(() => { toggle(); alternate = setInterval(toggle, ALTERNATE_MS); }, SLOW_MS);
     try {
       const result = await load(iso);
       if (ticket !== request || $('leisure-dialog').hidden) return;
@@ -181,9 +168,6 @@ FP.leisure = (() => {
     } catch (err) {
       if (ticket !== request) return;
       setState('error', err.message);
-    } finally {
-      clearTimeout(slow);
-      clearInterval(alternate);
     }
     for (const value of Object.keys(FILTERS)) $(`leisure-filter-${value}`).onclick = () => { filter = value; render(iso); };
   }

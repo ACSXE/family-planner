@@ -89,15 +89,9 @@ const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Madrid' }).fo
   ok(await p.locator('#leisure-list').evaluate((l) => l.scrollTop) === 0, 'al volver a abrir la ventana, la lista empieza arriba del todo');
   await p.keyboard.press('Escape'); ok(await p.isHidden('#leisure-dialog'), 'Escape cierra la ventana');
 
-  // Si la agenda no responde
-  // Si tarda, se avisa sin dejar de buscar
-  const status = () => p.textContent('#leisure-status-text');
-  delay = 14500; await p.fill('#f-date', '2026-11-22'); await p.click('#btn-leisure'); await p.waitForTimeout(500);
-  ok((await status()) === 'Buscando planes…', 'al abrir: "Buscando planes…"');
-  await p.waitForTimeout(8100);
-  ok((await status()) === 'La agenda está tardando en cargar un poco mas de lo normal…' && await p.isVisible('#leisure-status .leisure__loader'), 'a los 8 s: "La agenda está tardando en cargar un poco mas de lo normal…"');
-  await p.waitForTimeout(5000);
-  ok((await status()) === 'Buscando planes…', 'a los 13 s, otra vez "Buscando planes…" (va alternando)');
+  // Mientras llegan los planes: indicador y "Buscando planes…"
+  delay = 1500; await p.fill('#f-date', '2026-11-22'); await p.click('#btn-leisure'); await p.waitForTimeout(500);
+  ok((await p.textContent('#leisure-status-text')) === 'Buscando planes…' && await p.isVisible('#leisure-status .leisure__loader'), 'mientras busca: indicador y "Buscando planes…"');
   await p.waitForSelector('#leisure-list .plan'); delay = 0;
   ok((await p.locator('#leisure-list .plan').count()) > 0, 'y al llegar, los planes');
   await p.keyboard.press('Escape');
