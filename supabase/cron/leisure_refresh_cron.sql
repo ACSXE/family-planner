@@ -5,7 +5,7 @@
 --   1. supabase/migrations/008_leisure_days.sql
 --   2. desplegar la edge function leisure-events (con "Verify JWT" desactivado)
 -- Usa la misma contraseña que el aviso semanal (secreto CRON_SECRET de las edge functions y
--- weekly_digest_cron_secret del Vault), que ya existen: no hay que crear nada más.
+-- cron_secret del Vault), que ya existen: no hay que crear nada más.
 -- Si ya estaba programado, al ejecutarlo de nuevo se sustituye la programación anterior.
 --
 -- Cuándo: cada día a las 3:00 y a las 5:00 UTC (4:00 y 6:00 en Madrid en invierno, 5:00 y 7:00 en verano).
@@ -26,7 +26,7 @@ select cron.schedule(
     url     := 'https://hdzeibaonokdcicqmuzw.supabase.co/functions/v1/leisure-events',
     headers := jsonb_build_object(
                  'Content-Type', 'application/json',
-                 'x-cron-secret', (select decrypted_secret from vault.decrypted_secrets where name = 'weekly_digest_cron_secret')),
+                 'x-cron-secret', (select decrypted_secret from vault.decrypted_secrets where name = 'cron_secret')),
     body    := '{}'::jsonb,
     timeout_milliseconds := 150000
   )

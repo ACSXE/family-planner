@@ -139,7 +139,7 @@ Setup, once:
 2. **Edge Functions → Deploy a new function → Via editor**, name `weekly-digest`, paste `supabase/functions/weekly-digest/index.ts` and deploy. In its settings, turn off **Verify JWT** (the function checks `x-cron-secret` instead).
 3. **Edge Functions → Secrets**: add `RESEND_API_KEY` (Resend key with sending access) and `CRON_SECRET` (a long random password).
 4. Test it from the function's **Test** panel: header `x-cron-secret`, body `{"member_id": 1, "week_of": "2026-11-16"}`.
-5. Store the same password in the Vault (`select vault.create_secret('…', 'weekly_digest_cron_secret');`) and run `supabase/cron/weekly_digest_cron.sql`.
+5. Store the same password in the Vault (`select vault.create_secret('…', 'cron_secret');`; all scheduled calls to edge functions use it) and run `supabase/cron/weekly_digest_cron.sql`.
 
 ## Ocio y Tiempo Libre
 

@@ -18,7 +18,8 @@ create extension if not exists pg_cron;
 -- La contraseña del cron se guarda en el Vault de Supabase, no en este fichero.
 -- Ejecuta UNA vez esta línea cambiando el texto por el mismo valor que pusiste
 -- en el secreto CRON_SECRET de la edge function:
---   select vault.create_secret('PEGA_AQUI_EL_MISMO_VALOR_QUE_CRON_SECRET', 'weekly_digest_cron_secret');
+--   select vault.create_secret('PEGA_AQUI_EL_MISMO_VALOR_QUE_CRON_SECRET', 'cron_secret');
+-- (cron_secret lo usan todas las tareas programadas que llaman a edge functions: también leisure_refresh_cron.sql)
 
 -- Programación (si ya existía, se sustituye)
 select cron.schedule(
@@ -29,7 +30,7 @@ select cron.schedule(
     url     := 'https://hdzeibaonokdcicqmuzw.supabase.co/functions/v1/weekly-digest',
     headers := jsonb_build_object(
                  'Content-Type', 'application/json',
-                 'x-cron-secret', (select decrypted_secret from vault.decrypted_secrets where name = 'weekly_digest_cron_secret')),
+                 'x-cron-secret', (select decrypted_secret from vault.decrypted_secrets where name = 'cron_secret')),
     body    := '{}'::jsonb,
     timeout_milliseconds := 30000
   );
